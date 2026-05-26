@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = 'https://api.logiztikalliance.com';
+const API_BASE = 'https://cloud.logiztikalliance.com:5005';
 const API_KEY = process.env.LOGIZTIK_API_KEY;
 const CUSTOMER_CODE = process.env.LOGIZTIK_CUSTOMER_CODE;
 
@@ -12,9 +12,11 @@ const client = axios.create({
   },
 });
 
-export async function getShipments(params?: Record<string, any>) {
+export async function getShipments() {
   try {
-    const response = await client.get('/v2/shipments', { params });
+    const today = new Date().toISOString().split('T')[0];
+    const endpoint = `/logCloudWS/api/ClientesExternosA/ListarTotalesGuiasPorClienteV2/${CUSTOMER_CODE}/${today}`;
+    const response = await client.get(endpoint);
     return response.data;
   } catch (error: any) {
     console.error('Error fetching shipments:', error.message);
@@ -24,8 +26,8 @@ export async function getShipments(params?: Record<string, any>) {
 
 export async function getBarcodes(code: string) {
   try {
-    const response = await client.get('/v2/barcodes', {
-      params: { code },
+    const response = await client.get('/logCloudWS/api/ClientesExternosA/BuscaCodigo', {
+      params: { codigo: code },
     });
     return response.data;
   } catch (error: any) {
@@ -36,7 +38,7 @@ export async function getBarcodes(code: string) {
 
 export async function getShipmentDetails(shipmentId: string) {
   try {
-    const response = await client.get(`/v2/shipments/${shipmentId}`);
+    const response = await client.get(`/logCloudWS/api/ClientesExternosA/DetallePorGuia/${shipmentId}`);
     return response.data;
   } catch (error: any) {
     console.error('Error fetching shipment details:', error.message);
