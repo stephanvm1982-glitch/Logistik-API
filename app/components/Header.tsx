@@ -1,5 +1,5 @@
 import React from 'react';
-import { Package, Search } from 'lucide-react';
+import { Package } from 'lucide-react';
 
 export default function Header() {
   return (
