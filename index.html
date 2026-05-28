@@ -546,8 +546,9 @@ function getTodayISO(){
 
 // ─── Moneyformatter ───
 function money(v){
-  const n=Number(String(v).replace(/\./g,'').replace(',','.'));
-  return isFinite(n)?'$ '+n.toLocaleString('nl-NL',{minimumFractionDigits:2,maximumFractionDigits:2}):val(v);
+  // If already a JS number, use directly; otherwise parse Dutch-formatted string ("1.234,56")
+  var n=typeof v==='number'?v:Number(String(v).replace(/\./g,'').replace(',','.'));
+  return isFinite(n)&&n!==0?'$ '+n.toLocaleString('nl-NL',{minimumFractionDigits:2,maximumFractionDigits:2}):'–';
 }
 function val(v){
   return v===null||v===undefined||v===''?'–':String(v);
