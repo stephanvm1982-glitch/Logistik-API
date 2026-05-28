@@ -778,6 +778,9 @@ function loadShipments(){
 }
 
 // \u2500\u2500\u2500 Init \u2500\u2500\u2500
+document.querySelectorAll('.reveal').forEach(function(el,i){
+  setTimeout(function(){el.classList.add('in');},i*60);
+});
 loadShipments();
 document.getElementById('clientName').textContent='Fresh from Source';
 document.getElementById('clientCode').textContent='CLIB113847';
