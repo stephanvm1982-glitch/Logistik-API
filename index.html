@@ -2,1074 +2,821 @@
 <html lang="nl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Zendingen &amp; Binnenkomsten &middot; Logiztik Viewer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Binnenkomsten &middot; Logiztik Viewer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    /* Primitives */
-    --p-blue-100:#dbeafe; --p-blue-500:#3b82f6; --p-blue-600:#2563eb;
-    --p-blue-700:#1d4ed8; --p-blue-900:#1e3a5f;
-    --p-slate-50:#f8fafc; --p-slate-100:#f1f5f9; --p-slate-200:#e2e8f0;
-    --p-slate-300:#cbd5e1; --p-slate-400:#94a3b8; --p-slate-500:#64748b;
-    --p-slate-600:#475569; --p-slate-700:#334155; --p-slate-800:#1e293b;
-    --p-slate-900:#0f172a;
-    --p-green-600:#16a34a; --p-amber-500:#f59e0b; --p-red-600:#dc2626;
+    --ink-0:#0a0f1c; --ink-1:#0e1424; --ink-line:rgba(255,255,255,.07);
+    --ink-txt:#cbd5e1; --ink-txt-dim:#7c899e; --ink-active:#3b82f6;
 
-    /* Semantic */
-    --color-brand:var(--p-blue-600); --color-brand-light:var(--p-blue-100);
-    --color-brand-dark:var(--p-blue-700);
-    --color-bg:var(--p-slate-50); --color-surface:#ffffff;
-    --color-surface-alt:var(--p-slate-100); --color-surface-hover:var(--p-slate-50);
-    --color-border:var(--p-slate-200); --color-border-strong:var(--p-slate-300);
-    --color-text:var(--p-slate-900); --color-text-muted:var(--p-slate-500);
-    --color-text-faint:var(--p-slate-400);
-    --color-success:var(--p-green-600); --color-success-bg:#dcfce7;
-    --color-warning:var(--p-amber-500); --color-warning-bg:#fef3c7;
-    --color-danger:var(--p-red-600); --color-danger-bg:#fee2e2;
+    --brand:#2563eb; --brand-d:#1d4ed8; --sky:#0ea5e9;
+    --bg:#f5f7fb; --surface:#fff; --surface-2:#f8fafc;
+    --line:#e7ebf2; --line-2:#d5dbe6;
+    --txt:#0f172a; --txt-mut:#64748b; --txt-faint:#94a3b8;
 
-    --font-display:'Plus Jakarta Sans',system-ui,sans-serif;
-    --font-body:'Inter',system-ui,sans-serif;
-    --font-mono:'JetBrains Mono','Consolas',monospace;
+    --geboekt:#64748b; --geboekt-bg:#f1f5f9;
+    --vertrokken:#f59e0b; --vertrokken-bg:#fef6e7;
+    --geland:#0ea5e9; --geland-bg:#e8f6fd;
+    --afgeleverd:#16a34a; --afgeleverd-bg:#e9f7ef;
 
-    --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px;
-    --space-5:20px; --space-6:24px; --space-8:32px; --space-10:40px;
-    --space-12:48px; --space-16:64px;
-
-    --radius-sm:4px; --radius-md:6px; --radius-lg:8px; --radius-xl:12px;
-    --radius-2xl:16px; --radius-full:9999px;
-
-    --shadow-xs:0 1px 2px rgba(0,0,0,.05);
-    --shadow-sm:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05);
-    --shadow-md:0 4px 6px rgba(0,0,0,.07),0 2px 4px rgba(0,0,0,.05);
-    --shadow-lg:0 10px 25px rgba(0,0,0,.08),0 4px 10px rgba(0,0,0,.05);
-
-    --dur-fast:150ms; --dur-base:250ms;
-    --ease-standard:cubic-bezier(.4,0,.2,1);
+    --r-sm:6px; --r:10px; --r-lg:14px; --r-xl:18px; --r-full:999px;
+    --sh-sm:0 1px 2px rgba(15,23,42,.06);
+    --sh:0 2px 8px rgba(15,23,42,.06),0 1px 2px rgba(15,23,42,.04);
+    --sh-lg:0 16px 40px rgba(15,23,42,.10),0 4px 12px rgba(15,23,42,.06);
+    --sh-brand:0 6px 16px rgba(37,99,235,.30);
+    --ease:cubic-bezier(.4,0,.2,1); --ease-out:cubic-bezier(.16,1,.3,1);
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+    --sans:'Manrope',system-ui,sans-serif;
   }
 
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-
+  html,body{height:100%}
   body{
-    font-family:var(--font-body);
-    background:var(--color-bg);
-    color:var(--color-text);
-    line-height:1.55;
+    font-family:var(--sans);
+    background:var(--bg);
+    color:var(--txt);
     -webkit-font-smoothing:antialiased;
+    font-size:14px;
+    line-height:1.45;
+    display:grid;
+    grid-template-columns:248px 1fr;
     min-height:100vh;
   }
+  button,input{font-family:inherit}
+  .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 
-  /* ---------- Topbar ---------- */
+  /* ─────────── SIDEBAR ─────────── */
+  .side{
+    background:linear-gradient(180deg,var(--ink-1),var(--ink-0));
+    color:var(--ink-txt);
+    border-right:1px solid var(--ink-line);
+    display:flex;
+    flex-direction:column;
+    position:sticky;
+    top:0;
+    height:100vh;
+    z-index:60;
+  }
+  .side-brand{display:flex;flex-direction:column;gap:9px;padding:20px 18px 18px;align-items:flex-start}
+  .logo-slot{
+    background:#fff;border-radius:12px;padding:8px 11px;display:flex;align-items:center;justify-content:center;
+    min-width:44px;min-height:44px;box-shadow:0 8px 18px rgba(0,0,0,.42),inset 0 0 0 1px rgba(0,0,0,.05)
+  }
+  .logo-slot img{display:block;height:30px;width:auto;max-width:168px;object-fit:contain}
+  .cargo-tag{
+    display:inline-flex;align-items:center;gap:7px;font-size:9.5px;color:var(--ink-txt-dim);
+    font-weight:800;letter-spacing:.2em;text-transform:uppercase
+  }
+  .cargo-tag::before{content:'';width:13px;height:2px;border-radius:2px;background:#2fae5f}
+  .nav{padding:8px 12px;display:flex;flex-direction:column;gap:2px;flex:1;overflow-y:auto}
+  .nav-cap{font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--ink-txt-dim);text-transform:uppercase;padding:14px 12px 6px}
+  .nav a{
+    display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:9px;
+    color:var(--ink-txt);text-decoration:none;font-weight:600;font-size:13.5px;
+    position:relative;transition:background .15s var(--ease),color .15s var(--ease)
+  }
+  .nav a svg{width:18px;height:18px;opacity:.8;flex-shrink:0}
+  .nav a:hover{background:rgba(255,255,255,.05);color:#fff}
+  .nav a.on{background:rgba(59,130,246,.16);color:#fff}
+  .nav a.on::before{
+    content:'';position:absolute;left:-12px;top:7px;bottom:7px;width:3px;
+    border-radius:0 3px 3px 0;background:var(--ink-active)
+  }
+  .nav a.on svg{opacity:1;color:#60a5fa}
+  .nav .cnt{
+    margin-left:auto;font-family:var(--mono);font-size:11px;font-weight:600;
+    background:rgba(255,255,255,.08);padding:1px 7px;border-radius:var(--r-full);color:var(--ink-txt-dim)
+  }
+  .side-foot{padding:12px;border-top:1px solid var(--ink-line)}
+  .client-card{
+    display:flex;align-items:center;gap:10px;padding:10px;border-radius:11px;
+    background:rgba(255,255,255,.04);border:1px solid var(--ink-line);cursor:pointer;transition:background .15s
+  }
+  .client-card:hover{background:rgba(255,255,255,.07)}
+  .client-card .av{
+    width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#334155,#1e293b);
+    display:grid;place-items:center;font-weight:800;font-size:12px;color:#cbd5e1;flex-shrink:0
+  }
+  .client-card .nm{font-size:12.5px;font-weight:700;color:#fff;line-height:1.1}
+  .client-card .id{font-family:var(--mono);font-size:10.5px;color:var(--ink-txt-dim)}
+  .client-card svg{margin-left:auto;color:var(--ink-txt-dim)}
+
+  /* ─────────── MAIN ─────────── */
+  .main{display:flex;flex-direction:column;min-width:0}
   .topbar{
-    background:linear-gradient(135deg,var(--p-slate-900),var(--p-slate-800));
-    color:#fff;
-    padding:var(--space-5) var(--space-4);
+    position:sticky;top:0;z-index:50;background:rgba(245,247,251,.82);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);padding:14px 26px;display:flex;align-items:center;gap:16px
   }
-  .topbar-inner{
-    max-width:1080px;margin:0 auto;
-    display:flex;flex-wrap:wrap;gap:var(--space-3);
-    align-items:center;justify-content:space-between;
+  .burger{display:none;width:38px;height:38px;border-radius:9px;border:1px solid var(--line-2);background:var(--surface);cursor:pointer;place-items:center}
+  .burger svg{width:19px;height:19px}
+  .crumb{display:flex;flex-direction:column;min-width:0}
+  .crumb .pth{font-size:11px;color:var(--txt-faint);font-weight:600}
+  .crumb h1{font-size:19px;font-weight:800;letter-spacing:-.025em}
+  .top-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+  .proxy{
+    display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:700;
+    background:var(--afgeleverd-bg);color:var(--afgeleverd);padding:7px 12px;border-radius:var(--r-full)
   }
-  .brand{display:flex;align-items:center;gap:var(--space-3);}
-  .brand-mark{
-    width:40px;height:40px;flex:none;border-radius:var(--radius-lg);
-    background:linear-gradient(135deg,var(--p-blue-500),var(--p-blue-700));
-    display:grid;place-items:center;
-    box-shadow:0 4px 14px rgba(37,99,235,.4);
+  .proxy .d{width:7px;height:7px;border-radius:50%;background:currentColor;position:relative}
+  .proxy .d::after{
+    content:'';position:absolute;inset:-3px;border-radius:50%;background:currentColor;
+    opacity:.4;animation:ping 1.9s var(--ease) infinite
   }
-  .brand-mark svg{width:22px;height:22px;}
-  .brand h1{
-    font-family:var(--font-display);
-    font-size:clamp(1.05rem,2.5vw,1.3rem);
-    font-weight:800;letter-spacing:-.02em;line-height:1.2;
+  @keyframes ping{0%{transform:scale(.6);opacity:.5}80%,100%{transform:scale(2.4);opacity:0}}
+  .ico-btn{
+    width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--surface);
+    display:grid;place-items:center;cursor:pointer;color:var(--txt-mut);transition:all .15s var(--ease)
   }
-  .brand p{
-    font-size:.78rem;color:var(--p-slate-400);font-weight:500;
-  }
-  .meta{
-    display:flex;align-items:center;gap:var(--space-2);
-    flex-wrap:wrap;font-size:.78rem;
-  }
-  .pill{
-    display:inline-flex;align-items:center;gap:6px;
-    padding:5px 11px;border-radius:var(--radius-full);
-    background:rgba(255,255,255,.08);
-    border:1px solid rgba(255,255,255,.12);
-    font-weight:600;letter-spacing:.01em;white-space:nowrap;
-  }
-  .pill .dot{
-    width:7px;height:7px;border-radius:50%;background:var(--p-slate-400);
-    flex:none;
-  }
-  .pill.online .dot{background:var(--color-success);box-shadow:0 0 0 3px rgba(22,163,74,.25);}
-  .pill.offline .dot{background:var(--color-danger);box-shadow:0 0 0 3px rgba(220,38,38,.25);}
-  .pill code{font-family:var(--font-mono);font-size:.74rem;}
+  .ico-btn:hover{border-color:var(--line-2);color:var(--txt);box-shadow:var(--sh-sm)}
+  .ico-btn svg{width:18px;height:18px}
+  .content{padding:22px 26px 60px;max-width:1320px;width:100%}
 
-  /* ---------- Layout ---------- */
-  main{max-width:1080px;margin:0 auto;padding:var(--space-6) var(--space-4) var(--space-16);}
-
-  .panel{
-    background:var(--color-surface);
-    border:1px solid var(--color-border);
-    border-radius:var(--radius-2xl);
-    box-shadow:var(--shadow-sm);
-    padding:var(--space-6);
-    margin-bottom:var(--space-6);
-  }
-  .panel-title{
-    font-family:var(--font-display);
-    font-size:.8rem;font-weight:700;
-    text-transform:uppercase;letter-spacing:.08em;
-    color:var(--color-text-muted);
-    margin-bottom:var(--space-4);
-    display:flex;align-items:center;gap:var(--space-2);
-  }
-  .panel-title .num{
-    width:20px;height:20px;border-radius:var(--radius-sm);
-    background:var(--color-brand-light);color:var(--color-brand-dark);
-    display:grid;place-items:center;font-size:.72rem;flex:none;
-  }
-
-  /* ---------- Search controls ---------- */
-  .search-grid{
-    display:grid;gap:var(--space-5);
-    grid-template-columns:1fr;
-  }
-  @media(min-width:720px){
-    .search-grid{grid-template-columns:1fr 1px 1fr;}
-  }
-  .divider{display:none;background:var(--color-border);}
-  @media(min-width:720px){.divider{display:block;}}
-
-  .field-label{
-    display:block;font-size:.8rem;font-weight:600;
-    color:var(--color-text);margin-bottom:var(--space-2);
-  }
-  .field-hint{
-    font-size:.74rem;color:var(--color-text-faint);
-    margin-top:var(--space-2);
-  }
-  .input-row{display:flex;gap:var(--space-2);flex-wrap:wrap;}
-
-  .date-range{
-    display:grid;gap:var(--space-2);
-    grid-template-columns:1fr 1fr;
-    margin-bottom:var(--space-3);
-  }
-  .date-range .sub{
-    font-size:.7rem;font-weight:600;text-transform:uppercase;
-    letter-spacing:.05em;color:var(--color-text-muted);
-    margin-bottom:4px;display:block;
-  }
-  .date-range input[type=date]{width:100%;}
-
-  input[type=date],input[type=text]{
-    font-family:var(--font-body);font-size:.92rem;
-    padding:11px var(--space-3);
-    border:1px solid var(--color-border-strong);
-    border-radius:var(--radius-lg);
-    background:var(--color-surface);color:var(--color-text);
-    flex:1 1 160px;min-width:0;min-height:44px;
-    transition:border-color var(--dur-fast) var(--ease-standard);
-  }
-  input[type=text]{font-family:var(--font-mono);}
-  input:focus{outline:2px solid var(--color-brand);outline-offset:2px;border-color:var(--color-brand);}
-
-  .btn{
-    font-family:var(--font-display);font-size:.88rem;font-weight:700;
-    padding:11px var(--space-5);min-height:44px;
-    border:1px solid transparent;border-radius:var(--radius-lg);
-    cursor:pointer;white-space:nowrap;
-    display:inline-flex;align-items:center;gap:var(--space-2);
-    transition:background var(--dur-base) var(--ease-standard),
-               transform var(--dur-fast) var(--ease-standard),
-               box-shadow var(--dur-base) var(--ease-standard);
-  }
-  .btn-primary{
-    background:var(--color-brand);color:#fff;
-    box-shadow:0 4px 14px rgba(37,99,235,.25);
-  }
-  .btn-primary:hover{background:var(--color-brand-dark);transform:translateY(-1px);}
-  .btn-primary:active{transform:translateY(0) scale(.99);}
-  .btn-primary:disabled{background:var(--color-text-faint);box-shadow:none;cursor:not-allowed;transform:none;}
-  .btn svg{width:16px;height:16px;}
-
-  /* ---------- Stat row ---------- */
-  .stats{
-    display:grid;gap:var(--space-3);
-    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-    margin-bottom:var(--space-5);
-  }
+  /* ── stats strip ── */
+  .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:18px}
+  @media(min-width:640px){.stats{grid-template-columns:repeat(4,1fr)}}
   .stat{
-    background:var(--color-surface-alt);
-    border:1px solid var(--color-border);
-    border-radius:var(--radius-xl);
-    padding:var(--space-4);
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:15px 17px;
+    position:relative;overflow:hidden;transition:transform .2s var(--ease),box-shadow .2s var(--ease)
   }
-  .stat .label{
-    font-size:.72rem;font-weight:600;text-transform:uppercase;
-    letter-spacing:.05em;color:var(--color-text-muted);
+  .stat:hover{transform:translateY(-2px);box-shadow:var(--sh)}
+  .stat .lb{
+    font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--txt-mut);
+    display:flex;align-items:center;gap:7px
   }
-  .stat .value{
-    font-family:var(--font-display);font-weight:800;
-    font-size:1.5rem;letter-spacing:-.02em;margin-top:2px;
-  }
-  .stat.received .value{color:var(--color-success);}
-  .stat.confirmed .value{color:var(--color-warning);}
+  .stat .lb i{width:8px;height:8px;border-radius:2.5px;display:block}
+  .stat .vl{font-size:23px;font-weight:800;letter-spacing:-.03em;margin-top:7px}
+  .stat .vl small{font-size:13px;color:var(--txt-faint);font-weight:700;margin-left:3px}
+  .stat.hero{background:linear-gradient(135deg,var(--brand-d),var(--sky));border:none;color:#fff;box-shadow:var(--sh-brand)}
+  .stat.hero .lb{color:rgba(255,255,255,.85)}
+  .stat.hero .vl{font-family:var(--mono);font-size:21px}
+  .stat.hero::after{content:'';position:absolute;right:-26px;bottom:-26px;width:96px;height:96px;border-radius:50%;background:rgba(255,255,255,.12)}
 
-  /* ---------- Result cards ---------- */
-  .card-list{display:grid;gap:var(--space-3);}
+  /* ── toolbar / filters ── */
+  .toolbar{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:13px;margin-bottom:16px;box-shadow:var(--sh-sm)}
+  .tb-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .field{position:relative}
+  .field>.lab{position:absolute;top:-7px;left:10px;background:var(--surface);padding:0 5px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--txt-faint)}
+  .ctrl{
+    height:42px;border:1px solid var(--line-2);border-radius:var(--r);background:var(--surface);
+    display:inline-flex;align-items:center;gap:9px;padding:0 13px;cursor:pointer;font-weight:600;
+    font-size:13px;color:var(--txt);transition:border-color .15s var(--ease),box-shadow .15s var(--ease)
+  }
+  .ctrl:hover{border-color:var(--brand)}
+  .ctrl svg{width:16px;height:16px;color:var(--txt-mut);flex-shrink:0}
+  .ctrl .rng{font-family:var(--mono);font-size:12.5px}
+  .awb-in{
+    height:42px;border:1px solid var(--line-2);border-radius:var(--r);padding:0 13px 0 38px;
+    font-family:var(--mono);font-size:13px;width:200px;transition:border-color .15s,box-shadow .15s;
+    background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%2364748b' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='7' cy='7' r='5'/%3E%3Cpath d='m15 15-4-4'/%3E%3C/svg%3E") no-repeat 13px center
+  }
+  .awb-in:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(37,99,235,.13)}
+  .awb-in::placeholder{color:var(--txt-faint);font-family:var(--sans);font-weight:500}
+  .tb-spacer{flex:1}
+  .btn{
+    height:42px;border-radius:var(--r);border:none;cursor:pointer;font-weight:700;font-size:13.5px;
+    display:inline-flex;align-items:center;gap:8px;padding:0 18px;transition:transform .14s var(--ease),box-shadow .2s var(--ease)
+  }
+  .btn svg{width:17px;height:17px}
+  .btn-pri{background:var(--brand);color:#fff;box-shadow:var(--sh-brand)}
+  .btn-pri:hover{transform:translateY(-1px);box-shadow:0 10px 22px rgba(37,99,235,.4)}
+  .btn-pri:active{transform:translateY(0) scale(.98)}
+  .btn-gho{background:var(--surface);border:1px solid var(--line-2);color:var(--txt-mut);padding:0 13px}
+  .btn-gho:hover{color:var(--txt);border-color:var(--line-2);background:var(--surface-2)}
 
-  .ship-card{
-    background:var(--color-surface);
-    border:1px solid var(--color-border);
-    border-radius:var(--radius-xl);
-    padding:var(--space-4) var(--space-5);
-    cursor:pointer;text-align:left;width:100%;
-    font:inherit;color:inherit;
-    display:grid;gap:var(--space-3);
-    transition:border-color var(--dur-base) var(--ease-standard),
-               box-shadow var(--dur-base) var(--ease-standard),
-               transform var(--dur-fast) var(--ease-standard);
-    animation:rise var(--dur-base) var(--ease-standard) both;
+  /* status filter chips */
+  .chips-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
+  .fchip{
+    display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 12px;border-radius:var(--r-full);
+    border:1px solid var(--line-2);background:var(--surface);font-size:12.5px;font-weight:700;color:var(--txt-mut);
+    cursor:pointer;transition:all .15s var(--ease);user-select:none
   }
-  .ship-card:hover{
-    border-color:var(--color-border-brand,rgba(37,99,235,.3));
-    box-shadow:var(--shadow-md);transform:translateY(-2px);
-  }
-  .ship-card:focus-visible{outline:2px solid var(--color-brand);outline-offset:2px;}
-  .ship-card.active{
-    border-color:var(--color-brand);
-    box-shadow:0 0 0 3px rgba(37,99,235,.12);
-  }
-  .ship-top{
-    display:flex;flex-wrap:wrap;gap:var(--space-3);
-    align-items:baseline;justify-content:space-between;
-  }
-  .awb{
-    font-family:var(--font-mono);font-weight:600;font-size:1.05rem;
-    letter-spacing:-.01em;
-  }
-  .awb .awb-tag{
-    font-family:var(--font-body);font-size:.66rem;font-weight:700;
-    text-transform:uppercase;letter-spacing:.08em;
-    color:var(--color-text-faint);display:block;
-  }
-  .route{
-    display:flex;align-items:center;gap:var(--space-2);
-    font-family:var(--font-mono);font-weight:600;font-size:.95rem;
-  }
-  .route svg{width:15px;height:15px;color:var(--color-text-faint);}
-  .ship-grid{
-    display:grid;gap:var(--space-3) var(--space-4);
-    grid-template-columns:repeat(2,1fr);
-  }
-  @media(min-width:600px){.ship-grid{grid-template-columns:repeat(4,1fr);}}
-  .kv .k{
-    font-size:.68rem;font-weight:600;text-transform:uppercase;
-    letter-spacing:.05em;color:var(--color-text-muted);
-  }
-  .kv .v{
-    font-family:var(--font-mono);font-size:.92rem;font-weight:600;
-    margin-top:1px;
-  }
-  .ship-foot{
-    display:flex;flex-wrap:wrap;gap:var(--space-2);
-    align-items:center;justify-content:space-between;
-    border-top:1px solid var(--color-border);
-    padding-top:var(--space-3);
-  }
-  .chips{display:flex;flex-wrap:wrap;gap:6px;}
-  .chip{
-    font-family:var(--font-mono);font-size:.72rem;font-weight:600;
-    background:var(--color-surface-alt);
-    border:1px solid var(--color-border);
-    padding:3px 9px;border-radius:var(--radius-full);
-    color:var(--color-text-muted);
-  }
-  .drill{
-    font-family:var(--font-display);font-size:.8rem;font-weight:700;
-    color:var(--color-brand);display:inline-flex;align-items:center;gap:5px;
-  }
-  .drill svg{width:14px;height:14px;}
+  .fchip .d{width:8px;height:8px;border-radius:50%}
+  .fchip:hover{border-color:var(--line-2);color:var(--txt);background:var(--surface-2)}
+  .fchip.on{color:var(--txt);background:var(--surface-2);border-color:var(--brand);box-shadow:0 0 0 2px rgba(37,99,235,.1)}
+  .fchip .cnt{font-family:var(--mono);font-size:11px;color:var(--txt-faint)}
+  .fl-label{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--txt-faint);align-self:center;margin-right:3px}
 
-  /* ---------- Barcode cards ---------- */
-  .box-card{
-    background:var(--color-surface);
-    border:1px solid var(--color-border);
-    border-left:3px solid var(--color-border-strong);
-    border-radius:var(--radius-xl);
-    padding:var(--space-4) var(--space-5);
-    display:grid;gap:var(--space-3);
-    animation:rise var(--dur-base) var(--ease-standard) both;
+  /* ── list ── */
+  .listwrap{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-sm)}
+  .list-head{
+    display:grid;grid-template-columns:160px 1fr 188px 70px 92px 116px 36px;gap:14px;
+    padding:11px 18px;border-bottom:1px solid var(--line);background:var(--surface-2);
+    font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--txt-faint)
   }
-  .box-card.is-received{border-left-color:var(--color-success);}
-  .box-card.is-confirmed{border-left-color:var(--color-warning);}
-  .box-top{
-    display:flex;flex-wrap:wrap;gap:var(--space-2);
-    align-items:center;justify-content:space-between;
+  .list-head .r{text-align:right}
+  .row{
+    display:grid;grid-template-columns:160px 1fr 188px 70px 92px 116px 36px;gap:14px;
+    padding:13px 18px;align-items:center;border-bottom:1px solid var(--line);cursor:pointer;
+    transition:background .14s var(--ease)
   }
-  .box-id{font-family:var(--font-mono);font-weight:600;font-size:1rem;}
-  .box-id .sub{
-    display:block;font-family:var(--font-body);font-size:.7rem;
-    font-weight:700;text-transform:uppercase;letter-spacing:.07em;
-    color:var(--color-text-faint);
-  }
-  .badge{
-    font-family:var(--font-display);font-size:.72rem;font-weight:700;
-    text-transform:uppercase;letter-spacing:.04em;
-    padding:4px 11px;border-radius:var(--radius-full);
-    display:inline-flex;align-items:center;gap:6px;
-  }
-  .badge .bdot{width:6px;height:6px;border-radius:50%;background:currentColor;}
-  .badge.received{background:var(--color-success-bg);color:var(--color-success);}
-  .badge.confirmed{background:var(--color-warning-bg);color:#b45309;}
-  .badge.unknown{background:var(--color-surface-alt);color:var(--color-text-muted);}
-  .box-grid{
-    display:grid;gap:var(--space-3) var(--space-4);
-    grid-template-columns:repeat(2,1fr);
-  }
-  @media(min-width:640px){.box-grid{grid-template-columns:repeat(3,1fr);}}
-  @media(min-width:900px){.box-grid{grid-template-columns:repeat(4,1fr);}}
-  .box-grid .v{word-break:break-word;}
+  .row:last-child{border-bottom:none}
+  .row:hover,.row.open{background:var(--surface-2)}
+  .c-awb .a{font-family:var(--mono);font-weight:700;font-size:13.5px;letter-spacing:-.01em}
+  .c-awb .sub{font-size:11px;color:var(--txt-faint);font-weight:600;margin-top:1px}
 
-  /* ---------- States ---------- */
-  .state{
-    text-align:center;padding:var(--space-12) var(--space-4);
-    color:var(--color-text-muted);
+  /* route cell */
+  .route{display:flex;align-items:center;gap:9px;min-width:0}
+  .flag{width:22px;height:22px;border-radius:50%;overflow:hidden;flex-shrink:0;box-shadow:0 0 0 1px rgba(15,23,42,.12),0 1px 2px rgba(15,23,42,.15)}
+  .flag svg{width:100%;height:100%;display:block}
+  .ap{display:flex;flex-direction:column;line-height:1.05}
+  .ap .cd{font-family:var(--mono);font-weight:700;font-size:13px}
+  .ap .ct{font-size:10.5px;color:var(--txt-faint);font-weight:600}
+  .r-line{
+    flex:1;height:2px;background:repeating-linear-gradient(90deg,var(--line-2) 0 5px,transparent 5px 10px);
+    position:relative;min-width:22px;max-width:80px
   }
-  .state svg{width:38px;height:38px;color:var(--color-text-faint);margin-bottom:var(--space-3);}
-  .state h3{font-family:var(--font-display);font-size:1rem;color:var(--color-text);margin-bottom:4px;}
-  .state p{font-size:.86rem;max-width:42ch;margin:0 auto;}
+  .r-line svg{width:14px;height:14px;color:var(--brand);position:absolute;top:-6px;left:50%;transform:translateX(-50%);background:var(--surface);padding:0 1px}
+  .row:hover .r-line svg,.row.open .r-line svg{background:var(--surface-2)}
 
-  .error-box{
-    background:var(--color-danger-bg);
-    border:1px solid rgba(220,38,38,.25);
-    border-radius:var(--radius-xl);
-    padding:var(--space-4) var(--space-5);
-    display:flex;gap:var(--space-3);align-items:flex-start;
-  }
-  .error-box svg{width:20px;height:20px;color:var(--color-danger);flex:none;margin-top:2px;}
-  .error-box .etitle{font-family:var(--font-display);font-weight:700;color:var(--color-danger);font-size:.9rem;}
-  .error-box .emsg{font-size:.84rem;color:var(--p-slate-700);margin-top:2px;}
-  .error-box .ehint{font-size:.78rem;color:var(--color-text-muted);margin-top:var(--space-2);}
+  /* status cell */
+  .st{display:flex;flex-direction:column;gap:6px}
+  .st-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;width:max-content}
+  .st-badge .d{width:8px;height:8px;border-radius:50%}
+  .st-bar{display:flex;gap:3px}
+  .st-bar i{height:4px;flex:1;border-radius:2px;background:var(--line-2)}
+  .num{font-family:var(--mono);font-weight:600;font-size:13px}
+  .num.r,.val{text-align:right;display:block}
+  .val{font-family:var(--mono);font-weight:700;font-size:13px}
+  .chev{display:grid;place-items:center;color:var(--txt-faint);transition:transform .25s var(--ease)}
+  .chev svg{width:18px;height:18px}
+  .row.open .chev{transform:rotate(180deg);color:var(--brand)}
 
-  .spinner{
-    width:34px;height:34px;border-radius:50%;
-    border:3px solid var(--color-border);
-    border-top-color:var(--color-brand);
-    animation:spin .7s linear infinite;margin:0 auto var(--space-3);
+  /* detail panel */
+  .detail{display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s var(--ease);background:var(--surface-2);border-bottom:1px solid var(--line)}
+  .detail.open{grid-template-rows:1fr}
+  .detail-in{overflow:hidden}
+  .detail-pad{
+    padding:6px 18px 22px;display:grid;gap:18px;grid-template-columns:1fr;
+    opacity:0;transform:translateY(8px);transition:opacity .3s var(--ease) .06s,transform .3s var(--ease) .06s
   }
+  .detail.open .detail-pad{opacity:1;transform:none}
+  @media(min-width:920px){.detail-pad{grid-template-columns:340px 1fr}}
 
-  .section-head{
-    display:flex;flex-wrap:wrap;gap:var(--space-2);
-    align-items:baseline;justify-content:space-between;
-    margin-bottom:var(--space-4);
-  }
-  .section-head h2{
-    font-family:var(--font-display);font-size:1.05rem;font-weight:800;
-    letter-spacing:-.02em;
-  }
-  .section-head .sub{font-size:.8rem;color:var(--color-text-muted);}
-  .section-head .sub code{font-family:var(--font-mono);}
+  .dp-route{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:18px}
+  .dp-route .head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+  .dp-route .head .awb{font-family:var(--mono);font-weight:700;font-size:15px}
+  .route-big{display:flex;align-items:center;gap:12px}
+  .flag-lg{width:46px;height:46px;border-radius:50%;overflow:hidden;flex-shrink:0;box-shadow:0 0 0 1px rgba(15,23,42,.12),0 3px 8px rgba(15,23,42,.18)}
+  .flag-lg svg{width:100%;height:100%}
+  .route-big .ep{text-align:center}
+  .route-big .ep .cd{font-family:var(--mono);font-weight:800;font-size:19px;letter-spacing:-.01em}
+  .route-big .ep .ci{font-size:11px;color:var(--txt-mut);font-weight:600}
+  .route-big .mid{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+  .route-big .mid .ln{width:100%;height:2px;background:repeating-linear-gradient(90deg,var(--line-2) 0 5px,transparent 5px 10px);position:relative}
+  .route-big .mid .ln svg{width:16px;height:16px;color:var(--brand);position:absolute;top:-7px;left:50%;transform:translateX(-50%);background:var(--surface)}
+  .route-big .mid .km{font-size:10.5px;color:var(--txt-faint);font-weight:700;font-family:var(--mono)}
 
-  /* ---------- Debug toggles ---------- */
-  .section-actions{
-    display:flex;flex-wrap:wrap;gap:6px;
-    margin-left:auto;order:2;
+  /* status timeline */
+  .timeline{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:18px}
+  .tl-title{font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--txt-faint);margin-bottom:16px}
+  .steps{display:flex;justify-content:space-between;position:relative}
+  .steps::before{content:'';position:absolute;top:11px;left:8%;right:8%;height:2px;background:var(--line-2);z-index:0}
+  .steps .prog{position:absolute;top:11px;left:8%;height:2px;background:var(--afgeleverd);z-index:1;transition:width .5s var(--ease-out)}
+  .step{display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;z-index:2;flex:1}
+  .step .node{
+    width:24px;height:24px;border-radius:50%;background:var(--surface);border:2px solid var(--line-2);
+    display:grid;place-items:center;color:var(--txt-faint);transition:all .3s var(--ease)
   }
-  @media(min-width:600px){.section-actions{order:0;}}
-  .btn-ghost{
-    font-family:var(--font-display);font-size:.72rem;font-weight:700;
-    text-transform:uppercase;letter-spacing:.05em;
-    background:transparent;color:var(--color-text-muted);
-    border:1px solid var(--color-border);
-    padding:5px 11px;min-height:30px;
-    border-radius:var(--radius-full);cursor:pointer;
-    transition:all var(--dur-fast) var(--ease-standard);
+  .step .node svg{width:12px;height:12px}
+  .step.done .node{background:var(--afgeleverd);border-color:var(--afgeleverd);color:#fff}
+  .step.now .node{border-color:var(--cur,#2563eb);color:var(--cur,#2563eb);box-shadow:0 0 0 4px color-mix(in srgb,var(--cur,#2563eb) 20%,transparent)}
+  .step.now .node::after{content:'';position:absolute;width:24px;height:24px;border-radius:50%;border:2px solid var(--cur,#2563eb);animation:pulse 1.8s var(--ease) infinite}
+  @keyframes pulse{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.9);opacity:0}}
+  .step .lab{font-size:11.5px;font-weight:700;color:var(--txt-mut)}
+  .step.done .lab,.step.now .lab{color:var(--txt)}
+  .step .tm{font-size:10px;color:var(--txt-faint);font-family:var(--mono);font-weight:600}
+
+  .dp-specs{
+    display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);border:1px solid var(--line);
+    border-radius:var(--r);overflow:hidden;margin-top:14px
   }
-  .btn-ghost:hover{
-    background:var(--color-surface-alt);
-    color:var(--color-text);border-color:var(--color-border-strong);
+  @media(min-width:560px){.dp-specs{grid-template-columns:repeat(4,1fr)}}
+  .spec{background:var(--surface);padding:11px 14px}
+  .spec .l{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--txt-faint)}
+  .spec .v{font-family:var(--mono);font-weight:700;font-size:14px;margin-top:3px}
+  .dp-foot{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin-top:14px}
+  .tag{font-family:var(--mono);font-size:11.5px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);padding:4px 9px;color:var(--txt-mut)}
+  .tag b{color:var(--txt);font-weight:700}
+  .dp-actions{margin-left:auto;display:flex;gap:8px}
+  .lnk{
+    display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:12.5px;color:var(--brand-d);
+    text-decoration:none;padding:7px 12px;border-radius:var(--r);border:1px solid var(--line-2);background:var(--surface);
+    transition:all .15s var(--ease)
   }
-  .btn-ghost.active{
-    background:var(--color-brand);color:#fff;border-color:var(--color-brand);
+  .lnk:hover{border-color:var(--brand);background:var(--surface-2)}
+  .lnk svg{width:15px;height:15px}
+
+  .list-foot{
+    display:flex;align-items:center;justify-content:space-between;padding:12px 18px;
+    border-top:1px solid var(--line);font-size:12.5px;color:var(--txt-mut);background:var(--surface-2)
   }
-  .json-block{
-    display:none;
-    font-family:var(--font-mono);font-size:.78rem;line-height:1.55;
-    background:var(--p-slate-900);color:#e2e8f0;
-    border-radius:var(--radius-lg);
-    padding:var(--space-4);margin-bottom:var(--space-4);
-    max-height:460px;overflow:auto;white-space:pre;
-    border:1px solid var(--p-slate-800);
+  .list-foot .pg{display:flex;gap:6px}
+  .pgb{width:30px;height:30px;border-radius:8px;border:1px solid var(--line-2);background:var(--surface);display:grid;place-items:center;cursor:pointer;font-weight:700;font-size:12.5px;color:var(--txt-mut)}
+  .pgb.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+
+  /* entrance */
+  .reveal{opacity:0;transform:translateY(14px)}
+  .reveal.in{opacity:1;transform:none;transition:opacity .5s var(--ease-out),transform .5s var(--ease-out)}
+
+  /* responsive */
+  .scrim{display:none}
+  @media(max-width:1023px){
+    body{grid-template-columns:1fr}
+    .side{position:fixed;left:0;top:0;width:248px;transform:translateX(-100%);transition:transform .3s var(--ease)}
+    body.nav-open .side{transform:none}
+    body.nav-open .scrim{display:block;position:fixed;inset:0;background:rgba(10,15,28,.5);z-index:55}
+    .burger{display:grid}
   }
-  .result-section.show-json .json-block{display:block;}
-  .fields-table{
-    display:none;
-    margin-top:var(--space-3);padding-top:var(--space-3);
-    border-top:1px dashed var(--color-border);
+  @media(max-width:860px){
+    .list-head{display:none}
+    .row{grid-template-columns:1fr auto;gap:10px;row-gap:10px;padding:14px}
+    .row .c-awb{order:1}.row .route{order:2;grid-column:1/-1}
+    .row .st{order:3;grid-column:1/-1}.row .num,.row .val{display:none}
+    .row .chev{order:4;position:absolute;right:14px;top:14px}
+    .row{position:relative}
   }
-  .result-section.show-fields .fields-table{display:block;}
-  .fields-table table{
-    width:100%;border-collapse:collapse;font-size:.78rem;
-  }
-  .fields-table td{
-    padding:5px var(--space-2);
-    border-bottom:1px solid var(--color-border);
-    vertical-align:top;
-  }
-  .fields-table tr:last-child td{border-bottom:none;}
-  .fields-table td:first-child{
-    color:var(--color-text-muted);font-weight:600;
-    width:40%;font-size:.7rem;text-transform:uppercase;
-    letter-spacing:.04em;white-space:nowrap;
-  }
-  .fields-table td:last-child{
-    font-family:var(--font-mono);word-break:break-word;color:var(--color-text);
-  }
-  .fields-table .nested{
-    display:block;white-space:pre-wrap;color:var(--color-text-muted);
-    background:var(--color-surface-alt);padding:6px 8px;
-    border-radius:var(--radius-sm);margin-top:2px;font-size:.74rem;
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+    .reveal{opacity:1;transform:none}
   }
 
-  .hidden{display:none;}
-
-  footer{
-    max-width:1080px;margin:0 auto;padding:0 var(--space-4) var(--space-10);
-    font-size:.74rem;color:var(--color-text-faint);text-align:center;
+  /* ── date picker popup ── */
+  .cal-pop{
+    position:absolute;top:calc(100% + 8px);left:0;z-index:100;
+    background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r-lg);
+    box-shadow:var(--sh-lg);padding:16px;min-width:290px;
+    opacity:0;transform:translateY(-6px);pointer-events:none;
+    transition:opacity .18s var(--ease),transform .18s var(--ease)
   }
-
-  @keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
-  @keyframes spin{to{transform:rotate(360deg);}}
-  @media(prefers-reduced-motion:reduce){
-    *{animation-duration:.01ms!important;transition-duration:.01ms!important;}
+  .cal-pop.open{opacity:1;transform:none;pointer-events:auto}
+  .cal-pop .rw{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+  .cal-pop .dg{display:flex;flex-direction:column;gap:5px;flex:1;min-width:100px}
+  .cal-pop .dg label{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--txt-faint)}
+  .cal-pop .dg input[type=date]{
+    height:38px;border:1px solid var(--line-2);border-radius:var(--r);padding:0 10px;
+    font-family:var(--mono);font-size:13px;color:var(--txt);background:var(--surface);
+    cursor:pointer;transition:border-color .15s;width:100%
   }
-
-  /* ---------- Dark mode ---------- */
-  @media(prefers-color-scheme:dark){
-    :root{
-      --color-bg:var(--p-slate-900);--color-surface:var(--p-slate-800);
-      --color-surface-alt:#243044;--color-surface-hover:#243044;
-      --color-border:rgba(255,255,255,.09);--color-border-strong:rgba(255,255,255,.16);
-      --color-text:#f1f5f9;--color-text-muted:var(--p-slate-400);
-      --color-text-faint:var(--p-slate-500);
-      --color-success-bg:rgba(22,163,74,.18);
-      --color-warning-bg:rgba(245,158,11,.18);
-      --color-danger-bg:rgba(220,38,38,.16);
-    }
-    .badge.confirmed{color:var(--color-warning);}
-    .error-box .emsg{color:var(--p-slate-300);}
+  .cal-pop .dg input[type=date]:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+  .cal-pop .ap-btn{
+    height:38px;border-radius:var(--r);border:none;background:var(--brand);color:#fff;
+    font-weight:700;font-size:13px;padding:0 16px;cursor:pointer;white-space:nowrap;flex-shrink:0;
+    transition:transform .14s var(--ease),box-shadow .2s var(--ease)
   }
+  .cal-pop .ap-btn:hover{transform:translateY(-1px);box-shadow:var(--sh-brand)}
+
+  /* ── empty & loading states ── */
+  .empty-state{padding:52px 24px;text-align:center;color:var(--txt-faint)}
+  .empty-state svg{width:44px;height:44px;margin:0 auto 14px;display:block;opacity:.25}
+  .empty-state .em-t{font-size:14.5px;font-weight:700;color:var(--txt-mut);margin-bottom:5px}
+  .empty-state .em-s{font-size:12.5px;line-height:1.55}
+  .skel{padding:13px 18px;border-bottom:1px solid var(--line);display:grid;grid-template-columns:160px 1fr 188px 70px 92px 116px 36px;gap:14px;align-items:center}
+  .skel-bar{height:11px;border-radius:4px;background:linear-gradient(90deg,var(--line) 25%,var(--surface-2) 50%,var(--line) 75%);background-size:400% 100%;animation:shimmer 1.4s linear infinite}
+  @keyframes shimmer{0%{background-position:100% 0}100%{background-position:-100% 0}}
 </style>
 </head>
 <body>
+<div class="scrim" onclick="document.body.classList.remove('nav-open')"></div>
 
-<header class="topbar">
-  <div class="topbar-inner">
-    <div class="brand">
-      <div class="brand-mark">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/>
-        </svg>
-      </div>
-      <div>
-        <h1>Zendingen &amp; Binnenkomsten</h1>
-        <p>Logiztik Alliance &middot; Shipment &amp; Barcode V2</p>
-      </div>
+<!-- SIDEBAR -->
+<aside class="side">
+  <div class="side-brand">
+    <div class="logo-slot">
+      <img src="brand/ffs-logo.png" alt="Fresh from Source" onerror="this.style.display='none'">
     </div>
-    <div class="meta">
-      <span class="pill" id="customerPill"><span class="dot"></span>Klant&nbsp;<code id="customerCode">&hellip;</code></span>
-      <span class="pill" id="statusPill"><span class="dot"></span><span id="statusText">Verbinden&hellip;</span></span>
+    <div class="cargo-tag">Cargo</div>
+  </div>
+  <nav class="nav">
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Overzicht</a>
+    <div class="nav-cap">Operatie</div>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg>Zendingen</a>
+    <a href="#" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V8M5 12l7-4 7 4M3 22h18M5 18h.01M9 18h.01M13 18h.01M17 18h.01"/><path d="m4 8 8-6 8 6"/></svg>Binnenkomsten<span class="cnt" id="navCnt">0</span></a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Tracking</a>
+    <div class="nav-cap">Beheer</div>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>Facturatie</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg>Rapporten</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-2.92.99V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 7 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 14H4.5a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 6 7.6l-.6-.6a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 11 4.6V4.5a2 2 0 1 1 4 0v.09A1.65 1.65 0 0 0 18 6l.6-.6a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 20.4 11h.1a2 2 0 1 1 0 4h-.1Z"/></svg>Instellingen</a>
+  </nav>
+  <div class="side-foot">
+    <div class="client-card">
+      <div class="av">FS</div>
+      <div><div class="nm" id="clientName">Logiztik</div><div class="id" id="clientCode">—</div></div>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5M7 9l5-5 5 5"/></svg>
     </div>
   </div>
-</header>
+</aside>
 
-<main>
+<!-- MAIN -->
+<div class="main">
+  <header class="topbar">
+    <button class="burger" onclick="document.body.classList.toggle('nav-open')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+    <div class="crumb"><span class="pth">Operatie / Luchtvracht</span><h1>Binnenkomsten</h1></div>
+    <div class="top-right">
+      <span class="proxy"><span class="d"></span>Proxy actief</span>
+      <button class="ico-btn" title="Meldingen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></button>
+      <button class="ico-btn" title="Exporteren"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></button>
+    </div>
+  </header>
 
-  <!-- Zoekpaneel — unified -->
-  <section class="panel">
-    <div class="panel-title"><span class="num">1</span> Zoeken</div>
-    <div class="search-grid" style="grid-template-columns:1fr;">
-      <!-- Optie A: Op datum/periode -->
-      <div>
-        <label class="field-label">Zendingen ophalen</label>
-        <div class="date-range" style="grid-template-columns:auto auto 1fr; align-items:flex-end; gap:var(--space-3);">
-          <div>
-            <span class="sub">Van</span>
-            <input type="date" id="dateFromInput" style="width:140px;">
+  <div class="content">
+    <!-- stats -->
+    <div class="stats reveal">
+      <div class="stat hero"><div class="lb">Totale AWB-waarde</div><div class="vl" id="sVal">$ 0</div></div>
+      <div class="stat"><div class="lb"><i style="background:var(--vertrokken)"></i>Onderweg</div><div class="vl" id="sTransit">0<small id="sTransitColli"></small></div></div>
+      <div class="stat"><div class="lb"><i style="background:var(--geland)"></i>Geland</div><div class="vl" id="sLanded">0</div></div>
+      <div class="stat"><div class="lb"><i style="background:var(--afgeleverd)"></i>Afgeleverd</div><div class="vl" id="sDone">0</div></div>
+    </div>
+
+    <!-- toolbar -->
+    <div class="toolbar reveal">
+      <div class="tb-row">
+        <div class="field">
+          <span class="lab">Periode</span>
+          <div class="ctrl" id="dateCtrl">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            <span class="rng" id="dateLabel">Vandaag</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
           </div>
-          <div>
-            <span class="sub">Tot</span>
-            <input type="date" id="dateToInput" style="width:140px;">
-          </div>
-          <button class="btn btn-primary" id="searchDateBtn" style="flex:0;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-            Zendingen
-          </button>
+          <div id="calPop"></div>
         </div>
-        <div style="display:flex; gap:var(--space-3); align-items:flex-end; margin-top:var(--space-3);">
-          <input type="text" id="awbFilter" placeholder="Filter AWB (optioneel)" autocomplete="off" style="flex:1;">
+        <div class="field">
+          <span class="lab">AWB</span>
+          <input class="awb-in" id="awbIn" maxlength="15" placeholder="Filter op AWB…">
         </div>
-        <p class="field-hint" style="margin-top:var(--space-2);">Max 31 dagen. AWB-filter is optioneel.</p>
+        <div class="tb-spacer"></div>
+        <button class="btn btn-gho" id="moreFilters"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M7 12h10M11 18h2"/></svg>Meer filters</button>
+        <button class="btn btn-pri" id="searchBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>Zoeken</button>
       </div>
-
-      <!-- Optie B: Direct zendingsnummer -->
-      <div style="margin-top:var(--space-5); padding-top:var(--space-5); border-top:1px solid var(--color-border);">
-        <label class="field-label">Of zoek direct op zendingsnummer</label>
-        <div class="input-row">
-          <input type="text" id="shipInput" placeholder="bijv. 17202083572" autocomplete="off" style="flex:1;">
-          <button class="btn btn-primary" id="searchShipBtn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-            Colli
-          </button>
-        </div>
-        <p class="field-hint">Geeft direct colli-/barcodedetails van één zending.</p>
+      <div class="chips-row" id="statusChips">
+        <span class="fl-label">Status</span>
       </div>
     </div>
-  </section>
 
-  <!-- Zendingen-resultaat -->
-  <section class="panel" id="shipPanel">
-    <div class="panel-title"><span class="num">2</span> Zendingen</div>
-    <div id="shipResult">
-      <div class="state">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-        <h3>Nog geen zendingen opgehaald</h3>
-        <p>Kies een datum hierboven en klik op &ldquo;Toon zendingen&rdquo; om te beginnen.</p>
+    <!-- list -->
+    <div class="listwrap reveal">
+      <div class="list-head">
+        <div>AWB</div><div>Route</div><div>Status</div><div class="r">Colli</div><div class="r">Gewicht</div><div class="r">Waarde</div><div></div>
+      </div>
+      <div id="rows"></div>
+      <div class="list-foot">
+        <span id="footCount">0 binnenkomsten</span>
+        <div class="pg">
+          <button class="pgb"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+          <button class="pgb on">1</button><button class="pgb">2</button>
+          <button class="pgb"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
+        </div>
       </div>
     </div>
-  </section>
-
-  <!-- Colli-/barcodedetail -->
-  <section class="panel hidden" id="boxPanel">
-    <div class="panel-title"><span class="num">3</span> Colli &amp; binnenkomsten</div>
-    <div id="boxResult"></div>
-  </section>
-
-</main>
-
-<footer>
-  Lokale viewer &middot; data via de Logiztik Alliance API (productie). De Api-Key blijft op de lokale proxy.
-</footer>
+  </div>
+</div>
 
 <script>
 "use strict";
 
-// Bestand rechtstreeks geopend (file://) i.p.v. via de proxy? Toon een
-// duidelijke waarschuwing in plaats van een "Failed to fetch"-foutmelding.
+// Check if loaded via file://
 if (location.protocol === 'file:') {
   document.body.innerHTML =
-    '<div style="min-height:100vh;display:grid;place-items:center;padding:24px;background:#fef3c7;font-family:Inter,system-ui,sans-serif;color:#0f172a;">'
+    '<div style="min-height:100vh;display:grid;place-items:center;padding:24px;background:#fef3c7;font-family:Manrope,system-ui,sans-serif;color:#0f172a;">'
   + '<div style="max-width:560px;background:#fff;border:2px solid #f59e0b;border-radius:14px;padding:26px 30px;box-shadow:0 10px 30px rgba(0,0,0,.08)">'
   +   '<div style="font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#b45309;margin-bottom:8px">Verkeerd geopend</div>'
-  +   '<h1 style="font-size:1.35rem;margin:0 0 12px;font-weight:800">Open dit dashboard via de lokale server</h1>'
-  +   '<p style="margin:0 0 12px;line-height:1.55">Je opent de pagina nu rechtstreeks als bestand (<code style="background:#f1f5f9;padding:2px 6px;border-radius:4px">file://</code>). Zo kan het script de lokale proxy niet bereiken en zie je geen data.</p>'
-  +   '<p style="margin:0 0 8px;font-weight:600">Doe dit:</p>'
-  +   '<ol style="margin:0 0 14px 20px;padding:0;line-height:1.7">'
-  +     '<li>Start de proxy: in cmd typ je <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px">node server.js</code></li>'
-  +     '<li>Ga in je browser naar <a href="http://localhost:3000" style="color:#2563eb;font-weight:700;text-decoration:none">http://localhost:3000</a></li>'
-  +   '</ol>'
-  +   '<p style="margin:0;color:#475569;font-size:.85rem">Tip: bookmark <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px">http://localhost:3000</code> in je browser &mdash; dan ben je dit voorgoed kwijt.</p>'
+  +   '<h1 style="font-size:1.35rem;margin:0 0 12px;font-weight:800">Open via de server</h1>'
+  +   '<p style="margin:0 0 12px;line-height:1.55">Typ in cmd: <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px">node server.js</code></p>'
+  +   '<p style="margin:0;color:#475569">Ga dan naar <a href="http://localhost:3000" style="color:#2563eb;font-weight:700">http://localhost:3000</a></p>'
   + '</div>'
   + '</div>';
-  throw new Error('Pagina geopend via file:// - afgebroken');
+  throw new Error('Pagina geopend via file://');
 }
 
-// ----- Hulpfuncties -----
-var nfMoney = new Intl.NumberFormat('nl-NL',{minimumFractionDigits:2,maximumFractionDigits:2});
-var nfNum   = new Intl.NumberFormat('nl-NL');
-
-function esc(v){
-  if(v===null||v===undefined) return '';
-  return String(v).replace(/[&<>"']/g,function(c){
-    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
-  });
-}
-function val(v,fallback){
-  if(v===null||v===undefined||v==='') return fallback||'&ndash;';
-  return esc(v);
-}
-function money(v){
-  var n=Number(v);
-  return isFinite(n)? '$ '+nfMoney.format(n) : val(v);
-}
-var nfWeight = new Intl.NumberFormat('nl-NL',{maximumFractionDigits:2});
-function weight(v){
-  var n=Number(v);
-  if(!isFinite(n)) return val(v);
-  return nfWeight.format(n)+' kg';
-}
-
-// Airport codes to country flags (selected routes)
-var airportToFlag={
-  UIO:'🇪🇨',AMS:'🇳🇱',JFK:'🇺🇸',LAX:'🇺🇸',LHR:'🇬🇧',CDG:'🇫🇷',
-  MIA:'🇺🇸',ORD:'🇺🇸',DFW:'🇺🇸',DEN:'🇺🇸',SFO:'🇺🇸',ATL:'🇺🇸',
-  MXC:'🇲🇽',MEX:'🇲🇽',BOG:'🇨🇴',CTG:'🇨🇴',LIM:'🇵🇪',QRO:'🇲🇽',
-  FCO:'🇮🇹',MUC:'🇩🇪',ZRH:'🇨🇭',VIE:'🇦🇹',WAW:'🇵🇱',PRG:'🇨🇿',
-  GVA:'🇨🇭',BRU:'🇧🇪',BJS:'🇨🇳',HND:'🇯🇵',SYD:'🇦🇺',DUB:'🇮🇪'
+// ─── Status systeem ───
+const STATUS={
+  geboekt:   {label:'Geboekt',   step:1, color:'var(--geboekt)'},
+  vertrokken:{label:'Vertrokken',step:2, color:'var(--vertrokken)'},
+  geland:    {label:'Geland',    step:3, color:'var(--geland)'},
+  afgeleverd:{label:'Afgeleverd',step:4, color:'var(--afgeleverd)'}
 };
-function flagIcon(code){
-  return (airportToFlag[code]||'✈️')+' '+val(code);
-}
-function fmtDate(s){
-  if(!s) return '&ndash;';
-  var m=String(s).match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if(!m) return esc(s);
-  return m[3]+'-'+m[2];
-}
-function todayISO(){
-  // Datum van de lokale machine - geen vaste/aangenomen datum.
-  var d=new Date();
-  var p=function(n){return String(n).padStart(2,'0');};
+const STEPS=['geboekt','vertrokken','geland','afgeleverd'];
+const STEP_LABEL={geboekt:'Geboekt',vertrokken:'Vertrokken',geland:'Geland',afgeleverd:'Afgeleverd'};
+
+// ─── Inline SVG flags ───
+const FLAGS={
+  CO:`<svg viewBox="0 0 6 4" preserveAspectRatio="xMidYMid slice"><rect width="6" height="4" fill="#FCD116"/><rect y="2" width="6" height="1" fill="#003893"/><rect y="3" width="6" height="1" fill="#CE1126"/></svg>`,
+  NL:`<svg viewBox="0 0 6 4" preserveAspectRatio="xMidYMid slice"><rect width="6" height="4" fill="#fff"/><rect width="6" height="1.34" fill="#AE1C28"/><rect y="2.66" width="6" height="1.34" fill="#21468B"/></svg>`,
+  KE:`<svg viewBox="0 0 6 4" preserveAspectRatio="xMidYMid slice"><rect width="6" height="4" fill="#fff"/><rect width="6" height="1.1" fill="#000"/><rect y="1.25" width="6" height="1.5" fill="#BB0000"/><rect y="2.9" width="6" height="1.1" fill="#006600"/></svg>`,
+  CR:`<svg viewBox="0 0 6 4" preserveAspectRatio="xMidYMid slice"><rect width="6" height="4" fill="#002B7F"/><rect y=".67" width="6" height="2.66" fill="#fff"/><rect y="1.34" width="6" height="1.32" fill="#CE1126"/></svg>`
+};
+const flag=c=>`<span class="flag">${FLAGS[c]||''}</span>`;
+const flagLg=c=>`<span class="flag-lg">${FLAGS[c]||''}</span>`;
+
+// ─── Global state ───
+let activeStatuses=new Set(STEPS);
+let openAwb=null;
+let shipmentData=[];
+let todayStr=getTodayISO();
+
+function getTodayISO(){
+  const d=new Date();
+  const p=n=>String(n).padStart(2,'0');
   return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());
 }
 
-// ----- Foutmelding tonen -----
-function errorHtml(message, hint){
-  return '<div class="error-box">'
-    + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>'
-    + '<div><div class="etitle">Er ging iets mis</div>'
-    + '<div class="emsg">'+esc(message)+'</div>'
-    + (hint? '<div class="ehint">'+esc(hint)+'</div>' : '')
-    + '</div></div>';
+// ─── Moneyformatter ───
+function money(v){
+  const n=Number(String(v).replace(/\./g,'').replace(',','.'));
+  return isFinite(n)?'$ '+n.toLocaleString('nl-NL',{minimumFractionDigits:2,maximumFractionDigits:2}):val(v);
+}
+function val(v){
+  return v===null||v===undefined||v===''?'–':String(v);
 }
 
-// Vertaalt een API-respons naar een leesbare melding + hint.
-function describeProblem(env){
-  var d=env.data;
-  var raw = (typeof d==='string') ? d : (d && (d.error||d.mensaje));
-  var msg = raw || ('Onverwacht antwoord van de API (status '+env.status+').');
-  var hint='';
-  var low=String(msg).toLowerCase();
-  if(env.status===401 || low.indexOf('unauthorized')>-1){
-    msg='Niet geautoriseerd door de Logiztik API.';
-    hint='Controleer de API_KEY en de headernaam (API_KEY_HEADER) in .env. '
-       + 'Mogelijk is ook het IP-adres van deze machine niet gewhitelist bij Logiztik.';
-  } else if(low.indexOf('apikey does not have access')>-1){
-    hint='De Api-Key hoort niet bij deze customer code. Controleer CUSTOMER_CODE in .env.';
-  } else if(low.indexOf('customer does not exist')>-1){
-    hint='Controleer de CUSTOMER_CODE in het .env-bestand.';
-  } else if(low.indexOf('does not contain pieces')>-1){
-    hint='Dit zendingsnummer heeft geen colli voor jouw klantcode, of het nummer klopt niet.';
-  } else if(low.indexOf('date format')>-1){
-    hint='Gebruik het datumformaat YYYY-MM-DD.';
-  } else if(low.indexOf('certificate')>-1 || low.indexOf('tls')>-1 || low.indexOf('ssl')>-1){
-    hint='TLS-/certificaatfout. Zet desnoods ALLOW_INSECURE_TLS=true in .env en herstart de server.';
-  } else if(env.status===0){
-    hint='De server kon de Logiztik API niet bereiken.';
-  }
-  return {msg:msg,hint:hint};
-}
+// \u2500\u2500\u2500 Utility functions \u2500\u2500\u2500
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 
-// Normaliseert de 'data' naar een lijst, of werpt een foutobject op.
-function asList(env){
-  var d=env.data;
-  if(Array.isArray(d)) return d;
-  if(d && typeof d==='object' && !d.error && !d.mensaje){
-    return [d]; // enkel object -> lijst van 1
-  }
-  return null; // betekent: fout / geen lijst
-}
-
-// ----- API-calls naar de lokale proxy -----
 function apiGet(url){
   return fetch(url).then(function(r){
-    if(!r.ok) throw new Error('Lokale proxy gaf status '+r.status);
     return r.json();
   });
 }
 
-// ----- Config / statusindicator -----
-function loadConfig(){
-  apiGet('/api/config').then(function(cfg){
-    document.getElementById('customerCode').textContent = cfg.customerCode || 'niet ingesteld';
-    var custPill=document.getElementById('customerPill');
-    custPill.classList.add(cfg.customerCode? 'online':'offline');
+// \u2500\u2500\u2500 Mapping API data to shipment status \u2500\u2500\u2500
+function inferStatus(s){
+  var st=String(s.status||'').toLowerCase();
+  if(st.includes('delivered')) return 'afgeleverd';
+  if(st.includes('landed')||st.includes('arrived')) return 'geland';
+  if(st.includes('departed')) return 'vertrokken';
+  return 'geboekt';
+}
 
-    var pill=document.getElementById('statusPill');
-    var txt=document.getElementById('statusText');
-    if(cfg.configured){
-      pill.classList.add('online');
-      txt.textContent='Proxy actief';
-    }else{
-      pill.classList.add('offline');
-      txt.textContent='Niet geconfigureerd';
-    }
-  }).catch(function(){
-    var pill=document.getElementById('statusPill');
-    pill.classList.add('offline');
-    document.getElementById('statusText').textContent='Proxy onbereikbaar';
+// \u2500\u2500\u2500 Status colors for display \u2500\u2500\u2500
+const STATUS_COLOR={geboekt:'#64748b',vertrokken:'#f59e0b',geland:'#0ea5e9',afgeleverd:'#16a34a'};
+
+// \u2500\u2500\u2500 Stats rendering \u2500\u2500\u2500
+function renderStats(){
+  var totalVal=0, transit=0, landed=0, done=0, colliTransit=0;
+  shipmentData.forEach(function(s){
+    if(!activeStatuses.has(inferStatus(s))) return;
+    var st=inferStatus(s);
+    totalVal+=Number(s.value||0);
+    if(st==='vertrokken'){ transit++; colliTransit+=Number(s.pieces||0); }
+    else if(st==='geland') landed++;
+    else if(st==='afgeleverd') done++;
+  });
+  document.getElementById('sVal').textContent=money(totalVal);
+  document.getElementById('sTransit').textContent=transit;
+  document.getElementById('sTransitColli').textContent=transit>0?' (+'+colliTransit+')':'';
+  document.getElementById('sLanded').textContent=landed;
+  document.getElementById('sDone').textContent=done;
+}
+
+// \u2500\u2500\u2500 Status filter chips \u2500\u2500\u2500
+function renderChips(){
+  var html='<span class="fl-label">Status</span>';
+  STEPS.forEach(function(st){
+    var cnt=0;
+    shipmentData.forEach(function(s){
+      if(inferStatus(s)===st) cnt++;
+    });
+    var isActive=activeStatuses.has(st);
+    html+='<div class="fchip '+(isActive?'on':'')+'" data-status="'+st+'">'
+      +'<span class="d" style="background:'+STATUS_COLOR[st]+'"></span>'
+      +STATUS[st].label
+      +'<span class="cnt">'+cnt+'</span>'
+      +'</div>';
+  });
+  var el=document.getElementById('statusChips');
+  el.innerHTML=html;
+  el.querySelectorAll('.fchip').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var st=this.getAttribute('data-status');
+      if(activeStatuses.has(st)) activeStatuses.delete(st);
+      else activeStatuses.add(st);
+      renderChips();
+      renderRows();
+      renderStats();
+    });
   });
 }
 
-// ----- Zendingen ophalen + renderen -----
+// \u2500\u2500\u2500 Timeline component \u2500\u2500\u2500
+function timeline(s){
+  var html='<div class="timeline"><div class="tl-title">Status</div><div class="steps">';
+  var curSt=inferStatus(s);
+  var curIdx=STEPS.indexOf(curSt);
+  var progW=(curIdx/(STEPS.length-1)*84).toFixed(1);
+  html+='<div class="prog" style="width:'+progW+'%;background:'+STATUS_COLOR[curSt]+'"></div>';
+  STEPS.forEach(function(st,i){
+    var ts=s['time_'+st]||null;
+    var isDone=STEPS.indexOf(st)<=STEPS.indexOf(curSt);
+    var isCur=curSt===st;
+    var col=STATUS_COLOR[st];
+    html+='<div class="step '+(isDone?'done':'')+(isCur?' now':'')+'" style="'+(isCur?'--cur:'+col:'')+'">'
+      +'<div class="node">'
+      +(isDone?'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6L9 17l-5-5"/></svg>':'')
+      +'</div>'
+      +'<div class="lab">'+STATUS[st].label+'</div>'
+      +(ts?'<div class="tm">'+ts.slice(0,16)+'</div>':'')
+      +'</div>';
+  });
+  html+='</div></div>';
+  return html;
+}
+
+// \u2500\u2500\u2500 Detail panel \u2500\u2500\u2500
+function detail(s){
+  var html='<div class="detail-pad">'
+    +'<div class="dp-route">'
+    +'<div class="head"><div class="awb mono">'+esc(s.awb)+'</div></div>'
+    +'<div class="route-big">'
+    +'<div class="ep"><span class="flag-lg">'+FLAGS[s.from_cd||'CO']+'</span><div class="cd">'+esc(s.from_cd)+'</div><div class="ci">'+esc(s.from_ci)+'</div></div>'
+    +'<div class="mid"><div class="ln"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12h14"/><path d="m13 6 6 6-6 6"/></svg></div>'
+    +'<div class="km">'+val(s.km)+' km</div></div>'
+    +'<div class="ep"><span class="flag-lg">'+FLAGS[s.to_cd||'NL']+'</span><div class="cd">'+esc(s.to_cd)+'</div><div class="ci">'+esc(s.to_ci)+'</div></div>'
+    +'</div>'
+    +timeline(s)
+    +'<div class="dp-specs">'
+    +'<div class="spec"><div class="l">Colli</div><div class="v">'+val(s.pieces)+'</div></div>'
+    +'<div class="spec"><div class="l">Gewicht</div><div class="v">'+val(s.kg)+' kg</div></div>'
+    +'<div class="spec"><div class="l">FB</div><div class="v">'+val(s.fb)+'</div></div>'
+    +'<div class="spec"><div class="l">Tarief</div><div class="v">'+val(s.rate)+'</div></div>'
+    +'</div>'
+    +'<div class="dp-foot">'
+    +(s.carrier?'<span class="tag">Carrier: <b>'+esc(s.carrier)+'</b></span>':'')
+    +(s.agent?'<span class="tag">Agent: <b>'+esc(s.agent)+'</b></span>':'')
+    +(s.cha?'<span class="tag">CHA: <b>'+esc(s.cha)+'</b></span>':'')
+    +(s.awc?'<span class="tag">AWC: <b>'+esc(s.awc)+'</b></span>':'')
+    +(s.fsc?'<span class="tag">FSC: <b>'+esc(s.fsc)+'</b></span>':'')
+    +'<div class="dp-actions"><a class="lnk" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h6l2-3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2Z"/><circle cx="12" cy="13" r="4"/></svg>Bekijk colli</a></div>'
+    +'</div>'
+    +'</div>';
+  return html;
+}
+
+// \u2500\u2500\u2500 Render shipment rows \u2500\u2500\u2500
+function renderRows(){
+  var html='';
+  var filtered=shipmentData.filter(function(s){
+    return activeStatuses.has(inferStatus(s)) && (
+      !awbFilter || String(s.awb||'').toUpperCase().includes(awbFilter.toUpperCase())
+    );
+  });
+
+  document.getElementById('footCount').textContent=filtered.length+' binnenkomsten';
+
+  filtered.forEach(function(s,idx){
+    var st=inferStatus(s);
+    var stColor=STATUS_COLOR[st];
+    var html_row='<div class="row '+(openAwb===s.awb?'open':'')+'" data-awb="'+esc(s.awb)+'">'
+      +'<div class="c-awb"><div class="a mono">'+esc(s.awb)+'</div><div class="sub">'+esc(s.from_ci)+'</div></div>'
+      +'<div class="route"><span class="flag">'+FLAGS[s.from_cd||'CO']+'</span>'
+      +'<div class="ap"><div class="cd mono">'+esc(s.from_cd)+'</div><div class="ct">'+esc(s.from_ci)+'</div></div>'
+      +'<div class="r-line"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12h14"/><path d="m13 6 6 6-6 6"/></svg></div>'
+      +'<div class="ap"><div class="cd mono">'+esc(s.to_cd)+'</div><div class="ct">'+esc(s.to_ci)+'</div></div>'
+      +'<span class="flag">'+FLAGS[s.to_cd||'NL']+'</span></div>'
+      +'<div class="st">'
+      +'<span class="st-badge" style="color:'+stColor+'"><span class="d" style="background:'+stColor+'"></span>'+STATUS[st].label+'</span>'
+      +'<div class="st-bar">';
+    STEPS.forEach(function(step){
+      var isDone=STEPS.indexOf(step)<=STEPS.indexOf(st);
+      html_row+='<i style="background:'+(isDone?stColor:'var(--line-2)')+'"></i>';
+    });
+    html_row+='</div></div>'
+      +'<div class="num">'+val(s.pieces)+'</div>'
+      +'<div class="num">'+val(s.kg)+' kg</div>'
+      +'<div class="val">'+money(s.value)+'</div>'
+      +'<div class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></div>'
+      +'</div>'
+      +'<div class="detail '+(openAwb===s.awb?'open':'')+'"><div class="detail-in">'+detail(s)+'</div></div>';
+    html+=html_row;
+  });
+
+  var rowsEl=document.getElementById('rows');
+  if(!filtered.length){
+    rowsEl.innerHTML='<div class="empty-state">'
+      +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v4H3zM3 11h18v2H3zM3 17h18v4H3z"/><path d="M8 7V3M8 21v-4M16 7V3M16 21v-4"/></svg>'
+      +'<div class="em-t">Geen binnenkomsten gevonden</div>'
+      +'<div class="em-s">Probeer een andere datum of pas de filters aan</div>'
+      +'</div>';
+    return;
+  }
+  rowsEl.innerHTML=html;
+
+  rowsEl.querySelectorAll('.row').forEach(function(row){
+    row.addEventListener('click',function(){
+      var awb=this.getAttribute('data-awb');
+      if(openAwb===awb) openAwb=null;
+      else openAwb=awb;
+      renderRows();
+    });
+  });
+}
+
+// \u2500\u2500\u2500 Date control \u2500\u2500\u2500
+var dateFrom=todayStr, dateTo=todayStr, awbFilter='';
+function updateDateLabel(){
+  var lbl=dateFrom===dateTo ? 'Vandaag' : dateFrom+' tot '+dateTo;
+  document.getElementById('dateLabel').textContent=lbl;
+}
+
+// \u2500\u2500\u2500 Load shipments \u2500\u2500\u2500
 function loadShipments(){
-  var from=document.getElementById('dateFromInput').value;
-  var to  =document.getElementById('dateToInput').value;
-  var filter=(document.getElementById('awbFilter').value||'').trim();
-  var box=document.getElementById('shipResult');
+  var url=(dateFrom===dateTo)
+    ? '/api/shipments?date='+encodeURIComponent(dateFrom)
+    : '/api/shipments?from='+encodeURIComponent(dateFrom)+'&to='+encodeURIComponent(dateTo);
 
-  if(!from || !to){
-    box.innerHTML=errorHtml('Vul "Van" en "Tot" in.');
-    return;
-  }
-  if(to < from){
-    box.innerHTML=errorHtml('"Tot" ligt v\u00f3\u00f3r "Van". Draai ze om.');
-    return;
-  }
-  var rangeLabel = (from===to) ? from : (from+' t/m '+to);
-  var url = (from===to)
-    ? '/api/shipments?date='+encodeURIComponent(from)
-    : '/api/shipments?from='+encodeURIComponent(from)+'&to='+encodeURIComponent(to);
-
-  box.innerHTML='<div class="state"><div class="spinner"></div><p>Zendingen ophalen voor '+esc(rangeLabel)+'&hellip;</p></div>';
+  var skelRow='<div class="skel">'
+    +'<div class="skel-bar" style="width:90px"></div>'
+    +'<div class="skel-bar" style="width:120px"></div>'
+    +'<div class="skel-bar" style="width:100px"></div>'
+    +'<div class="skel-bar" style="width:30px"></div>'
+    +'<div class="skel-bar" style="width:50px"></div>'
+    +'<div class="skel-bar" style="width:70px"></div>'
+    +'<div></div>'
+    +'</div>';
+  document.getElementById('rows').innerHTML=skelRow+skelRow+skelRow+skelRow;
 
   apiGet(url).then(function(env){
-    if(!env.ok){
-      var p=describeProblem(env);
-      box.innerHTML=errorHtml(p.msg,p.hint);
-      return;
-    }
-    var list=asList(env);
-    if(list===null){
-      var p2=describeProblem(env);
-      box.innerHTML=errorHtml(p2.msg,p2.hint);
-      return;
-    }
-
-    // AWB-filter toepassen
-    var filterApplied=false;
-    if(filter){
-      filterApplied=true;
-      var f=filter.toUpperCase();
-      list=list.filter(function(s){
-        return String(s.awb||'').toUpperCase().indexOf(f)>-1;
-      });
-    }
-
-    // Eventuele dag-fouten uit meta tonen als waarschuwing
-    var meta = env.meta || {};
-    var dayErrors = Array.isArray(meta.errors) ? meta.errors : [];
-
-    if(list.length===0){
-      var note = filterApplied ? ' met AWB-filter "'+esc(filter)+'"' : '';
-      box.innerHTML='<div class="state">'
-        + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>'
-        + '<h3>Geen zendingen gevonden</h3><p>Periode '+esc(rangeLabel)+note+' gaf geen resultaten.</p></div>';
-      if(dayErrors.length) box.innerHTML += dayErrorsHtml(dayErrors);
-      return;
-    }
-    renderShipments(list,rangeLabel,box,dayErrors,filterApplied?filter:'');
+    if(!env.ok || !env.data) { shipmentData=[]; renderStats(); renderChips(); renderRows(); return; }
+    var list=Array.isArray(env.data)?env.data:[env.data];
+    shipmentData=list.map(function(s){
+      return {
+        awb:s.awb||'',
+        from_cd:s.origin_code||s.from_cd||'',
+        from_ci:s.origin_city||s.from_ci||'',
+        to_cd:s.destination_code||s.to_cd||'',
+        to_ci:s.destination_city||s.to_ci||'',
+        status:s.status||'Booked',
+        pieces:s.pieces||s.colli||0,
+        kg:s.weight||s.kg||0,
+        value:s.totalAWB||s.value||0,
+        fb:s.fb||'',
+        rate:s.rate||'',
+        km:s.km||0,
+        carrier:s.totalCarrier?'Carrier':'',
+        agent:s.totalAgent?'Agent':'',
+        cha:s.cha||'',
+        awc:s.awc||'',
+        fsc:s.fsc||'',
+        date:s.shipmentDate||'',
+        time_geboekt:s.time_booked||'',
+        time_vertrokken:s.time_departed||'',
+        time_geland:s.time_landed||'',
+        time_afgeleverd:s.time_delivered||''
+      };
+    });
+    document.getElementById('navCnt').textContent=shipmentData.length;
+    renderStats();
+    renderChips();
+    renderRows();
   }).catch(function(err){
-    box.innerHTML=errorHtml('Kon de lokale proxy niet bereiken.', err.message
-      + ' \u2014 draait "node server.js" nog?');
+    shipmentData=[];
+    renderStats(); renderChips(); renderRows();
   });
 }
-function dayErrorsHtml(errs){
-  if(!errs || !errs.length) return '';
-  var rows='';
-  errs.forEach(function(e){
-    var m = (e.data && (e.data.error||e.data.mensaje)) || ('status '+e.status);
-    rows += '<li><code>'+esc(e.date)+'</code> &mdash; '+esc(m)+'</li>';
+
+// \u2500\u2500\u2500 Init \u2500\u2500\u2500
+loadShipments();
+document.getElementById('clientName').textContent='Fresh from Source';
+document.getElementById('clientCode').textContent='CLIB113847';
+
+(function(){
+  var pop=document.getElementById('calPop');
+  pop.className='cal-pop';
+  pop.innerHTML='<div class="rw">'
+    +'<div class="dg"><label>Van</label><input type="date" id="dpFrom" value="'+todayStr+'"></div>'
+    +'<div class="dg"><label>Tot</label><input type="date" id="dpTo" value="'+todayStr+'"></div>'
+    +'<button class="ap-btn" id="dpApply">Toepassen</button>'
+    +'</div>';
+
+  document.getElementById('dateCtrl').addEventListener('click',function(e){
+    e.stopPropagation();
+    pop.classList.toggle('open');
   });
-  return '<div class="error-box" style="margin-top:16px">'
-    + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>'
-    + '<div><div class="etitle">Sommige dagen gaven een fout</div>'
-    + '<ul class="emsg" style="margin:6px 0 0 16px">'+rows+'</ul></div></div>';
-}
+  pop.addEventListener('click',function(e){e.stopPropagation();});
+  document.addEventListener('click',function(){pop.classList.remove('open');});
 
-function renderShipments(list,rangeLabel,box,dayErrors,filterLabel){
-  var totalPieces=0,totalValue=0;
-  var origins={}, destinations={}, dates={};
-  list.forEach(function(s){
-    totalPieces+=Number(s.pieces)||0;
-    totalValue +=Number(s.totalAWB)||0;
-    if(s.origin)      origins[s.origin]=1;
-    if(s.destination) destinations[s.destination]=1;
-    if(s.shipmentDate) dates[String(s.shipmentDate).slice(0,10)]=1;
-  });
-
-  // Standaard ingeklapt - klik "Alle velden" of "Ruwe JSON" om uit te klappen.
-  var html='<div class="result-section" data-section="shipments">';
-  var subText = 'Periode <code>'+esc(rangeLabel)+'</code>'
-              + (filterLabel ? ' &middot; filter <code>'+esc(filterLabel)+'</code>' : '');
-  html+='<div class="section-head">'
-    + '<h2>'+nfNum.format(list.length)+' zending'+(list.length===1?'':'en')+'</h2>'
-    + '<div class="section-actions">'
-    +   '<button class="btn-ghost" data-toggle="fields">Alle velden</button>'
-    +   '<button class="btn-ghost" data-toggle="json">Ruwe JSON</button>'
-    + '</div>'
-    + '<span class="sub">'+subText+'</span></div>';
-
-  html+='<div class="stats">'
-    + statHtml('Zendingen',         nfNum.format(list.length), '')
-    + statHtml('Totaal colli',      nfNum.format(totalPieces), '')
-    + statHtml('Totaal AWB-waarde', money(totalValue), '')
-    + statHtml('Herkomsten',        nfNum.format(Object.keys(origins).length), '')
-    + statHtml('Bestemmingen',      nfNum.format(Object.keys(destinations).length), '')
-    + statHtml('Zenddagen',         nfNum.format(Object.keys(dates).length), '')
-    + '</div>';
-
-  if(dayErrors && dayErrors.length) html += dayErrorsHtml(dayErrors);
-
-  html+='<pre class="json-block">'+esc(JSON.stringify(list,null,2))+'</pre>';
-
-  html+='<div class="card-list">';
-  list.forEach(function(s,i){ html+=shipCardHtml(s,i); });
-  html+='</div></div>';
-  box.innerHTML=html;
-
-  var section=box.querySelector('[data-section="shipments"]');
-  attachSectionToggles(section);
-
-  // Klik-afhandeling voor drill-down (negeer kliks in de velden-tabel)
-  var cards=section.querySelectorAll('.ship-card');
-  for(var i=0;i<cards.length;i++){
-    cards[i].addEventListener('click',function(ev){
-      if(ev.target.closest('.fields-table')) return;
-      var awb=this.getAttribute('data-awb');
-      for(var j=0;j<cards.length;j++) cards[j].classList.remove('active');
-      this.classList.add('active');
-      loadBarcodes(awb,'zending');
-    });
-    cards[i].addEventListener('keydown',function(ev){
-      if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); this.click(); }
-    });
-  }
-}
-
-function statHtml(label,value,cls){
-  return '<div class="stat '+cls+'"><div class="label">'+esc(label)+'</div>'
-       + '<div class="value">'+value+'</div></div>';
-}
-function uniqueCount(list,key){
-  var set={};
-  list.forEach(function(o){ if(o[key]) set[o[key]]=1; });
-  return Object.keys(set).length;
-}
-
-function shipCardHtml(s,i){
-  var charges=Array.isArray(s.charges)?s.charges:[];
-  var rates=Array.isArray(s.rates)?s.rates:[];
-  var chipHtml='';
-  charges.forEach(function(c){
-    chipHtml+='<span class="chip">'+val(c.charge)+' &middot; '+money(c.value)+'</span>';
-  });
-  rates.forEach(function(r){
-    chipHtml+='<span class="chip">tarief '+val(r.rate)+' &middot; '+val(r.chargeableWeight)+' kg</span>';
-  });
-
-  return '<div class="ship-card" role="button" tabindex="0" data-awb="'+esc(s.awb)+'" style="animation-delay:'+(i*45)+'ms">'
-    + '<div class="ship-top">'
-    +   '<div class="awb"><span class="awb-tag">AWB / zending</span>'+val(s.awb)+'</div>'
-    +   '<div class="route">'+flagIcon(s.origin)
-    +     ' <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg> '
-    +     flagIcon(s.destination)+'</div>'
-    + '</div>'
-    + '<div class="ship-grid">'
-    +   kv('Verzenddatum',fmtDate(s.shipmentDate))
-    +   kv('Colli',val(s.pieces))
-    +   kv('FB',val(s.fb))
-    +   kv('Totaal AWB',money(s.totalAWB))
-    +   kv('Vracht',money(s.totalFleet))
-    +   kv('Agent',money(s.totalAgent))
-    +   kv('Carrier',money(s.totalCarrier))
-    + '</div>'
-    + '<div class="ship-foot">'
-    +   '<div class="chips">'+(chipHtml||'<span class="chip">geen toeslagen</span>')+'</div>'
-    +   '<span class="drill">Bekijk colli '
-    +     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span>'
-    + '</div>'
-    + '<div class="fields-table">'+renderAllFields(s)+'</div>'
-    + '</div>';
-}
-// ----- Debug: alle velden en JSON tonen -----
-function renderAllFields(obj){
-  if(!obj || typeof obj!=='object') return '';
-  var rows='';
-  for(var k in obj){
-    if(!Object.prototype.hasOwnProperty.call(obj,k)) continue;
-    var v=obj[k], vHtml;
-    if(v===null||v===undefined||v===''){
-      vHtml='<em style="color:var(--color-text-faint)">(leeg)</em>';
-    }else if(typeof v==='object'){
-      vHtml='<span class="nested">'+esc(JSON.stringify(v,null,2))+'</span>';
-    }else{
-      vHtml=esc(String(v));
+  document.getElementById('dpApply').addEventListener('click',function(){
+    var f=document.getElementById('dpFrom').value;
+    var t=document.getElementById('dpTo').value;
+    if(f){
+      dateFrom=f;
+      dateTo=(t&&t>=f)?t:f;
+      document.getElementById('dpTo').value=dateTo;
+      updateDateLabel();
+      pop.classList.remove('open');
     }
-    rows+='<tr><td>'+esc(k)+'</td><td>'+vHtml+'</td></tr>';
-  }
-  return '<table><tbody>'+rows+'</tbody></table>';
-}
-function attachSectionToggles(sectionEl){
-  var btns=sectionEl.querySelectorAll('.section-actions [data-toggle]');
-  for(var i=0;i<btns.length;i++){
-    btns[i].addEventListener('click',function(ev){
-      ev.stopPropagation();
-      var what=this.getAttribute('data-toggle');
-      var cls='show-'+what;
-      sectionEl.classList.toggle(cls);
-      this.classList.toggle('active',sectionEl.classList.contains(cls));
-    });
-  }
-}
-
-function kv(k,v){
-  return '<div class="kv"><div class="k">'+esc(k)+'</div><div class="v">'+v+'</div></div>';
-}
-
-// ----- Colli / barcodes ophalen + renderen -----
-function loadBarcodes(shipment,bron){
-  shipment=String(shipment||'').trim();
-  var panel=document.getElementById('boxPanel');
-  var box=document.getElementById('boxResult');
-  panel.classList.remove('hidden');
-  box.innerHTML='<div class="state"><div class="spinner"></div><p>Colli ophalen voor zending '+esc(shipment)+'&hellip;</p></div>';
-  panel.scrollIntoView({behavior:'smooth',block:'start'});
-
-  if(!shipment){
-    box.innerHTML=errorHtml('Geen zendingsnummer opgegeven.');
-    return;
-  }
-
-  apiGet('/api/barcodes?shipment='+encodeURIComponent(shipment)).then(function(env){
-    if(!env.ok){
-      var p=describeProblem(env);
-      box.innerHTML=errorHtml(p.msg,p.hint);
-      return;
-    }
-    var list=asList(env);
-    if(list===null){
-      var p2=describeProblem(env);
-      box.innerHTML=errorHtml(p2.msg,p2.hint);
-      return;
-    }
-    if(list.length===0){
-      box.innerHTML='<div class="state">'
-        + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7v10M11 7v10M15 7v10M19 7v10"/></svg>'
-        + '<h3>Geen colli gevonden</h3><p>Zending '+esc(shipment)+' bevat geen colli-/barcodegegevens.</p></div>';
-      return;
-    }
-    renderBarcodes(list,shipment,box);
-  }).catch(function(err){
-    box.innerHTML=errorHtml('Kon de lokale proxy niet bereiken.',err.message);
   });
-}
+})();
 
-function statusKind(s){
-  var v=String(s||'').trim().toLowerCase();
-  if(v==='received') return 'received';
-  if(v==='confirmed') return 'confirmed';
-  return 'unknown';
-}
-
-function renderBarcodes(list,shipment,box){
-  var received=0,confirmed=0,other=0;
-  var consignees={}, exporters={}, carriers={};
-  var totalGross=0;
-  list.forEach(function(b){
-    var k=statusKind(b.status);
-    if(k==='received') received++;
-    else if(k==='confirmed') confirmed++;
-    else other++;
-    if(b.consigneeCode) consignees[b.consigneeCode]=1;
-    if(b.exporterCode)  exporters[b.exporterCode]=1;
-    if(b.carrierCode)   carriers[b.carrierCode]=1;
-    var g=Number(b.grossWeight); if(isFinite(g)) totalGross+=g;
-  });
-
-  var html='<div class="result-section" data-section="barcodes">';
-  html+='<div class="section-head">'
-    + '<h2>'+nfNum.format(list.length)+' colli</h2>'
-    + '<div class="section-actions">'
-    +   '<button class="btn-ghost" data-toggle="fields">Alle velden</button>'
-    +   '<button class="btn-ghost" data-toggle="json">Ruwe JSON</button>'
-    + '</div>'
-    + '<span class="sub">Zending <code>'+esc(shipment)+'</code></span></div>';
-
-  html+='<div class="stats">'
-    + statHtml('Totaal colli',           nfNum.format(list.length), '')
-    + statHtml('Ontvangen',              nfNum.format(received), 'received')
-    + statHtml('Verwacht (confirmed)',   nfNum.format(confirmed), 'confirmed')
-    + statHtml('Consignees',             nfNum.format(Object.keys(consignees).length), '')
-    + statHtml('Exporteurs',             nfNum.format(Object.keys(exporters).length), '')
-    + statHtml('Brutogewicht totaal',    weight(totalGross), '')
-    + '</div>';
-
-  html+='<pre class="json-block">'+esc(JSON.stringify(list,null,2))+'</pre>';
-
-  html+='<div class="card-list">';
-  list.forEach(function(b,i){ html+=boxCardHtml(b,i); });
-  html+='</div></div>';
-  box.innerHTML=html;
-
-  attachSectionToggles(box.querySelector('[data-section="barcodes"]'));
-}
-
-function boxCardHtml(b,i){
-  var kind=statusKind(b.status);
-  var badgeLabel = kind==='received' ? 'Ontvangen'
-                 : kind==='confirmed' ? 'Verwacht'
-                 : (b.status? esc(b.status) : 'Onbekend');
-
-  var dims=[b.length,b.width,b.height].map(function(x){
-    var n=Number(x); return isFinite(n)? nfWeight.format(n) : '?';
-  }).join(' \u00d7 ');
-  var unit=val(b.unitOfMeasurement,'');
-
-  function nameWithCode(name, code){
-    var n = (name===null||name===undefined||name==='') ? '&ndash;' : esc(name);
-    if(code===null||code===undefined||code==='') return n;
-    return n+' <span style="color:var(--color-text-muted)">('+esc(code)+')</span>';
-  }
-
-  return '<div class="box-card is-'+kind+'" style="animation-delay:'+(i*40)+'ms">'
-    + '<div class="box-top">'
-    +   '<div class="box-id"><span class="sub">Barcode</span>'+val(b.barcode,'(geen barcode)')+'</div>'
-    +   '<span class="badge '+kind+'"><span class="bdot"></span>'+badgeLabel+'</span>'
-    + '</div>'
-    + '<div class="box-grid">'
-    +   kv('HAWB',                val(b.hawb))
-    +   kv('Consignee',           nameWithCode(b.consigneeName, b.consigneeCode))
-    +   kv('Exporteur',           nameWithCode(b.exporterName,  b.exporterCode))
-    +   kv('Carrier',             nameWithCode(b.carrierName,   b.carrierCode))
-    +   kv('Afmetingen',          dims+' '+unit)
-    +   kv('Brutogewicht',        weight(b.grossWeight))
-    +   kv('Volumegewicht',       weight(b.volumeWeight))
-    +   kv('Berekend op',         b.shipmentMeasureVolume? 'volumegewicht':'brutogewicht')
-    +   kv('Product',             nameWithCode(b.productDescription, b.productCode))
-    +   kv('Verpakking',          val(b.packing))
-    +   kv('Prijs per stuk',      money(b.piecePrice))
-    +   kv('Doostype',            val(b.boxSize))
-    +   kv('Levering leverancier',fmtDate(b.supplierDeliveryDate))
-    + '</div>'
-    + '<div class="fields-table">'+renderAllFields(b)+'</div>'
-    + '</div>';
-}
-
-// ----- Init -----
-var today = todayISO();
-document.getElementById('dateFromInput').value = today;
-document.getElementById('dateToInput').value   = today;
-loadConfig();
-
-document.getElementById('searchDateBtn').addEventListener('click',loadShipments);
-['dateFromInput','dateToInput','awbFilter'].forEach(function(id){
-  document.getElementById(id).addEventListener('keydown',function(e){
-    if(e.key==='Enter') loadShipments();
-  });
+document.getElementById('awbIn').addEventListener('input',function(){
+  awbFilter=this.value;
+  renderRows();
 });
 
-document.getElementById('searchShipBtn').addEventListener('click',function(){
-  loadBarcodes(document.getElementById('shipInput').value,'direct');
-});
-document.getElementById('shipInput').addEventListener('keydown',function(e){
-  if(e.key==='Enter') loadBarcodes(this.value,'direct');
-});
+document.getElementById('searchBtn').addEventListener('click',loadShipments);
 </script>
 </body>
 </html>
