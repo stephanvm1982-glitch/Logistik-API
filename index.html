@@ -648,28 +648,28 @@ function timeline(s){
 
 // \u2500\u2500\u2500 Detail panel \u2500\u2500\u2500
 function detail(s){
+  var r0=s.rates&&s.rates[0]?s.rates[0]:{};
+  var chargeTags=(s.charges||[]).map(function(c){
+    return '<span class="tag"><b>'+esc(c.charge)+'</b> '+money(c.value)+'</span>';
+  }).join('');
   var html='<div class="detail-pad">'
     +'<div class="dp-route">'
     +'<div class="head"><div class="awb mono">'+esc(s.awb)+'</div></div>'
     +'<div class="route-big">'
     +'<div class="ep">'+flagLg(s.from_cd)+'<div class="cd">'+esc(s.from_cd)+'</div><div class="ci">'+esc(s.from_ci)+'</div></div>'
     +'<div class="mid"><div class="ln"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12h14"/><path d="m13 6 6 6-6 6"/></svg></div>'
-    +'<div class="km">'+val(s.km)+' km</div></div>'
+    +'<div class="km">'+(s.km?val(s.km)+' km':'')+'</div></div>'
     +'<div class="ep">'+flagLg(s.to_cd)+'<div class="cd">'+esc(s.to_cd)+'</div><div class="ci">'+esc(s.to_ci)+'</div></div>'
     +'</div>'
     +timeline(s)
     +'<div class="dp-specs">'
     +'<div class="spec"><div class="l">Colli</div><div class="v">'+val(s.pieces)+'</div></div>'
-    +'<div class="spec"><div class="l">Gewicht</div><div class="v">'+val(s.kg)+' kg</div></div>'
+    +'<div class="spec"><div class="l">Gewicht</div><div class="v">'+val(r0.grossWeight||s.kg||'\u2013')+' kg</div></div>'
+    +'<div class="spec"><div class="l">Tarief</div><div class="v">'+val(r0.rate||s.rate||'\u2013')+' /kg</div></div>'
     +'<div class="spec"><div class="l">FB</div><div class="v">'+val(s.fb)+'</div></div>'
-    +'<div class="spec"><div class="l">Tarief</div><div class="v">'+val(s.rate)+'</div></div>'
     +'</div>'
     +'<div class="dp-foot">'
-    +(s.carrier?'<span class="tag">Carrier: <b>'+esc(s.carrier)+'</b></span>':'')
-    +(s.agent?'<span class="tag">Agent: <b>'+esc(s.agent)+'</b></span>':'')
-    +(s.cha?'<span class="tag">CHA: <b>'+esc(s.cha)+'</b></span>':'')
-    +(s.awc?'<span class="tag">AWC: <b>'+esc(s.awc)+'</b></span>':'')
-    +(s.fsc?'<span class="tag">FSC: <b>'+esc(s.fsc)+'</b></span>':'')
+    +chargeTags
     +'<div class="dp-actions"><a class="lnk" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h6l2-3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2Z"/><circle cx="12" cy="13" r="4"/></svg>Bekijk colli</a></div>'
     +'</div>'
     +'</div>';
@@ -751,6 +751,7 @@ function lsSet(date,data){try{localStorage.setItem(lsKey(date),JSON.stringify({t
 
 // \u2500\u2500\u2500 Map raw API item to internal format \u2500\u2500\u2500
 function mapItem(s){
+  var r0=Array.isArray(s.rates)&&s.rates[0]?s.rates[0]:{};
   return {
     awb:s.awb||'',
     from_cd:s.origin_code||s.from_cd||s.origin||'',
@@ -759,17 +760,17 @@ function mapItem(s){
     to_ci:s.destination_city||s.to_ci||'',
     status:s.status||'',
     pieces:s.pieces||s.colli||0,
-    kg:s.weight||s.totalWeight||s.kg||0,
+    kg:s.weight||s.totalWeight||s.kg||r0.grossWeight||0,
     value:s.totalAWB||s.value||0,
     fb:s.fb||'',
-    rate:s.rate||'',
+    rate:s.rate||r0.rate||'',
     km:s.km||0,
-    carrier:s.totalCarrier||'',
-    agent:s.totalAgent||'',
-    cha:s.cha||'',
-    awc:s.awc||'',
-    fsc:s.fsc||'',
-    date:s.shipmentDate||'',
+    carrier:'',
+    agent:'',
+    cha:'',
+    awc:'',
+    fsc:'',
+    date:s.shipmentDate?s.shipmentDate.slice(0,10):'',
     charges:Array.isArray(s.charges)?s.charges:[],
     rates:Array.isArray(s.rates)?s.rates:[],
     time_geboekt:s.time_booked||'',
