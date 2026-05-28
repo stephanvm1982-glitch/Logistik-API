@@ -645,15 +645,22 @@ function val(v){
   return v===null||v===undefined||v===''?'–':String(v);
 }
 
-// \u2500\u2500\u2500 IATA AWB prefix \u2192 airline \u2500\u2500\u2500
+// \u2500\u2500\u2500 IATA AWB prefix \u2192 airline (fallback, overridden by getPrefixes()) \u2500\u2500\u2500
 const AWB_AL={
   '001':'AA','006':'DL','014':'AC','020':'LH','023':'UA','057':'AA',
   '074':'KLM','075':'BA','080':'IB','125':'BA','131':'KLM','157':'SQ',
   '176':'UA','180':'LX','217':'SA','220':'QF','235':'TG','247':'AF',
-  '369':'LATAM','405':'FX','406':'PO','549':'MP','604':'LAN','618':'INS'
+  '369':'5Y','405':'FX','406':'PO','549':'MP','604':'LA','618':'7I'
 };
 function airlineFromAwb(awb){
   var pfx=String(awb||'').replace(/[^0-9]/g,'').slice(0,3);
+  // Use dynamic prefix table (editable in Instellingen) when available
+  if(typeof getPrefixes==='function'){
+    var prefs=getPrefixes();
+    for(var i=0;i<prefs.length;i++){
+      if(prefs[i].p===pfx) return prefs[i].i;
+    }
+  }
   return AWB_AL[pfx]||'';
 }
 
@@ -1163,7 +1170,7 @@ var DEFAULT_PREFIXES=[
   {p:'172',i:'LY',n:'El Al'},{p:'176',i:'UA',n:'United Airlines Cargo'},{p:'180',i:'LX',n:'SWISS'},
   {p:'214',i:'AV',n:'Avianca'},{p:'217',i:'SA',n:'South African Airways'},{p:'220',i:'QF',n:'Qantas'},
   {p:'235',i:'TG',n:'Thai Airways'},{p:'247',i:'AF',n:'Air France'},{p:'279',i:'ET',n:'Ethiopian Airlines'},
-  {p:'315',i:'EK',n:'Emirates'},{p:'369',i:'LA',n:'LATAM Airlines'},{p:'405',i:'FX',n:'FedEx'},
+  {p:'315',i:'EK',n:'Emirates'},{p:'369',i:'5Y',n:'Atlas Air'},{p:'405',i:'FX',n:'FedEx'},
   {p:'406',i:'PO',n:'Polar Air Cargo'},{p:'524',i:'CV',n:'Cargolux'},{p:'549',i:'MP',n:'Martinair'},
   {p:'604',i:'LA',n:'LAN Chile'},{p:'618',i:'7I',n:'InselAir'}
 ];
