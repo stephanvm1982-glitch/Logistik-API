@@ -449,6 +449,7 @@
           <input class="awb-in" id="awbIn" maxlength="15" placeholder="Filter op AWB…">
         </div>
         <div class="tb-spacer"></div>
+        <span id="apiStatus" style="font-size:12px;font-weight:600;color:var(--txt-faint)"></span>
         <button class="btn btn-gho" id="moreFilters"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M7 12h10M11 18h2"/></svg>Meer filters</button>
         <button class="btn btn-pri" id="searchBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>Zoeken</button>
       </div>
@@ -676,7 +677,6 @@ function detail(s){
 
 // \u2500\u2500\u2500 Render shipment rows \u2500\u2500\u2500
 function renderRows(){
-  var html='';
   var filtered=shipmentData.filter(function(s){
     return activeStatuses.has(inferStatus(s)) && (
       !awbFilter || String(s.awb||'').toUpperCase().includes(awbFilter.toUpperCase())
@@ -685,49 +685,49 @@ function renderRows(){
 
   document.getElementById('footCount').textContent=filtered.length+' binnenkomsten';
 
-  filtered.forEach(function(s,idx){
-    var st=inferStatus(s);
-    var stColor=STATUS_COLOR[st];
-    var html_row='<div class="row '+(openAwb===s.awb?'open':'')+'" data-awb="'+esc(s.awb)+'">'
-      +'<div class="c-awb"><div class="a mono">'+esc(s.awb)+'</div><div class="sub">'+esc(s.from_ci)+'</div></div>'
-      +'<div class="route">'+flag(s.from_cd)
-      +'<div class="ap"><div class="cd mono">'+esc(s.from_cd)+'</div><div class="ct">'+esc(s.from_ci)+'</div></div>'
-      +'<div class="r-line"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12h14"/><path d="m13 6 6 6-6 6"/></svg></div>'
-      +'<div class="ap"><div class="cd mono">'+esc(s.to_cd)+'</div><div class="ct">'+esc(s.to_ci)+'</div></div>'
-      +flag(s.to_cd)+'</div>'
-      +'<div class="st">'
-      +'<span class="st-badge" style="color:'+stColor+'"><span class="d" style="background:'+stColor+'"></span>'+STATUS[st].label+'</span>'
-      +'<div class="st-bar">';
-    STEPS.forEach(function(step){
-      var isDone=STEPS.indexOf(step)<=STEPS.indexOf(st);
-      html_row+='<i style="background:'+(isDone?stColor:'var(--line-2)')+'"></i>';
-    });
-    html_row+='</div></div>'
-      +'<div class="num">'+val(s.pieces)+'</div>'
-      +'<div class="num">'+val(s.kg)+' kg</div>'
-      +'<div class="val">'+money(s.value)+'</div>'
-      +'<div class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></div>'
-      +'</div>'
-      +'<div class="detail '+(openAwb===s.awb?'open':'')+'"><div class="detail-in">'+detail(s)+'</div></div>';
-    html+=html_row;
-  });
-
   var rowsEl=document.getElementById('rows');
   if(!filtered.length){
     rowsEl.innerHTML='<div class="empty-state">'
-      +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v4H3zM3 11h18v2H3zM3 17h18v4H3z"/><path d="M8 7V3M8 21v-4M16 7V3M16 21v-4"/></svg>'
+      +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>'
       +'<div class="em-t">Geen binnenkomsten gevonden</div>'
       +'<div class="em-s">Probeer een andere datum of pas de filters aan</div>'
       +'</div>';
     return;
   }
+
+  var html='';
+  filtered.forEach(function(s){
+    var st=inferStatus(s);
+    var stColor=STATUS_COLOR[st];
+    var isOpen=openAwb===s.awb;
+    var bar='';
+    STEPS.forEach(function(step){
+      bar+='<i style="background:'+(STEPS.indexOf(step)<=STEPS.indexOf(st)?stColor:'var(--line-2)')+'"></i>';
+    });
+    // Detail panel rendered lazily \u2014 only for the open row
+    var detailHtml=isOpen?detail(s):'';
+    html+='<div class="row '+(isOpen?'open':'')+'" data-awb="'+esc(s.awb)+'">'
+      +'<div class="c-awb"><div class="a mono">'+esc(s.awb)+'</div><div class="sub">'+esc(s.from_ci||s.from_cd)+'</div></div>'
+      +'<div class="route">'+flag(s.from_cd)
+      +'<div class="ap"><div class="cd mono">'+esc(s.from_cd)+'</div><div class="ct">'+esc(s.from_ci||'')+'</div></div>'
+      +'<div class="r-line"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12h14"/><path d="m13 6 6 6-6 6"/></svg></div>'
+      +'<div class="ap"><div class="cd mono">'+esc(s.to_cd)+'</div><div class="ct">'+esc(s.to_ci||'')+'</div></div>'
+      +flag(s.to_cd)+'</div>'
+      +'<div class="st"><span class="st-badge" style="color:'+stColor+'"><span class="d" style="background:'+stColor+'"></span>'+STATUS[st].label+'</span>'
+      +'<div class="st-bar">'+bar+'</div></div>'
+      +'<div class="num r">'+val(s.pieces)+'</div>'
+      +'<div class="num r">'+val(s.kg)+' kg</div>'
+      +'<div class="val">'+money(s.value)+'</div>'
+      +'<div class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></div>'
+      +'</div>'
+      +'<div class="detail '+(isOpen?'open':'')+'"><div class="detail-in">'+detailHtml+'</div></div>';
+  });
   rowsEl.innerHTML=html;
 
   rowsEl.querySelectorAll('.row').forEach(function(row){
     row.addEventListener('click',function(){
       var awb=this.getAttribute('data-awb');
-      if(openAwb===awb) openAwb=null;
-      else openAwb=awb;
+      openAwb=(openAwb===awb)?null:awb;
       renderRows();
     });
   });
@@ -740,64 +740,98 @@ function updateDateLabel(){
   document.getElementById('dateLabel').textContent=lbl;
 }
 
+// \u2500\u2500\u2500 localStorage cache \u2500\u2500\u2500
+var LS_TTL=5*60*1000;
+function lsKey(d){ return 'ffs:'+d; }
+function lsGet(date){
+  try{var e=JSON.parse(localStorage.getItem(lsKey(date)));return(e&&Date.now()-e.ts<LS_TTL)?e.data:null;}catch(x){return null;}
+}
+function lsSet(date,data){try{localStorage.setItem(lsKey(date),JSON.stringify({ts:Date.now(),data:data}));}catch(x){}}
+
+// \u2500\u2500\u2500 Map raw API item to internal format \u2500\u2500\u2500
+function mapItem(s){
+  return {
+    awb:s.awb||'',
+    from_cd:s.origin_code||s.from_cd||s.origin||'',
+    from_ci:s.origin_city||s.from_ci||'',
+    to_cd:s.destination_code||s.to_cd||s.destination||'',
+    to_ci:s.destination_city||s.to_ci||'',
+    status:s.status||'',
+    pieces:s.pieces||s.colli||0,
+    kg:s.weight||s.totalWeight||s.kg||0,
+    value:s.totalAWB||s.value||0,
+    fb:s.fb||'',
+    rate:s.rate||'',
+    km:s.km||0,
+    carrier:s.totalCarrier||'',
+    agent:s.totalAgent||'',
+    cha:s.cha||'',
+    awc:s.awc||'',
+    fsc:s.fsc||'',
+    date:s.shipmentDate||'',
+    charges:Array.isArray(s.charges)?s.charges:[],
+    rates:Array.isArray(s.rates)?s.rates:[],
+    time_geboekt:s.time_booked||'',
+    time_vertrokken:s.time_departed||'',
+    time_geland:s.time_landed||'',
+    time_afgeleverd:s.time_delivered||''
+  };
+}
+
+function setStatus(msg,type){
+  var el=document.getElementById('apiStatus');
+  if(!el)return;
+  el.textContent=msg;
+  el.style.color=type==='ok'?'var(--afgeleverd)':type==='err'?'var(--vertrokken)':'var(--txt-faint)';
+}
+
+function applyData(list){
+  shipmentData=list.map(mapItem);
+  document.getElementById('navCnt').textContent=shipmentData.length;
+  renderStats();
+  renderChips();
+  renderRows();
+}
+
 // \u2500\u2500\u2500 Load shipments \u2500\u2500\u2500
 function loadShipments(){
   var url=(dateFrom===dateTo)
     ? '/api/shipments?date='+encodeURIComponent(dateFrom)
     : '/api/shipments?from='+encodeURIComponent(dateFrom)+'&to='+encodeURIComponent(dateTo);
 
-  var skelRow='<div class="skel">'
-    +'<div class="skel-bar" style="width:90px"></div>'
-    +'<div class="skel-bar" style="width:120px"></div>'
-    +'<div class="skel-bar" style="width:100px"></div>'
-    +'<div class="skel-bar" style="width:30px"></div>'
-    +'<div class="skel-bar" style="width:50px"></div>'
-    +'<div class="skel-bar" style="width:70px"></div>'
-    +'<div></div>'
-    +'</div>';
-  document.getElementById('rows').innerHTML=skelRow+skelRow+skelRow+skelRow;
+  // Show cached data instantly if available
+  var cached=dateFrom===dateTo?lsGet(dateFrom):null;
+  if(cached){
+    applyData(cached);
+    setStatus('Cache \u2014 laden op achtergrond\u2026','');
+  } else {
+    var skelRow='<div class="skel">'
+      +'<div class="skel-bar" style="width:90px"></div>'
+      +'<div class="skel-bar" style="width:120px"></div>'
+      +'<div class="skel-bar" style="width:100px"></div>'
+      +'<div class="skel-bar" style="width:30px"></div>'
+      +'<div class="skel-bar" style="width:50px"></div>'
+      +'<div class="skel-bar" style="width:70px"></div>'
+      +'<div></div>'
+      +'</div>';
+    document.getElementById('rows').innerHTML=skelRow+skelRow+skelRow+skelRow;
+    setStatus('Laden\u2026','');
+  }
 
   apiGet(url).then(function(env){
-    if(!env.ok || !env.data) { shipmentData=[]; document.getElementById('navCnt').textContent='0'; renderStats(); renderChips(); renderRows(); return; }
-    var list=Array.isArray(env.data)?env.data:[env.data];
-    shipmentData=list.map(function(s){
-      return {
-        awb:s.awb||'',
-        from_cd:s.origin_code||s.from_cd||s.origin||'',
-        from_ci:s.origin_city||s.from_ci||s.origin||'',
-        to_cd:s.destination_code||s.to_cd||s.destination||'',
-        to_ci:s.destination_city||s.to_ci||s.destination||'',
-        status:s.status||'Booked',
-        pieces:s.pieces||s.colli||0,
-        kg:s.weight||s.totalWeight||s.kg||0,
-        value:s.totalAWB||s.value||0,
-        fb:s.fb||'',
-        rate:s.rate||'',
-        km:s.km||0,
-        carrier:s.totalCarrier||'',
-        agent:s.totalAgent||'',
-        cha:s.cha||'',
-        awc:s.awc||'',
-        fsc:s.fsc||'',
-        date:s.shipmentDate||'',
-        time_geboekt:s.time_booked||'',
-        time_vertrokken:s.time_departed||'',
-        time_geland:s.time_landed||'',
-        time_afgeleverd:s.time_delivered||''
-      };
-    });
-    document.getElementById('navCnt').textContent=shipmentData.length;
-    try {
-      renderStats();
-      renderChips();
-      renderRows();
-    } catch(e) {
-      document.getElementById('rows').innerHTML='<div class="empty-state"><div class="em-t">Render fout</div><div class="em-s">'+esc(String(e))+'</div></div>';
+    if(!env.ok||!env.data){
+      if(!cached){ shipmentData=[]; document.getElementById('navCnt').textContent='0'; renderStats(); renderChips(); renderRows(); }
+      var msg=(env.data&&(env.data.error||env.data.mensaje))||('Status '+env.status);
+      setStatus('Fout: '+msg,'err');
+      return;
     }
+    var list=Array.isArray(env.data)?env.data:[env.data];
+    if(dateFrom===dateTo) lsSet(dateFrom,list);
+    applyData(list);
+    setStatus(list.length+' zendingen geladen','ok');
   }).catch(function(err){
-    shipmentData=[];
-    document.getElementById('navCnt').textContent='0';
-    renderStats(); renderChips(); renderRows();
+    if(!cached){ shipmentData=[]; document.getElementById('navCnt').textContent='0'; renderStats(); renderChips(); renderRows(); }
+    setStatus('Verbindingsfout: '+err.message,'err');
   });
 }
 
