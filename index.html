@@ -490,43 +490,44 @@
 
 <main>
 
-  <!-- Zoekpaneel -->
+  <!-- Zoekpaneel — unified -->
   <section class="panel">
     <div class="panel-title"><span class="num">1</span> Zoeken</div>
-    <div class="search-grid">
+    <div class="search-grid" style="grid-template-columns:1fr;">
+      <!-- Optie A: Op datum/periode -->
       <div>
-        <label class="field-label">Zendingen in periode</label>
-        <div class="date-range">
+        <label class="field-label">Zendingen ophalen</label>
+        <div class="date-range" style="grid-template-columns:auto auto 1fr; align-items:flex-end; gap:var(--space-3);">
           <div>
             <span class="sub">Van</span>
-            <input type="date" id="dateFromInput">
+            <input type="date" id="dateFromInput" style="width:140px;">
           </div>
           <div>
             <span class="sub">Tot</span>
-            <input type="date" id="dateToInput">
+            <input type="date" id="dateToInput" style="width:140px;">
           </div>
-        </div>
-        <label class="field-label" for="awbFilter" style="font-size:.74rem;font-weight:600;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.04em;">Filter op AWB (optioneel)</label>
-        <div class="input-row">
-          <input type="text" id="awbFilter" placeholder="bijv. 36910201855" autocomplete="off">
-          <button class="btn btn-primary" id="searchDateBtn">
+          <button class="btn btn-primary" id="searchDateBtn" style="flex:0;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-            Toon zendingen
+            Zendingen
           </button>
         </div>
-        <p class="field-hint">Max 31 dagen. Leeg AWB-filter = alle zendingen in de periode.</p>
+        <div style="display:flex; gap:var(--space-3); align-items:flex-end; margin-top:var(--space-3);">
+          <input type="text" id="awbFilter" placeholder="Filter AWB (optioneel)" autocomplete="off" style="flex:1;">
+        </div>
+        <p class="field-hint" style="margin-top:var(--space-2);">Max 31 dagen. AWB-filter is optioneel.</p>
       </div>
-      <div class="divider"></div>
-      <div>
-        <label class="field-label" for="shipInput">Direct op zendingsnummer</label>
+
+      <!-- Optie B: Direct zendingsnummer -->
+      <div style="margin-top:var(--space-5); padding-top:var(--space-5); border-top:1px solid var(--color-border);">
+        <label class="field-label">Of zoek direct op zendingsnummer</label>
         <div class="input-row">
-          <input type="text" id="shipInput" placeholder="bijv. 17202083572" autocomplete="off">
+          <input type="text" id="shipInput" placeholder="bijv. 17202083572" autocomplete="off" style="flex:1;">
           <button class="btn btn-primary" id="searchShipBtn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-            Toon colli
+            Colli
           </button>
         </div>
-        <p class="field-hint">Springt direct naar de colli-/barcodedetails van &eacute;&eacute;n zending.</p>
+        <p class="field-hint">Geeft direct colli-/barcodedetails van één zending.</p>
       </div>
     </div>
   </section>
@@ -606,8 +607,7 @@ function fmtDate(s){
   if(!s) return '&ndash;';
   var m=String(s).match(/^(\d{4})-(\d{2})-(\d{2})/);
   if(!m) return esc(s);
-  var rest=String(s).match(/(\d{2}):(\d{2})/);
-  return m[3]+'-'+m[2]+'-'+m[1]+(rest? ' '+rest[1]+':'+rest[2] : '');
+  return m[3]+'-'+m[2];
 }
 function todayISO(){
   // Datum van de lokale machine - geen vaste/aangenomen datum.
