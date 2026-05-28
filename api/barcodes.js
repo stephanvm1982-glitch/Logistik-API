@@ -47,6 +47,15 @@ async function handler(req, res) {
   const result = await callLogiztik(apiPath, API_KEY, API_KEY_HEADER);
   console.log('[/api/barcodes] Result:', { ok: result.ok, status: result.status, dataKeys: Object.keys(result.data || {}) });
 
+  // Add debug info if request failed
+  if (!result.ok) {
+    result.debug = {
+      apiPath,
+      apiKeyLength: API_KEY.length,
+      apiKeyHeader,
+    };
+  }
+
   res.status(200).json(result);
 }
 
