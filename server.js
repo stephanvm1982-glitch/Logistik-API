@@ -60,8 +60,8 @@ const SHIPMENT_PATH = (cc, date) =>
   `${encodeURIComponent(cc)}/${encodeURIComponent(date)}`;
 
 const BARCODE_PATH = (cc, shipment) =>
-  `${API_BASE}/api/v2/ClientesExternosA/ListarCodigosDeBarraPorClienteNew` +
-  `?customerCode=${encodeURIComponent(cc)}&shipmentNr=${encodeURIComponent(shipment)}`;
+  `${API_BASE}/api/v2/ClientesExternosA/ListarCodigosDeBarraPorClienteNew/` +
+  `${encodeURIComponent(cc)}/${encodeURIComponent(shipment)}`;
 
 function enumerateDays(from, to) {
   const fD = new Date(from + 'T00:00:00Z');
@@ -90,6 +90,8 @@ function callLogiztik(apiPath) {
     // De endpoint pakt wat 'ie nodig heeft; de andere wordt genegeerd.
     const sep = apiPath.indexOf('?') > -1 ? '&' : '?';
     const pathWithToken = apiPath + sep + 'token=' + encodeURIComponent(API_KEY);
+
+    console.log('[DEBUG] Full URL:', `https://${API_HOST}:${API_PORT}${pathWithToken}`);
 
     const options = {
       hostname: API_HOST,
