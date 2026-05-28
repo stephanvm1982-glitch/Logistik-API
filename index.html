@@ -426,10 +426,10 @@
   <div class="content">
     <!-- stats -->
     <div class="stats reveal">
-      <div class="stat hero"><div class="lb">Totale AWB-waarde</div><div class="vl" id="sVal">$ 0</div></div>
-      <div class="stat"><div class="lb"><i style="background:var(--vertrokken)"></i>Onderweg</div><div class="vl" id="sTransit">0<small id="sTransitColli"></small></div></div>
-      <div class="stat"><div class="lb"><i style="background:var(--geland)"></i>Geland</div><div class="vl" id="sLanded">0</div></div>
-      <div class="stat"><div class="lb"><i style="background:var(--afgeleverd)"></i>Afgeleverd</div><div class="vl" id="sDone">0</div></div>
+      <div class="stat hero"><div class="lb">Totale AWB-waarde</div><div class="vl" id="sVal">–</div></div>
+      <div class="stat"><div class="lb"><i style="background:var(--brand)"></i>Zendingen</div><div class="vl" id="sCount">0</div></div>
+      <div class="stat"><div class="lb"><i style="background:var(--sky)"></i>Totaal colli</div><div class="vl" id="sColli">0</div></div>
+      <div class="stat"><div class="lb"><i style="background:var(--afgeleverd)"></i>Totaal gewicht</div><div class="vl" id="sKg">0<small> kg</small></div></div>
     </div>
 
     <!-- toolbar -->
@@ -577,20 +577,18 @@ const STATUS_COLOR={geboekt:'#64748b',vertrokken:'#f59e0b',geland:'#0ea5e9',afge
 
 // \u2500\u2500\u2500 Stats rendering \u2500\u2500\u2500
 function renderStats(){
-  var totalVal=0, transit=0, landed=0, done=0, colliTransit=0;
-  shipmentData.forEach(function(s){
-    if(!activeStatuses.has(inferStatus(s))) return;
-    var st=inferStatus(s);
+  var totalVal=0, totalColli=0, totalKg=0, count=0;
+  var filtered=shipmentData.filter(function(s){ return activeStatuses.has(inferStatus(s)); });
+  filtered.forEach(function(s){
+    count++;
     totalVal+=Number(s.value||0);
-    if(st==='vertrokken'){ transit++; colliTransit+=Number(s.pieces||0); }
-    else if(st==='geland') landed++;
-    else if(st==='afgeleverd') done++;
+    totalColli+=Number(s.pieces||0);
+    totalKg+=Number(s.kg||0);
   });
   document.getElementById('sVal').textContent=money(totalVal);
-  document.getElementById('sTransit').textContent=transit;
-  document.getElementById('sTransitColli').textContent=transit>0?' (+'+colliTransit+')':'';
-  document.getElementById('sLanded').textContent=landed;
-  document.getElementById('sDone').textContent=done;
+  document.getElementById('sCount').textContent=count;
+  document.getElementById('sColli').textContent=totalColli.toLocaleString('nl-NL');
+  document.getElementById('sKg').innerHTML=totalKg.toLocaleString('nl-NL')+' <small>kg</small>';
 }
 
 // \u2500\u2500\u2500 Status filter chips \u2500\u2500\u2500
