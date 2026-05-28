@@ -603,6 +603,18 @@ function weight(v){
   if(!isFinite(n)) return val(v);
   return nfWeight.format(n)+' kg';
 }
+
+// Airport codes to country flags (selected routes)
+var airportToFlag={
+  UIO:'🇪🇨',AMS:'🇳🇱',JFK:'🇺🇸',LAX:'🇺🇸',LHR:'🇬🇧',CDG:'🇫🇷',
+  MIA:'🇺🇸',ORD:'🇺🇸',DFW:'🇺🇸',DEN:'🇺🇸',SFO:'🇺🇸',ATL:'🇺🇸',
+  MXC:'🇲🇽',MEX:'🇲🇽',BOG:'🇨🇴',CTG:'🇨🇴',LIM:'🇵🇪',QRO:'🇲🇽',
+  FCO:'🇮🇹',MUC:'🇩🇪',ZRH:'🇨🇭',VIE:'🇦🇹',WAW:'🇵🇱',PRG:'🇨🇿',
+  GVA:'🇨🇭',BRU:'🇧🇪',BJS:'🇨🇳',HND:'🇯🇵',SYD:'🇦🇺',DUB:'🇮🇪'
+};
+function flagIcon(code){
+  return (airportToFlag[code]||'✈️')+' '+val(code);
+}
 function fmtDate(s){
   if(!s) return '&ndash;';
   var m=String(s).match(/^(\d{4})-(\d{2})-(\d{2})/);
@@ -854,9 +866,9 @@ function shipCardHtml(s,i){
   return '<div class="ship-card" role="button" tabindex="0" data-awb="'+esc(s.awb)+'" style="animation-delay:'+(i*45)+'ms">'
     + '<div class="ship-top">'
     +   '<div class="awb"><span class="awb-tag">AWB / zending</span>'+val(s.awb)+'</div>'
-    +   '<div class="route">'+val(s.origin)
+    +   '<div class="route">'+flagIcon(s.origin)
     +     ' <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg> '
-    +     val(s.destination)+'</div>'
+    +     flagIcon(s.destination)+'</div>'
     + '</div>'
     + '<div class="ship-grid">'
     +   kv('Verzenddatum',fmtDate(s.shipmentDate))
