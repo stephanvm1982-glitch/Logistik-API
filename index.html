@@ -295,12 +295,12 @@
 
   /* ── facturatie table ── */
   .fac-head{
-    display:grid;grid-template-columns:44px 80px 155px 90px 1fr 65px 90px 110px 130px;gap:14px;
+    display:grid;grid-template-columns:80px 155px 90px 1fr 65px 90px 110px 130px 44px;gap:14px;
     padding:10px 18px;border-bottom:1px solid var(--line);background:var(--surface-2);
     font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--txt-faint)
   }
   .fac-row{
-    display:grid;grid-template-columns:44px 80px 155px 90px 1fr 65px 90px 110px 130px;gap:14px;
+    display:grid;grid-template-columns:80px 155px 90px 1fr 65px 90px 110px 130px 44px;gap:14px;
     padding:12px 18px;align-items:center;border-bottom:1px solid var(--line);
     transition:background .12s var(--ease)
   }
@@ -318,6 +318,19 @@
   .fac-al{font-size:12.5px;font-weight:700;color:var(--txt-mut);display:flex;align-items:center;gap:6px}
   .fac-route{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:12.5px;font-weight:700;color:var(--txt-mut)}
   .fac-row.akk .fac-awb{color:var(--afgeleverd)}
+
+  /* ── instellingen ── */
+  .set-tabs{display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid var(--line);padding-bottom:0}
+  .set-tab{height:38px;padding:0 16px;border:none;background:none;font-weight:700;font-size:13px;color:var(--txt-mut);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s var(--ease)}
+  .set-tab:hover{color:var(--txt)}
+  .set-tab.on{color:var(--brand);border-bottom-color:var(--brand)}
+  .set-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--line);background:var(--surface-2)}
+  .pfx-row{display:grid;grid-template-columns:70px 80px 1fr 80px;gap:14px;padding:11px 18px;align-items:center;border-bottom:1px solid var(--line);font-size:13px}
+  .pfx-row:last-child{border-bottom:none}
+  .pfx-row:hover{background:var(--surface-2)}
+  .pfx-code{font-family:var(--mono);font-weight:700;font-size:13px}
+  .pfx-iata{font-family:var(--mono);font-size:12px;color:var(--txt-mut)}
+  .pfx-edit{height:30px;border:1px solid var(--line-2);border-radius:var(--r-sm);padding:0 8px;font-size:12.5px;width:100%;font-family:var(--sans)}
 
   /* entrance */
   .reveal{opacity:0;transform:translateY(14px)}
@@ -400,7 +413,7 @@
     <div class="nav-cap">Beheer</div>
     <a href="#" data-view="facturatie"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>Facturatie<span class="cnt" id="navFacCnt" style="display:none">0</span></a>
     <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg>Rapporten</a>
-    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-2.92.99V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 7 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 14H4.5a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 6 7.6l-.6-.6a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 11 4.6V4.5a2 2 0 1 1 4 0v.09A1.65 1.65 0 0 0 18 6l.6-.6a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 20.4 11h.1a2 2 0 1 1 0 4h-.1Z"/></svg>Instellingen</a>
+    <a href="#" data-view="instellingen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-2.92.99V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 7 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 14H4.5a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 6 7.6l-.6-.6a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 11 4.6V4.5a2 2 0 1 1 4 0v.09A1.65 1.65 0 0 0 18 6l.6-.6a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 20.4 11h.1a2 2 0 1 1 0 4h-.1Z"/></svg>Instellingen</a>
   </nav>
   <div class="side-foot">
     <div class="client-card">
@@ -482,13 +495,73 @@
     </div>
     <div class="listwrap reveal">
       <div class="fac-head">
-        <div></div><div>Datum</div><div>AWB</div><div>Airline</div><div>Route</div>
-        <div class="r">Colli</div><div class="r">Gewicht</div><div class="r">Carrier</div><div class="r">Totaal AWB</div>
+        <div>Datum</div><div>AWB</div><div>Airline</div><div>Route</div>
+        <div class="r">Colli</div><div class="r">Gewicht</div><div class="r">Carrier</div><div class="r">Totaal AWB</div><div></div>
       </div>
       <div id="facRows"></div>
       <div class="list-foot" id="facFoot">
         <span id="facCount">0 zendingen</span>
         <span id="facSumLine" style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--afgeleverd)"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── INSTELLINGEN VIEW ── -->
+  <div class="content" id="viewInstellingen" style="display:none">
+    <!-- Tabs -->
+    <div class="set-tabs reveal">
+      <button class="set-tab on" data-tab="prefixen">Airline Prefixen</button>
+      <button class="set-tab" data-tab="logo">Logo</button>
+      <button class="set-tab" data-tab="gebruikers">Gebruikers</button>
+    </div>
+
+    <!-- Tab: Airline Prefixen -->
+    <div class="set-panel reveal" id="tabPrefixen">
+      <div class="listwrap">
+        <div class="set-bar">
+          <span style="font-size:12px;color:var(--txt-mut)">AWB-prefix bepaalt de airline. Admin kan namen aanpassen.</span>
+          <span id="adminBadge" class="proxy" style="cursor:pointer" onclick="toggleAdmin()"><span class="d"></span><span id="adminLabel">Gebruiker</span></span>
+        </div>
+        <div style="display:grid;grid-template-columns:70px 80px 1fr 80px;gap:0;border-bottom:1px solid var(--line);padding:10px 18px;font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--txt-faint);background:var(--surface-2)">
+          <div>Prefix</div><div>IATA</div><div>Naam</div><div></div>
+        </div>
+        <div id="prefixRows"></div>
+      </div>
+    </div>
+
+    <!-- Tab: Logo -->
+    <div class="set-panel reveal" id="tabLogo" style="display:none">
+      <div class="listwrap" style="padding:24px">
+        <div style="font-size:13px;font-weight:600;color:var(--txt-mut);margin-bottom:16px">Huidig logo:</div>
+        <div style="margin-bottom:20px"><img id="logoPreview" src="brand/ffs-logo.png" style="height:48px;max-width:280px;object-fit:contain;border:1px solid var(--line);border-radius:8px;padding:8px;background:#fff"></div>
+        <div style="display:flex;flex-direction:column;gap:8px;max-width:480px">
+          <label style="font-size:11px;font-weight:700;color:var(--txt-faint);letter-spacing:.05em;text-transform:uppercase">Logo URL</label>
+          <input type="url" id="logoUrl" placeholder="https://example.com/logo.png" style="height:42px;border:1px solid var(--line-2);border-radius:var(--r);padding:0 13px;font-size:13px;font-family:var(--mono);color:var(--txt)">
+          <div style="display:flex;gap:8px;margin-top:4px">
+            <button class="btn btn-pri" onclick="saveLogo()">Opslaan</button>
+            <button class="btn btn-gho" onclick="resetLogo()">Standaard herstellen</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Gebruikers -->
+    <div class="set-panel reveal" id="tabGebruikers" style="display:none">
+      <div class="listwrap" style="padding:24px;max-width:560px">
+        <div style="font-size:13px;color:var(--txt-mut);line-height:1.7;margin-bottom:20px">
+          Volledig gebruikersbeheer (aanmaken, wachtwoorden, rechten) vereist een backend authenticatieservice.<br>
+          <strong>Huidig systeem:</strong> lokale admin-modus via de knop op de Airline Prefixen tab.
+        </div>
+        <div style="background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-lg);padding:18px">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--txt-faint);margin-bottom:12px">Huidige sessie</div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--brand),var(--sky));display:grid;place-items:center;font-weight:800;color:#fff">FS</div>
+            <div>
+              <div id="userRoleName" style="font-weight:700;font-size:14px">Fresh from Source</div>
+              <div id="userRoleLabel" style="font-size:12px;color:var(--txt-faint)">Rol: Gebruiker</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -924,6 +997,7 @@ document.getElementById('clientCode').textContent='CLIB113847';
       document.getElementById('dpTo').value=dateTo;
       updateDateLabel();
       pop.classList.remove('open');
+      loadShipments();
     }
   });
 })();
@@ -1024,6 +1098,210 @@ function renderFacturatie(){
     });
   });
 }
+
+// ─── localStorage-based akkoord accumulator for Facturatie ───
+function allDataStore(){
+  try{return JSON.parse(localStorage.getItem('ffs:alldata'))||{};}catch(x){return{};}
+}
+function mergeToStore(list){
+  var store=allDataStore();
+  list.forEach(function(s){if(s.awb) store[s.awb]=s;});
+  try{localStorage.setItem('ffs:alldata',JSON.stringify(store));}catch(x){}
+}
+
+// Patch applyData to also merge into store
+var _origApplyData=applyData;
+applyData=function(list){
+  _origApplyData(list);
+  mergeToStore(list);
+  if(currentView==='facturatie') renderFacturatie();
+};
+
+// Override renderFacturatie to use accumulated store
+renderFacturatie=function(){
+  var store=allDataStore();
+  var data=Object.values(store).map(function(s){
+    if(!s.airline) s.airline=airlineFromAwb(s.awb);
+    if(!s.carrier_amt) s.carrier_amt=Number(s.totalCarrier)||0;
+    if(!s.agent_amt) s.agent_amt=Number(s.totalAgent)||0;
+    return s;
+  }).sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});
+
+  var totalVal=0, okVal=0, okCnt=0;
+  data.forEach(function(s){ totalVal+=Number(s.value||0); });
+  document.getElementById('fTotal').textContent=data.length;
+  document.getElementById('fVal').textContent=money(totalVal);
+
+  if(!data.length){
+    document.getElementById('facRows').innerHTML='<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg><div class="em-t">Nog geen zendingen geladen</div><div class="em-s">Ga naar Binnenkomsten en laad zendingen via de datumfilter</div></div>';
+    document.getElementById('fOk').textContent='0';
+    document.getElementById('fOpen').textContent=data.length;
+    document.getElementById('facCount').textContent='0 zendingen';
+    document.getElementById('facSumLine').textContent='';
+    return;
+  }
+
+  var html='';
+  data.forEach(function(s){
+    var isAkk=akkGet(s.awb);
+    if(isAkk){okCnt++;okVal+=Number(s.value||0);}
+    var dp=s.date?s.date.split('-'):[];
+    var dateStr=dp.length===3?dp[2]+'-'+dp[1]+'-'+dp[0]:'';
+    var r0=s.rates&&s.rates[0]?s.rates[0]:{};
+    html+='<div class="fac-row'+(isAkk?' akk':'')+'" data-awb="'+esc(s.awb)+'">'
+      +'<div class="fac-date">'+esc(dateStr)+'</div>'
+      +'<div class="fac-awb mono">'+esc(s.awb)+'</div>'
+      +'<div class="fac-al">'+flag(s.from_cd)+''+esc(s.airline||'–')+'</div>'
+      +'<div class="fac-route">'+esc(s.from_cd)+' → '+esc(s.to_cd)+'</div>'
+      +'<div class="num r">'+val(s.pieces)+'</div>'
+      +'<div class="num r">'+val(r0&&r0.grossWeight?r0.grossWeight:s.kg||'–')+' kg</div>'
+      +'<div class="num r">'+money(s.carrier_amt)+'</div>'
+      +'<div class="val">'+money(s.value)+'</div>'
+      +'<div class="fac-check'+(isAkk?' checked':'')+'" data-akk="'+esc(s.awb)+'">'
+      +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
+      +'</div>'
+      +'</div>';
+  });
+  document.getElementById('facRows').innerHTML=html;
+  document.getElementById('fOk').textContent=okCnt;
+  document.getElementById('fOpen').textContent=data.length-okCnt;
+  document.getElementById('facCount').textContent=data.length+' zendingen';
+  document.getElementById('facSumLine').textContent=okCnt>0?okCnt+' akkoord: '+money(okVal):'';
+
+  document.getElementById('facRows').querySelectorAll('.fac-check').forEach(function(btn){
+    btn.addEventListener('click',function(e){
+      e.stopPropagation();
+      var awb=this.getAttribute('data-akk');
+      akkSet(awb,!akkGet(awb));
+      renderFacturatie();
+    });
+  });
+};
+
+// ─── Admin mode ───
+var isAdmin=localStorage.getItem('ffs:admin')==='1';
+function toggleAdmin(){
+  if(!isAdmin){
+    var pin=prompt('Admin PIN (standaard: 1234):');
+    if(pin!=='1234') return;
+    isAdmin=true;
+    localStorage.setItem('ffs:admin','1');
+  } else {
+    isAdmin=false;
+    localStorage.removeItem('ffs:admin');
+  }
+  updateAdminUI();
+  renderPrefixTable();
+}
+function updateAdminUI(){
+  var el=document.getElementById('adminBadge');
+  var lbl=document.getElementById('adminLabel');
+  var rlbl=document.getElementById('userRoleLabel');
+  if(!el) return;
+  if(isAdmin){
+    el.style.background='var(--vertrokken-bg)';el.style.color='var(--vertrokken)';
+    if(lbl) lbl.textContent='Admin';
+    if(rlbl) rlbl.textContent='Rol: Admin';
+  } else {
+    el.style.background='var(--afgeleverd-bg)';el.style.color='var(--afgeleverd)';
+    if(lbl) lbl.textContent='Gebruiker';
+    if(rlbl) rlbl.textContent='Rol: Gebruiker';
+  }
+}
+
+// ─── Airline prefix table ───
+var DEFAULT_PREFIXES=[
+  {p:'001',i:'AA',n:'American Airlines'},{p:'005',i:'CO',n:'Continental'},{p:'006',i:'DL',n:'Delta Air Lines'},
+  {p:'014',i:'AC',n:'Air Canada'},{p:'016',i:'UA',n:'United Airlines'},{p:'020',i:'LH',n:'Lufthansa'},
+  {p:'057',i:'IB',n:'Iberia'},{p:'074',i:'KL',n:'KLM'},{p:'075',i:'BA',n:'British Airways'},
+  {p:'125',i:'BA',n:'British Airways Cargo'},{p:'131',i:'KL',n:'KLM Cargo'},{p:'157',i:'SQ',n:'Singapore Airlines'},
+  {p:'172',i:'LY',n:'El Al'},{p:'176',i:'UA',n:'United Airlines Cargo'},{p:'180',i:'LX',n:'SWISS'},
+  {p:'214',i:'AV',n:'Avianca'},{p:'217',i:'SA',n:'South African Airways'},{p:'220',i:'QF',n:'Qantas'},
+  {p:'235',i:'TG',n:'Thai Airways'},{p:'247',i:'AF',n:'Air France'},{p:'279',i:'ET',n:'Ethiopian Airlines'},
+  {p:'315',i:'EK',n:'Emirates'},{p:'369',i:'LA',n:'LATAM Airlines'},{p:'405',i:'FX',n:'FedEx'},
+  {p:'406',i:'PO',n:'Polar Air Cargo'},{p:'524',i:'CV',n:'Cargolux'},{p:'549',i:'MP',n:'Martinair'},
+  {p:'604',i:'LA',n:'LAN Chile'},{p:'618',i:'7I',n:'InselAir'}
+];
+function getPrefixes(){
+  try{var s=localStorage.getItem('ffs:prefixes');return s?JSON.parse(s):DEFAULT_PREFIXES;}catch(x){return DEFAULT_PREFIXES;}
+}
+function savePrefixes(arr){ try{localStorage.setItem('ffs:prefixes',JSON.stringify(arr));}catch(x){} }
+
+function renderPrefixTable(){
+  var list=getPrefixes();
+  var html='';
+  list.forEach(function(row,i){
+    html+='<div class="pfx-row">'
+      +'<div class="pfx-code">'+esc(row.p)+'</div>'
+      +'<div class="pfx-iata">'+esc(row.i)+'</div>'
+      +(isAdmin
+        ?'<input class="pfx-edit" value="'+esc(row.n)+'" data-idx="'+i+'" onchange="savePfxName(this)">'
+        :'<div>'+esc(row.n)+'</div>')
+      +'<div style="font-size:10px;color:var(--txt-faint)">'+(isAdmin?'✎':'')+'</div>'
+      +'</div>';
+  });
+  var el=document.getElementById('prefixRows');
+  if(el) el.innerHTML=html||'<div style="padding:20px;color:var(--txt-faint)">Geen prefixen</div>';
+}
+window.savePfxName=function(input){
+  var idx=parseInt(input.getAttribute('data-idx'));
+  var list=getPrefixes();
+  if(list[idx]) list[idx].n=input.value;
+  savePrefixes(list);
+  // rebuild AWB_AL lookup
+  list.forEach(function(r){ AWB_AL[r.p]=r.i; });
+};
+
+// ─── Logo management ───
+(function(){
+  var stored=localStorage.getItem('ffs:logo');
+  if(stored){
+    var imgs=document.querySelectorAll('.logo-slot img');
+    imgs.forEach(function(img){img.src=stored;});
+  }
+})();
+window.saveLogo=function(){
+  var url=document.getElementById('logoUrl').value.trim();
+  if(!url) return;
+  localStorage.setItem('ffs:logo',url);
+  document.querySelectorAll('.logo-slot img').forEach(function(img){img.src=url;});
+  document.getElementById('logoPreview').src=url;
+};
+window.resetLogo=function(){
+  localStorage.removeItem('ffs:logo');
+  var def='brand/ffs-logo.png';
+  document.querySelectorAll('.logo-slot img').forEach(function(img){img.src=def;});
+  document.getElementById('logoPreview').src=def;
+  document.getElementById('logoUrl').value='';
+};
+
+// ─── Settings tabs ───
+document.querySelectorAll('.set-tab').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var tab=this.getAttribute('data-tab');
+    document.querySelectorAll('.set-tab').forEach(function(b){b.classList.remove('on');});
+    this.classList.add('on');
+    document.querySelectorAll('.set-panel').forEach(function(p){p.style.display='none';});
+    var panel=document.getElementById('tab'+tab.charAt(0).toUpperCase()+tab.slice(1));
+    if(panel) panel.style.display='';
+  });
+});
+
+// ─── Extend VIEWS and switchView for instellingen ───
+VIEWS['instellingen']={el:'viewInstellingen',pth:'Beheer',h1:'Instellingen'};
+document.querySelectorAll('.nav a[data-view]').forEach(function(a){
+  a.addEventListener('click',function(e){
+    e.preventDefault();
+    var v=this.getAttribute('data-view');
+    switchView(v);
+    if(v==='instellingen'){
+      renderPrefixTable();
+      updateAdminUI();
+      var stored=localStorage.getItem('ffs:logo');
+      if(stored) document.getElementById('logoUrl').value=stored;
+    }
+  });
+});
 </script>
 </body>
 </html>
