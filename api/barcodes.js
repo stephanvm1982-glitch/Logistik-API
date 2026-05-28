@@ -52,7 +52,7 @@ async function handler(req, res) {
     result.debug = {
       apiPath,
       apiKeyLength: API_KEY.length,
-      apiKeyHeader,
+      apiKeyHeader: API_KEY_HEADER,
     };
   }
 
