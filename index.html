@@ -502,15 +502,34 @@ const STATUS={
 const STEPS=['geboekt','vertrokken','geland','afgeleverd'];
 const STEP_LABEL={geboekt:'Geboekt',vertrokken:'Vertrokken',geland:'Geland',afgeleverd:'Afgeleverd'};
 
-// ─── Inline SVG flags ───
+// ─── Inline SVG flags (country codes) ───
 const FLAGS={
   CO:`<svg viewBox="0 0 6 4" preserveAspectRatio="xMidYMid slice"><rect width="6" height="4" fill="#FCD116"/><rect y="2" width="6" height="1" fill="#003893"/><rect y="3" width="6" height="1" fill="#CE1126"/></svg>`,
   NL:`<svg viewBox="0 0 6 4" preserveAspectRatio="xMidYMid slice"><rect width="6" height="4" fill="#fff"/><rect width="6" height="1.34" fill="#AE1C28"/><rect y="2.66" width="6" height="1.34" fill="#21468B"/></svg>`,
   KE:`<svg viewBox="0 0 6 4" preserveAspectRatio="xMidYMid slice"><rect width="6" height="4" fill="#fff"/><rect width="6" height="1.1" fill="#000"/><rect y="1.25" width="6" height="1.5" fill="#BB0000"/><rect y="2.9" width="6" height="1.1" fill="#006600"/></svg>`,
-  CR:`<svg viewBox="0 0 6 4" preserveAspectRatio="xMidYMid slice"><rect width="6" height="4" fill="#002B7F"/><rect y=".67" width="6" height="2.66" fill="#fff"/><rect y="1.34" width="6" height="1.32" fill="#CE1126"/></svg>`
+  CR:`<svg viewBox="0 0 6 4" preserveAspectRatio="xMidYMid slice"><rect width="6" height="4" fill="#002B7F"/><rect y=".67" width="6" height="2.66" fill="#fff"/><rect y="1.34" width="6" height="1.32" fill="#CE1126"/></svg>`,
+  EC:`<svg viewBox="0 0 6 4" preserveAspectRatio="xMidYMid slice"><rect width="6" height="4" fill="#FFD100"/><rect y="1.34" width="6" height="1.32" fill="#003366"/><rect y="2.66" width="6" height="1.34" fill="#CE1126"/></svg>`,
+  PE:`<svg viewBox="0 0 6 4" preserveAspectRatio="xMidYMid slice"><rect width="6" height="4" fill="#D91023"/><rect x="2" width="2" height="4" fill="#fff"/></svg>`,
+  US:`<svg viewBox="0 0 6 4" preserveAspectRatio="xMidYMid slice"><rect width="6" height="4" fill="#B22234"/><rect y=".62" width="6" height=".62" fill="#fff"/><rect y="1.23" width="6" height=".62" fill="#B22234"/><rect y="1.85" width="6" height=".62" fill="#fff"/><rect y="2.46" width="6" height=".62" fill="#B22234"/><rect y="3.08" width="6" height=".62" fill="#fff"/><rect y="3.69" width="6" height=".31" fill="#B22234"/><rect width="2.4" height="2.16" fill="#3C3B6E"/></svg>`,
+  GB:`<svg viewBox="0 0 6 4" preserveAspectRatio="xMidYMid slice"><rect width="6" height="4" fill="#012169"/><path d="M0 0l6 4M6 0L0 4" stroke="#fff" stroke-width="1"/><path d="M0 0l6 4M6 0L0 4" stroke="#C8102E" stroke-width=".6"/><path d="M3 0v4M0 2h6" stroke="#fff" stroke-width="1.2"/><path d="M3 0v4M0 2h6" stroke="#C8102E" stroke-width=".8"/></svg>`,
+  MX:`<svg viewBox="0 0 6 4" preserveAspectRatio="xMidYMid slice"><rect width="6" height="4" fill="#CE1126"/><rect width="2" height="4" fill="#006847"/><rect x="2" width="2" height="4" fill="#fff"/></svg>`
 };
-const flag=c=>`<span class="flag">${FLAGS[c]||''}</span>`;
-const flagLg=c=>`<span class="flag-lg">${FLAGS[c]||''}</span>`;
+// Airport code → country code lookup
+const AIRPORT_CC={
+  BOG:'CO',CTG:'CO',MDE:'CO',CLO:'CO',BAQ:'CO',
+  AMS:'NL',RTM:'NL',
+  NBO:'KE',MBA:'KE',
+  SJO:'CR',
+  UIO:'EC',GYE:'EC',
+  LIM:'PE',CUZ:'PE',
+  MIA:'US',JFK:'US',ORD:'US',LAX:'US',ATL:'US',DFW:'US',DEN:'US',SFO:'US',
+  LHR:'GB',LGW:'GB',MAN:'GB',
+  MEX:'MX',MXC:'MX',
+  FCO:'IT',MUC:'DE',CDG:'FR',MAD:'ES',ZRH:'CH',VIE:'AT',BRU:'BE',
+};
+function cc(airportOrCC){ return AIRPORT_CC[airportOrCC] || airportOrCC || ''; }
+const flag=c=>`<span class="flag">${FLAGS[cc(c)]||''}</span>`;
+const flagLg=c=>`<span class="flag-lg">${FLAGS[cc(c)]||''}</span>`;
 
 // ─── Global state ───
 let activeStatuses=new Set(STEPS);
@@ -631,10 +650,10 @@ function detail(s){
     +'<div class="dp-route">'
     +'<div class="head"><div class="awb mono">'+esc(s.awb)+'</div></div>'
     +'<div class="route-big">'
-    +'<div class="ep"><span class="flag-lg">'+FLAGS[s.from_cd||'CO']+'</span><div class="cd">'+esc(s.from_cd)+'</div><div class="ci">'+esc(s.from_ci)+'</div></div>'
+    +'<div class="ep">'+flagLg(s.from_cd)+'<div class="cd">'+esc(s.from_cd)+'</div><div class="ci">'+esc(s.from_ci)+'</div></div>'
     +'<div class="mid"><div class="ln"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12h14"/><path d="m13 6 6 6-6 6"/></svg></div>'
     +'<div class="km">'+val(s.km)+' km</div></div>'
-    +'<div class="ep"><span class="flag-lg">'+FLAGS[s.to_cd||'NL']+'</span><div class="cd">'+esc(s.to_cd)+'</div><div class="ci">'+esc(s.to_ci)+'</div></div>'
+    +'<div class="ep">'+flagLg(s.to_cd)+'<div class="cd">'+esc(s.to_cd)+'</div><div class="ci">'+esc(s.to_ci)+'</div></div>'
     +'</div>'
     +timeline(s)
     +'<div class="dp-specs">'
@@ -671,11 +690,11 @@ function renderRows(){
     var stColor=STATUS_COLOR[st];
     var html_row='<div class="row '+(openAwb===s.awb?'open':'')+'" data-awb="'+esc(s.awb)+'">'
       +'<div class="c-awb"><div class="a mono">'+esc(s.awb)+'</div><div class="sub">'+esc(s.from_ci)+'</div></div>'
-      +'<div class="route"><span class="flag">'+FLAGS[s.from_cd||'CO']+'</span>'
+      +'<div class="route">'+flag(s.from_cd)
       +'<div class="ap"><div class="cd mono">'+esc(s.from_cd)+'</div><div class="ct">'+esc(s.from_ci)+'</div></div>'
       +'<div class="r-line"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12h14"/><path d="m13 6 6 6-6 6"/></svg></div>'
       +'<div class="ap"><div class="cd mono">'+esc(s.to_cd)+'</div><div class="ct">'+esc(s.to_ci)+'</div></div>'
-      +'<span class="flag">'+FLAGS[s.to_cd||'NL']+'</span></div>'
+      +flag(s.to_cd)+'</div>'
       +'<div class="st">'
       +'<span class="st-badge" style="color:'+stColor+'"><span class="d" style="background:'+stColor+'"></span>'+STATUS[st].label+'</span>'
       +'<div class="st-bar">';
@@ -739,24 +758,24 @@ function loadShipments(){
   document.getElementById('rows').innerHTML=skelRow+skelRow+skelRow+skelRow;
 
   apiGet(url).then(function(env){
-    if(!env.ok || !env.data) { shipmentData=[]; renderStats(); renderChips(); renderRows(); return; }
+    if(!env.ok || !env.data) { shipmentData=[]; document.getElementById('navCnt').textContent='0'; renderStats(); renderChips(); renderRows(); return; }
     var list=Array.isArray(env.data)?env.data:[env.data];
     shipmentData=list.map(function(s){
       return {
         awb:s.awb||'',
-        from_cd:s.origin_code||s.from_cd||'',
-        from_ci:s.origin_city||s.from_ci||'',
-        to_cd:s.destination_code||s.to_cd||'',
-        to_ci:s.destination_city||s.to_ci||'',
+        from_cd:s.origin_code||s.from_cd||s.origin||'',
+        from_ci:s.origin_city||s.from_ci||s.origin||'',
+        to_cd:s.destination_code||s.to_cd||s.destination||'',
+        to_ci:s.destination_city||s.to_ci||s.destination||'',
         status:s.status||'Booked',
         pieces:s.pieces||s.colli||0,
-        kg:s.weight||s.kg||0,
+        kg:s.weight||s.totalWeight||s.kg||0,
         value:s.totalAWB||s.value||0,
         fb:s.fb||'',
         rate:s.rate||'',
         km:s.km||0,
-        carrier:s.totalCarrier?'Carrier':'',
-        agent:s.totalAgent?'Agent':'',
+        carrier:s.totalCarrier||'',
+        agent:s.totalAgent||'',
         cha:s.cha||'',
         awc:s.awc||'',
         fsc:s.fsc||'',
@@ -768,11 +787,16 @@ function loadShipments(){
       };
     });
     document.getElementById('navCnt').textContent=shipmentData.length;
-    renderStats();
-    renderChips();
-    renderRows();
+    try {
+      renderStats();
+      renderChips();
+      renderRows();
+    } catch(e) {
+      document.getElementById('rows').innerHTML='<div class="empty-state"><div class="em-t">Render fout</div><div class="em-s">'+esc(String(e))+'</div></div>';
+    }
   }).catch(function(err){
     shipmentData=[];
+    document.getElementById('navCnt').textContent='0';
     renderStats(); renderChips(); renderRows();
   });
 }
