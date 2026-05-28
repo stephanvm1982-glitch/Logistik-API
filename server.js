@@ -275,7 +275,11 @@ const requestHandler = async (req, res) => {
         data: { error: 'Server niet geconfigureerd. Vul CUSTOMER_CODE en API_KEY in het .env-bestand in.' } });
       return;
     }
-    const result = await callLogiztik(BARCODE_PATH(CUSTOMER_CODE, shipment));
+    const barcodePath = BARCODE_PATH(CUSTOMER_CODE, shipment);
+    const fullUrl = `https://${API_HOST}:${API_PORT}${barcodePath}?token=${encodeURIComponent(API_KEY)}`;
+    console.log('[BARCODE] Request to:', fullUrl);
+    const result = await callLogiztik(barcodePath);
+    result._debug = { url: fullUrl, customerCode: CUSTOMER_CODE, shipmentNr: shipment, apiKeyLen: API_KEY.length };
     sendJson(res, 200, result);
     return;
   }
