@@ -88,8 +88,13 @@ async function handler(req, res) {
     return { ...result, fromCache: false };
   }
 
+  const cacheHeaders = {
+    'Cache-Control': 'public, max-age=300, stale-while-revalidate=600',
+  };
+
   if (dates.length === 1) {
     const result = await fetchShipmentData(dates[0]);
+    res.set(cacheHeaders);
     return res.status(200).json({
       ok: result.ok,
       status: result.status,
@@ -115,6 +120,7 @@ async function handler(req, res) {
     else if (d && typeof d === 'object' && !d.error && !d.mensaje) all.push(d);
   });
 
+  res.set(cacheHeaders);
   res.status(200).json({
     ok: true,
     status: 200,
