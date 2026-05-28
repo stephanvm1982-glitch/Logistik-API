@@ -153,7 +153,7 @@ function sendJson(res, status, obj) {
   res.end(JSON.stringify(obj));
 }
 
-const server = http.createServer(async (req, res) => {
+const requestHandler = async (req, res) => {
   let url;
   try {
     url = new URL(req.url, `http://localhost:${PORT}`);
@@ -280,24 +280,31 @@ const server = http.createServer(async (req, res) => {
 
   res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
   res.end('Niet gevonden');
-});
+};
 
-server.listen(PORT, () => {
-  const line = '-'.repeat(52);
-  console.log('\n' + line);
-  console.log('  Logiztik Shipment Viewer - lokale proxy');
-  console.log(line);
-  console.log('  Open in je browser :  http://localhost:' + PORT);
-  console.log('  Klant              :  ' + (CUSTOMER_CODE || '(niet ingesteld!)'));
-  console.log('  Omgeving           :  Productie');
-  console.log('  Api-Key header     :  ' + API_KEY_HEADER);
-  console.log('  TLS-verificatie    :  ' + (ALLOW_INSECURE_TLS ? 'UIT (onveilig)' : 'aan'));
-  console.log('  Stoppen            :  Ctrl + C');
-  console.log(line);
-  if (!CUSTOMER_CODE || !API_KEY) {
-    console.log('  LET OP: CUSTOMER_CODE of API_KEY ontbreekt.');
-    console.log('  Kopieer .env.example naar .env en vul je gegevens in.');
+// Exporteer voor Vercel serverless
+module.exports = requestHandler;
+
+// Voor lokale ontwikkeling: draai als normale http server
+if (require.main === module) {
+  const server = http.createServer(requestHandler);
+  server.listen(PORT, () => {
+    const line = '-'.repeat(52);
+    console.log('\n' + line);
+    console.log('  Logiztik Shipment Viewer - lokale proxy');
     console.log(line);
-  }
-  console.log('');
-});
+    console.log('  Open in je browser :  http://localhost:' + PORT);
+    console.log('  Klant              :  ' + (CUSTOMER_CODE || '(niet ingesteld!)'));
+    console.log('  Omgeving           :  Productie');
+    console.log('  Api-Key header     :  ' + API_KEY_HEADER);
+    console.log('  TLS-verificatie    :  ' + (ALLOW_INSECURE_TLS ? 'UIT (onveilig)' : 'aan'));
+    console.log('  Stoppen            :  Ctrl + C');
+    console.log(line);
+    if (!CUSTOMER_CODE || !API_KEY) {
+      console.log('  LET OP: CUSTOMER_CODE of API_KEY ontbreekt.');
+      console.log('  Kopieer .env.example naar .env en vul je gegevens in.');
+      console.log(line);
+    }
+    console.log('');
+  });
+}

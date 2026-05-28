@@ -1,5 +1,11 @@
 {
   "buildCommand": "echo 'No build needed - vanilla HTML + serverless'",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/server.js"
+    }
+  ],
   "crons": [
     {
       "path": "/api/cron-refresh",
