@@ -248,59 +248,33 @@
   .detail{display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s var(--ease);background:var(--surface-2);border-bottom:1px solid var(--line)}
   .detail.open{grid-template-rows:1fr}
   .detail-in{overflow:hidden}
+  /* ── compact detail strip ── */
   .detail-pad{
-    padding:6px 18px 22px;display:grid;gap:18px;grid-template-columns:1fr;
-    opacity:0;transform:translateY(8px);transition:opacity .3s var(--ease) .06s,transform .3s var(--ease) .06s
+    padding:11px 18px;display:flex;align-items:center;flex-wrap:wrap;row-gap:8px;
+    opacity:0;transform:translateY(4px);transition:opacity .2s var(--ease) .03s,transform .2s var(--ease) .03s
   }
   .detail.open .detail-pad{opacity:1;transform:none}
-  @media(min-width:920px){.detail-pad{grid-template-columns:340px 1fr}}
-
-  .dp-route{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:18px}
-  .dp-route .head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-  .dp-route .head .awb{font-family:var(--mono);font-weight:700;font-size:15px}
-  .route-big{display:flex;align-items:center;gap:12px}
-  .flag-lg{display:block;width:46px;height:46px;border-radius:50%;overflow:hidden;flex-shrink:0;box-shadow:0 0 0 1px rgba(15,23,42,.12),0 3px 8px rgba(15,23,42,.18)}
-  .flag-lg svg{width:100%;height:100%;display:block}
-  .route-big .ep{display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center}
-  .route-big .ep .cd{font-family:var(--mono);font-weight:800;font-size:19px;letter-spacing:-.01em}
-  .route-big .ep .ci{font-size:11px;color:var(--txt-mut);font-weight:600}
-  .route-big .mid{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
-  .route-big .mid .ln{width:100%;height:2px;background:repeating-linear-gradient(90deg,var(--line-2) 0 5px,transparent 5px 10px);position:relative}
-  .route-big .mid .ln svg{width:16px;height:16px;color:var(--brand);position:absolute;top:-7px;left:50%;transform:translateX(-50%);background:var(--surface)}
-  .route-big .mid .km{font-size:10.5px;color:var(--txt-faint);font-weight:700;font-family:var(--mono)}
-
-  /* status timeline */
-  .timeline{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:18px}
-  .tl-title{font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--txt-faint);margin-bottom:16px}
-  .steps{display:flex;justify-content:space-between;position:relative}
-  .steps::before{content:'';position:absolute;top:11px;left:8%;right:8%;height:2px;background:var(--line-2);z-index:0}
-  .steps .prog{position:absolute;top:11px;left:8%;height:2px;background:var(--afgeleverd);z-index:1;transition:width .5s var(--ease-out)}
-  .step{display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;z-index:2;flex:1}
-  .step .node{
-    width:24px;height:24px;border-radius:50%;background:var(--surface);border:2px solid var(--line-2);
-    display:grid;place-items:center;color:var(--txt-faint);transition:all .3s var(--ease)
-  }
-  .step .node svg{width:12px;height:12px}
-  .step.done .node{background:var(--afgeleverd);border-color:var(--afgeleverd);color:#fff}
-  .step.now .node{border-color:var(--cur,#2563eb);color:var(--cur,#2563eb);box-shadow:0 0 0 4px color-mix(in srgb,var(--cur,#2563eb) 20%,transparent)}
-  .step.now .node::after{content:'';position:absolute;width:24px;height:24px;border-radius:50%;border:2px solid var(--cur,#2563eb);animation:pulse 1.8s var(--ease) infinite}
-  @keyframes pulse{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.9);opacity:0}}
-  .step .lab{font-size:11.5px;font-weight:700;color:var(--txt-mut)}
-  .step.done .lab,.step.now .lab{color:var(--txt)}
-  .step .tm{font-size:10px;color:var(--txt-faint);font-family:var(--mono);font-weight:600}
-
-  .dp-specs{
-    display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);border:1px solid var(--line);
-    border-radius:var(--r);overflow:hidden;margin-top:14px
-  }
-  @media(min-width:560px){.dp-specs{grid-template-columns:repeat(4,1fr)}}
-  .spec{background:var(--surface);padding:11px 14px}
-  .spec .l{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--txt-faint)}
-  .spec .v{font-family:var(--mono);font-weight:700;font-size:14px;margin-top:3px}
-  .dp-foot{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin-top:14px}
+  .dp-seg{padding:0 16px;display:flex;align-items:center;gap:14px;flex-shrink:0}
+  .dp-seg:first-child{padding-left:2px}
+  .dp-div{width:1px;height:34px;background:var(--line-2);flex-shrink:0}
+  .dp-kvs{display:flex;gap:20px}
+  .dp-kv{display:flex;flex-direction:column;gap:2px}
+  .dp-k{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--txt-faint)}
+  .dp-v{font-size:13px;font-weight:700;color:var(--txt);font-family:var(--mono)}
+  /* compact timeline in strip */
+  .dp-tl{display:flex;align-items:flex-start}
+  .dp-step{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:52px}
+  .dp-node{width:16px;height:16px;border-radius:50%;background:var(--surface-2);border:2px solid var(--line-2);flex-shrink:0}
+  .dp-step.done .dp-node{background:var(--afgeleverd);border-color:var(--afgeleverd)}
+  .dp-step.now .dp-node{border-color:var(--cur,#2563eb);box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+  .dp-conn{width:24px;height:2px;background:var(--line-2);margin-top:7px;flex-shrink:0}
+  .dp-conn.done{background:var(--afgeleverd)}
+  .dp-slabel{font-size:9px;font-weight:700;color:var(--txt-faint);white-space:nowrap}
+  .dp-step.done .dp-slabel,.dp-step.now .dp-slabel{color:var(--txt-mut)}
+  .dp-seg-charges{display:flex;flex-wrap:wrap;gap:5px;align-items:center;flex:1}
+  .dp-seg-act{margin-left:auto;display:flex;gap:6px;flex-shrink:0;padding-left:16px}
   .tag{font-family:var(--mono);font-size:11.5px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);padding:4px 9px;color:var(--txt-mut)}
   .tag b{color:var(--txt);font-weight:700}
-  .dp-actions{margin-left:auto;display:flex;gap:8px}
   .lnk{
     display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:12.5px;color:var(--brand-d);
     text-decoration:none;padding:7px 12px;border-radius:var(--r);border:1px solid var(--line-2);background:var(--surface);
@@ -644,43 +618,53 @@ function timeline(s){
   return html;
 }
 
-// \u2500\u2500\u2500 Detail panel \u2500\u2500\u2500
+// \u2500\u2500\u2500 Detail panel (compact horizontal strip) \u2500\u2500\u2500
 function detail(s){
   var r0=s.rates&&s.rates[0]?s.rates[0]:{};
   var st=inferStatus(s);
   var stColor=STATUS_COLOR[st];
+
+  // Compact inline timeline: node \u2500\u2500 node \u2500\u2500 node \u2500\u2500 node
+  var tl='<div class="dp-tl">';
+  STEPS.forEach(function(step,i){
+    var done=STEPS.indexOf(step)<=STEPS.indexOf(st);
+    var cur=step===st;
+    tl+='<div class="dp-step'+(done?' done':'')+(cur?' now':'')+'"'+(cur?' style="--cur:'+stColor+'"':'')+'">'
+      +'<div class="dp-node"></div>'
+      +'<div class="dp-slabel">'+STATUS[step].label+'</div>'
+      +'</div>';
+    if(i<STEPS.length-1)
+      tl+='<div class="dp-conn'+(STEPS.indexOf(STEPS[i+1])<=STEPS.indexOf(st)?' done':'')+'"></div>';
+  });
+  tl+='</div>';
+
+  // Charge tags
   var tags='';
   if(s.carrier_amt) tags+='<span class="tag">Carrier '+money(s.carrier_amt)+'</span>';
-  if(s.agent_amt) tags+='<span class="tag">Agent '+money(s.agent_amt)+'</span>';
+  if(s.agent_amt)   tags+='<span class="tag">Agent '+money(s.agent_amt)+'</span>';
   (s.charges||[]).forEach(function(c){
     tags+='<span class="tag"><b>'+esc(c.charge)+'</b> '+money(c.value)+'</span>';
   });
+
   return '<div class="detail-pad">'
-    +'<div class="dp-route">'
-    +'<div class="head">'
-    +'<div class="awb mono">'+esc(s.awb)+'</div>'
-    +'<span class="st-badge" style="color:'+stColor+'"><span class="d" style="background:'+stColor+'"></span>'+STATUS[st].label+'</span>'
-    +'</div>'
-    +'<div class="route-big">'
-    +'<div class="ep">'+flagLg(s.from_cd)+'<div class="cd">'+esc(s.from_cd)+'</div><div class="ci">'+esc(cc(s.from_cd))+(s.from_ci?' \u00b7 '+esc(s.from_ci):'')+'</div></div>'
-    +'<div class="mid"><div class="ln"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12h14"/><path d="m13 6 6 6-6 6"/></svg></div>'
-    +(s.km?'<div class="km">'+val(s.km)+' km</div>':'<div class="km">\u2708</div>')
-    +'</div>'
-    +'<div class="ep">'+flagLg(s.to_cd)+'<div class="cd">'+esc(s.to_cd)+'</div><div class="ci">'+esc(cc(s.to_cd))+(s.to_ci?' \u00b7 '+esc(s.to_ci):'')+'</div></div>'
-    +'</div>'
-    +'<div class="dp-specs">'
-    +'<div class="spec"><div class="l">Colli</div><div class="v">'+val(s.pieces)+'</div></div>'
-    +'<div class="spec"><div class="l">Gewicht</div><div class="v">'+val(r0.grossWeight||s.kg||'\u2013')+' kg</div></div>'
-    +'<div class="spec"><div class="l">Tarief</div><div class="v">'+val(r0.rate||s.rate||'\u2013')+' /kg</div></div>'
-    +'<div class="spec"><div class="l">FB</div><div class="v">'+val(s.fb)+'</div></div>'
-    +'</div>'
-    +'<div class="dp-foot">'+tags
-    +'<div class="dp-actions">'
-    +'<a class="lnk" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Bekijk colli</a>'
-    +'<a class="lnk" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Track</a>'
+    // \u2460 Specs
+    +'<div class="dp-seg">'
+    +'<div class="dp-kvs">'
+    +'<div class="dp-kv"><span class="dp-k">Colli</span><span class="dp-v">'+val(s.pieces)+'</span></div>'
+    +'<div class="dp-kv"><span class="dp-k">Gewicht</span><span class="dp-v">'+(r0.grossWeight||s.kg||'\u2013')+' kg</span></div>'
+    +'<div class="dp-kv"><span class="dp-k">Tarief</span><span class="dp-v">'+(r0.rate||s.rate||'\u2013')+' /kg</span></div>'
+    +'<div class="dp-kv"><span class="dp-k">FB</span><span class="dp-v">'+val(s.fb)+'</span></div>'
     +'</div></div>'
+    // \u2461 Timeline
+    +'<div class="dp-div"></div>'
+    +'<div class="dp-seg">'+tl+'</div>'
+    // \u2462 Charges
+    +(tags?'<div class="dp-div"></div><div class="dp-seg dp-seg-charges">'+tags+'</div>':'')
+    // \u2463 Buttons (push to right)
+    +'<div class="dp-seg dp-seg-act">'
+    +'<a class="lnk" href="#" onclick="return false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Bekijk colli</a>'
+    +'<a class="lnk" href="#" onclick="return false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Track</a>'
     +'</div>'
-    +timeline(s)
     +'</div>';
 }
 
