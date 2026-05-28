@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Binnenkomsten &middot; Logiztik Viewer</title>
+<title>Zendingen &middot; Logiztik Viewer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -408,7 +408,7 @@
     <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Overzicht</a>
     <div class="nav-cap">Operatie</div>
     <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg>Zendingen</a>
-    <a href="#" class="on" data-view="binnenkomsten"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V8M5 12l7-4 7 4M3 22h18M5 18h.01M9 18h.01M13 18h.01M17 18h.01"/><path d="m4 8 8-6 8 6"/></svg>Binnenkomsten<span class="cnt" id="navCnt">0</span></a>
+    <a href="#" class="on" data-view="binnenkomsten"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V8M5 12l7-4 7 4M3 22h18M5 18h.01M9 18h.01M13 18h.01M17 18h.01"/><path d="m4 8 8-6 8 6"/></svg>Bookings<span class="cnt" id="navCnt">0</span></a>
     <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Tracking</a>
     <div class="nav-cap">Beheer</div>
     <a href="#" data-view="facturatie"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>Facturatie<span class="cnt" id="navFacCnt" style="display:none">0</span></a>
@@ -430,7 +430,7 @@
     <button class="burger" onclick="document.body.classList.toggle('nav-open')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
     </button>
-    <div class="crumb"><span class="pth" id="crumbPth">Operatie / Luchtvracht</span><h1 id="crumbH1">Binnenkomsten</h1></div>
+    <div class="crumb"><span class="pth" id="crumbPth">Operatie / Luchtvracht</span><h1 id="crumbH1">Zendingen</h1></div>
     <div class="top-right">
       <span class="proxy"><span class="d"></span>Proxy actief</span>
       <button class="ico-btn" title="Meldingen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></button>
@@ -480,7 +480,7 @@
       </div>
       <div id="rows"></div>
       <div class="list-foot">
-        <span id="footCount">0 binnenkomsten</span>
+        <span id="footCount">0 zendingen</span>
       </div>
     </div>
   </div>
@@ -805,13 +805,13 @@ function renderRows(){
     );
   });
 
-  document.getElementById('footCount').textContent=filtered.length+' binnenkomsten';
+  document.getElementById('footCount').textContent=filtered.length+' zendingen';
 
   var rowsEl=document.getElementById('rows');
   if(!filtered.length){
     rowsEl.innerHTML='<div class="empty-state">'
       +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>'
-      +'<div class="em-t">Geen binnenkomsten gevonden</div>'
+      +'<div class="em-t">Geen zendingen gevonden</div>'
       +'<div class="em-s">Probeer een andere datum of pas de filters aan</div>'
       +'</div>';
     return;
@@ -903,7 +903,9 @@ function mapItem(s){
     time_geboekt:s.time_booked||'',
     time_vertrokken:s.time_departed||'',
     time_geland:s.time_landed||'',
-    time_afgeleverd:s.time_delivered||''
+    time_afgeleverd:s.time_delivered||'',
+    akkoord:s.akkoord||false,
+    firstSeen:s.firstSeen||''
   };
 }
 
@@ -1012,7 +1014,7 @@ document.getElementById('searchBtn').addEventListener('click',loadShipments);
 // ─── View switching ───
 var currentView='binnenkomsten';
 var VIEWS={
-  binnenkomsten:{el:'viewBinnenkomsten',pth:'Operatie / Luchtvracht',h1:'Binnenkomsten'},
+  binnenkomsten:{el:'viewBinnenkomsten',pth:'Operatie / Luchtvracht',h1:'Zendingen'},
   facturatie:   {el:'viewFacturatie',   pth:'Beheer / Financieel',   h1:'Facturatie'}
 };
 
@@ -1037,145 +1039,88 @@ document.querySelectorAll('.nav a[data-view]').forEach(function(a){
   });
 });
 
-// ─── Facturatie: akkoord opslag ───
-function akkGet(awb){ try{return localStorage.getItem('ffs:akk:'+awb)==='1';}catch(x){return false;} }
-function akkSet(awb,v){ try{localStorage.setItem('ffs:akk:'+awb, v?'1':'0');}catch(x){} }
+// ─── Facturatie: KV-database renderen ───
+function renderFacRow(s){
+  var isAkk=s.akkoord||false;
+  var dp=s.date?s.date.split('-'):[];
+  var dateStr=dp.length===3?dp[2]+'-'+dp[1]+'-'+dp[0]:'';
+  var r0=s.rates&&s.rates[0]?s.rates[0]:{};
+  return '<div class="fac-row'+(isAkk?' akk':'')+'" data-awb="'+esc(s.awb)+'">'
+    +'<div class="fac-date">'+esc(dateStr)+'</div>'
+    +'<div class="fac-awb mono">'+esc(s.awb)+'</div>'
+    +'<div class="fac-al">'+flag(s.from_cd)+esc(s.airline||'–')+'</div>'
+    +'<div class="fac-route">'+esc(s.from_cd)+' → '+esc(s.to_cd)+'</div>'
+    +'<div class="num r">'+val(s.pieces)+'</div>'
+    +'<div class="num r">'+val(r0&&r0.grossWeight?r0.grossWeight:s.kg||'–')+' kg</div>'
+    +'<div class="num r">'+money(s.carrier_amt)+'</div>'
+    +'<div class="val">'+money(s.value)+'</div>'
+    +'<div class="fac-check'+(isAkk?' checked':'')+'" data-akk="'+esc(s.awb)+'">'
+    +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
+    +'</div>'
+    +'</div>';
+}
 
-// ─── Facturatie renderen ───
 function renderFacturatie(){
-  var data=shipmentData.slice();
-  var totalVal=0, okVal=0, okCnt=0;
-  data.forEach(function(s){ totalVal+=Number(s.value||0); });
+  document.getElementById('facRows').innerHTML='<div style="padding:24px;color:var(--txt-faint);text-align:center">Laden…</div>';
+  fetch('/api/awb-store').then(function(r){return r.json();}).then(function(env){
+    if(!env.ok) throw new Error('API fout');
+    var store=env.data||{};
+    var data=Object.values(store).map(mapItem)
+      .sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});
 
-  // stats
-  document.getElementById('fTotal').textContent=data.length;
-  document.getElementById('fVal').textContent=money(totalVal);
+    var totalVal=0,okVal=0,okCnt=0;
+    data.forEach(function(s){ totalVal+=Number(s.value||0); });
+    document.getElementById('fTotal').textContent=data.length;
+    document.getElementById('fVal').textContent=money(totalVal);
 
-  if(!data.length){
-    document.getElementById('facRows').innerHTML='<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg><div class="em-t">Geen gegevens</div><div class="em-s">Laad eerst zendingen via Binnenkomsten</div></div>';
-    document.getElementById('fOk').textContent='0';
-    document.getElementById('fOpen').textContent='0';
-    document.getElementById('facCount').textContent='0 zendingen';
-    document.getElementById('facSumLine').textContent='';
-    return;
-  }
+    if(!data.length){
+      document.getElementById('facRows').innerHTML='<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg><div class="em-t">Nog geen zendingen in de database</div><div class="em-s">Laad zendingen via Zendingen om ze hier te zien</div></div>';
+      document.getElementById('fOk').textContent='0';
+      document.getElementById('fOpen').textContent='0';
+      document.getElementById('facCount').textContent='0 zendingen';
+      document.getElementById('facSumLine').textContent='';
+      return;
+    }
 
-  var html='';
-  data.forEach(function(s){
-    var isAkk=akkGet(s.awb);
-    if(isAkk){ okCnt++; okVal+=Number(s.value||0); }
-    var dp=s.date?s.date.split('-'):[];
-    var dateStr=dp.length===3?dp[2]+'-'+dp[1]+'-'+dp[0]:'';
-    var r0=s.rates&&s.rates[0]?s.rates[0]:{};
-    html+='<div class="fac-row'+(isAkk?' akk':'')+'" data-awb="'+esc(s.awb)+'">'
-      +'<div class="fac-check'+(isAkk?' checked':'')+'" data-akk="'+esc(s.awb)+'">'
-      +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
-      +'</div>'
-      +'<div class="fac-date">'+esc(dateStr)+'</div>'
-      +'<div class="fac-awb mono">'+esc(s.awb)+'</div>'
-      +'<div class="fac-al">'+flag(s.from_cd)+esc(s.airline||'–')+'</div>'
-      +'<div class="fac-route">'+esc(s.from_cd)+' → '+esc(s.to_cd)+'</div>'
-      +'<div class="num r">'+val(s.pieces)+'</div>'
-      +'<div class="num r">'+val(r0.grossWeight||s.kg||'–')+' kg</div>'
-      +'<div class="num r">'+money(s.carrier_amt)+'</div>'
-      +'<div class="val">'+money(s.value)+'</div>'
-      +'</div>';
-  });
-  document.getElementById('facRows').innerHTML=html;
-
-  document.getElementById('fOk').textContent=okCnt;
-  document.getElementById('fOpen').textContent=data.length-okCnt;
-  document.getElementById('facCount').textContent=data.length+' zendingen';
-  document.getElementById('facSumLine').textContent=okCnt>0?okCnt+' akkoord: '+money(okVal):'';
-
-  document.getElementById('facRows').querySelectorAll('.fac-check').forEach(function(btn){
-    btn.addEventListener('click',function(e){
-      e.stopPropagation();
-      var awb=this.getAttribute('data-akk');
-      var newVal=!akkGet(awb);
-      akkSet(awb,newVal);
-      renderFacturatie();
+    var html='';
+    data.forEach(function(s){
+      if(s.akkoord){okCnt++;okVal+=Number(s.value||0);}
+      html+=renderFacRow(s);
     });
+    document.getElementById('facRows').innerHTML=html;
+    document.getElementById('fOk').textContent=okCnt;
+    document.getElementById('fOpen').textContent=data.length-okCnt;
+    document.getElementById('facCount').textContent=data.length+' zendingen';
+    document.getElementById('facSumLine').textContent=okCnt>0?okCnt+' akkoord: '+money(okVal):'';
+
+    document.getElementById('facRows').querySelectorAll('.fac-check').forEach(function(btn){
+      btn.addEventListener('click',function(e){
+        e.stopPropagation();
+        var awb=this.getAttribute('data-akk');
+        var newVal=!this.classList.contains('checked');
+        fetch('/api/akkoord',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({awb:awb,value:newVal})
+        }).then(function(){ renderFacturatie(); })
+          .catch(function(err){ console.error('Akkoord opslaan mislukt:',err); });
+      });
+    });
+  }).catch(function(err){
+    document.getElementById('facRows').innerHTML='<div style="padding:24px;color:var(--vertrokken)">Kon zendingen niet laden: '+esc(err.message)+'</div>';
   });
 }
 
-// ─── localStorage-based akkoord accumulator for Facturatie ───
-function allDataStore(){
-  try{return JSON.parse(localStorage.getItem('ffs:alldata'))||{};}catch(x){return{};}
-}
-function mergeToStore(list){
-  var store=allDataStore();
-  list.forEach(function(s){if(s.awb) store[s.awb]=s;});
-  try{localStorage.setItem('ffs:alldata',JSON.stringify(store));}catch(x){}
-}
-
-// Patch applyData to also merge into store
+// ─── Persist raw shipments to KV-database on load ───
 var _origApplyData=applyData;
 applyData=function(list){
   _origApplyData(list);
-  mergeToStore(list);
+  fetch('/api/awb-store',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(list)
+  }).catch(function(e){ console.warn('AWB store sync mislukt:',e); });
   if(currentView==='facturatie') renderFacturatie();
-};
-
-// Override renderFacturatie to use accumulated store
-renderFacturatie=function(){
-  var store=allDataStore();
-  var data=Object.values(store).map(function(s){
-    if(!s.airline) s.airline=airlineFromAwb(s.awb);
-    if(!s.carrier_amt) s.carrier_amt=Number(s.totalCarrier)||0;
-    if(!s.agent_amt) s.agent_amt=Number(s.totalAgent)||0;
-    return s;
-  }).sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});
-
-  var totalVal=0, okVal=0, okCnt=0;
-  data.forEach(function(s){ totalVal+=Number(s.value||0); });
-  document.getElementById('fTotal').textContent=data.length;
-  document.getElementById('fVal').textContent=money(totalVal);
-
-  if(!data.length){
-    document.getElementById('facRows').innerHTML='<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg><div class="em-t">Nog geen zendingen geladen</div><div class="em-s">Ga naar Binnenkomsten en laad zendingen via de datumfilter</div></div>';
-    document.getElementById('fOk').textContent='0';
-    document.getElementById('fOpen').textContent=data.length;
-    document.getElementById('facCount').textContent='0 zendingen';
-    document.getElementById('facSumLine').textContent='';
-    return;
-  }
-
-  var html='';
-  data.forEach(function(s){
-    var isAkk=akkGet(s.awb);
-    if(isAkk){okCnt++;okVal+=Number(s.value||0);}
-    var dp=s.date?s.date.split('-'):[];
-    var dateStr=dp.length===3?dp[2]+'-'+dp[1]+'-'+dp[0]:'';
-    var r0=s.rates&&s.rates[0]?s.rates[0]:{};
-    html+='<div class="fac-row'+(isAkk?' akk':'')+'" data-awb="'+esc(s.awb)+'">'
-      +'<div class="fac-date">'+esc(dateStr)+'</div>'
-      +'<div class="fac-awb mono">'+esc(s.awb)+'</div>'
-      +'<div class="fac-al">'+flag(s.from_cd)+''+esc(s.airline||'–')+'</div>'
-      +'<div class="fac-route">'+esc(s.from_cd)+' → '+esc(s.to_cd)+'</div>'
-      +'<div class="num r">'+val(s.pieces)+'</div>'
-      +'<div class="num r">'+val(r0&&r0.grossWeight?r0.grossWeight:s.kg||'–')+' kg</div>'
-      +'<div class="num r">'+money(s.carrier_amt)+'</div>'
-      +'<div class="val">'+money(s.value)+'</div>'
-      +'<div class="fac-check'+(isAkk?' checked':'')+'" data-akk="'+esc(s.awb)+'">'
-      +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
-      +'</div>'
-      +'</div>';
-  });
-  document.getElementById('facRows').innerHTML=html;
-  document.getElementById('fOk').textContent=okCnt;
-  document.getElementById('fOpen').textContent=data.length-okCnt;
-  document.getElementById('facCount').textContent=data.length+' zendingen';
-  document.getElementById('facSumLine').textContent=okCnt>0?okCnt+' akkoord: '+money(okVal):'';
-
-  document.getElementById('facRows').querySelectorAll('.fac-check').forEach(function(btn){
-    btn.addEventListener('click',function(e){
-      e.stopPropagation();
-      var awb=this.getAttribute('data-akk');
-      akkSet(awb,!akkGet(awb));
-      renderFacturatie();
-    });
-  });
 };
 
 // ─── Admin mode ───

@@ -7,7 +7,7 @@
  */
 
 const { callLogiztik, SHIPMENT_PATH } = require('../lib/logiztik');
-const { kvSetJSON } = require('../lib/kv');
+const { kvGetJSON, kvSetJSON } = require('../lib/kv');
 
 async function handler(req, res) {
   // Cron jobs should only accept POST from Vercel
@@ -49,6 +49,21 @@ async function handler(req, res) {
         });
 
         await kvSetJSON(`shipments:${date}`, result.data, 86400);
+
+        // Persist to permanent AWB store (no TTL)
+        const awbStore = await kvGetJSON('awb:all') || {};
+        const today = new Date().toISOString().slice(0, 10);
+        result.data.forEach(s => {
+          if (!s || !s.awb) return;
+          const ex = awbStore[s.awb] || {};
+          awbStore[s.awb] = {
+            ...s,
+            akkoord: ex.akkoord || false,
+            firstSeen: ex.firstSeen || date,
+            lastUpdated: today,
+          };
+        });
+        await kvSetJSON('awb:all', awbStore, 0);
       } else {
         results.push({
           date,
