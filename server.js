@@ -60,8 +60,8 @@ const SHIPMENT_PATH = (cc, date) =>
   `${encodeURIComponent(cc)}/${encodeURIComponent(date)}`;
 
 const BARCODE_PATH = (cc, shipment) =>
-  `${API_BASE}/api/v2/ClientesExternosA/ListarCodigosDeBarraPorClienteNew/` +
-  `${encodeURIComponent(cc)}/${encodeURIComponent(shipment)}`;
+  `${API_BASE}/api/v2/ClientesExternosA/ListarCodigosDeBarraPorClienteNew` +
+  `?customerCode=${encodeURIComponent(cc)}&shipmentNr=${encodeURIComponent(shipment)}`;
 
 function enumerateDays(from, to) {
   const fD = new Date(from + 'T00:00:00Z');
