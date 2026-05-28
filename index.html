@@ -534,13 +534,13 @@
       <div class="listwrap" style="padding:24px">
         <div style="font-size:13px;font-weight:600;color:var(--txt-mut);margin-bottom:16px">Huidig logo:</div>
         <div style="margin-bottom:20px"><img id="logoPreview" src="brand/ffs-logo.png" style="height:48px;max-width:280px;object-fit:contain;border:1px solid var(--line);border-radius:8px;padding:8px;background:#fff"></div>
-        <div style="display:flex;flex-direction:column;gap:8px;max-width:480px">
-          <label style="font-size:11px;font-weight:700;color:var(--txt-faint);letter-spacing:.05em;text-transform:uppercase">Logo URL</label>
-          <input type="url" id="logoUrl" placeholder="https://example.com/logo.png" style="height:42px;border:1px solid var(--line-2);border-radius:var(--r);padding:0 13px;font-size:13px;font-family:var(--mono);color:var(--txt)">
-          <div style="display:flex;gap:8px;margin-top:4px">
-            <button class="btn btn-pri" onclick="saveLogo()">Opslaan</button>
+        <div style="display:flex;flex-direction:column;gap:10px;max-width:480px">
+          <input type="file" id="logoFile" accept="image/*" style="display:none" onchange="handleLogoFile(this)">
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-pri" onclick="document.getElementById('logoFile').click()">Afbeelding uploaden</button>
             <button class="btn btn-gho" onclick="resetLogo()">Standaard herstellen</button>
           </div>
+          <div id="logoStatus" style="font-size:12px;color:var(--txt-faint)"></div>
         </div>
       </div>
     </div>
@@ -1198,26 +1198,67 @@ window.savePfxName=function(input){
 };
 
 // ─── Logo management ───
-(function(){
-  var stored=localStorage.getItem('ffs:logo');
-  if(stored){
-    var imgs=document.querySelectorAll('.logo-slot img');
-    imgs.forEach(function(img){img.src=stored;});
-  }
-})();
-window.saveLogo=function(){
-  var url=document.getElementById('logoUrl').value.trim();
-  if(!url) return;
-  localStorage.setItem('ffs:logo',url);
-  document.querySelectorAll('.logo-slot img').forEach(function(img){img.src=url;});
-  document.getElementById('logoPreview').src=url;
+function applyLogo(dataUrl){
+  var src=dataUrl||'brand/ffs-logo.png';
+  document.querySelectorAll('.logo-slot img').forEach(function(img){img.src=src;img.style.display='';});
+  var prev=document.getElementById('logoPreview');
+  if(prev) prev.src=src;
+}
+
+// Load logo from server on startup
+fetch('/api/logo').then(function(r){return r.json();}).then(function(env){
+  if(env.ok&&env.data) applyLogo(env.data);
+}).catch(function(){});
+
+window.handleLogoFile=function(input){
+  var file=input.files&&input.files[0];
+  if(!file) return;
+  var status=document.getElementById('logoStatus');
+  status.textContent='Verwerken…';
+  status.style.color='var(--txt-faint)';
+
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var img=new Image();
+    img.onload=function(){
+      // Resize to max 400px wide on a canvas, export as JPEG 85%
+      var maxW=400, maxH=120;
+      var ratio=Math.min(maxW/img.width, maxH/img.height, 1);
+      var w=Math.round(img.width*ratio), h=Math.round(img.height*ratio);
+      var canvas=document.createElement('canvas');
+      canvas.width=w; canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      var dataUrl=canvas.toDataURL('image/png');
+
+      fetch('/api/logo',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({image:dataUrl})
+      }).then(function(r){return r.json();}).then(function(env){
+        if(env.ok){
+          applyLogo(dataUrl);
+          status.textContent='Logo opgeslagen.';
+          status.style.color='var(--afgeleverd)';
+        } else {
+          status.textContent='Fout: '+(env.error||'onbekend');
+          status.style.color='var(--vertrokken)';
+        }
+      }).catch(function(err){
+        status.textContent='Upload mislukt: '+err.message;
+        status.style.color='var(--vertrokken)';
+      });
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
 };
+
 window.resetLogo=function(){
-  localStorage.removeItem('ffs:logo');
-  var def='brand/ffs-logo.png';
-  document.querySelectorAll('.logo-slot img').forEach(function(img){img.src=def;});
-  document.getElementById('logoPreview').src=def;
-  document.getElementById('logoUrl').value='';
+  fetch('/api/logo',{method:'DELETE'}).then(function(){
+    applyLogo(null);
+    var status=document.getElementById('logoStatus');
+    if(status){ status.textContent='Logo teruggezet naar standaard.'; status.style.color='var(--txt-faint)'; }
+  }).catch(function(){});
 };
 
 // ─── Settings tabs ───
@@ -1242,8 +1283,8 @@ document.querySelectorAll('.nav a[data-view]').forEach(function(a){
     if(v==='instellingen'){
       renderPrefixTable();
       updateAdminUI();
-      var stored=localStorage.getItem('ffs:logo');
-      if(stored) document.getElementById('logoUrl').value=stored;
+      var logoStatus=document.getElementById('logoStatus');
+      if(logoStatus) logoStatus.textContent='';
     }
   });
 });
