@@ -229,7 +229,9 @@
     position:relative;min-width:22px;max-width:80px
   }
   .r-line svg{width:14px;height:14px;color:var(--brand);position:absolute;top:-6px;left:50%;transform:translateX(-50%);background:var(--surface);padding:0 1px}
+  .r-line .rl-al{position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:9px;font-weight:800;letter-spacing:.04em;color:var(--txt-faint);white-space:nowrap;background:var(--surface);padding:0 3px}
   .row:hover .r-line svg,.row.open .r-line svg{background:var(--surface-2)}
+  .row:hover .r-line .rl-al,.row.open .r-line .rl-al{background:var(--surface-2)}
 
   /* status cell */
   .st{display:flex;flex-direction:column;gap:6px}
@@ -290,6 +292,32 @@
   .list-foot .pg{display:flex;gap:6px}
   .pgb{width:30px;height:30px;border-radius:8px;border:1px solid var(--line-2);background:var(--surface);display:grid;place-items:center;cursor:pointer;font-weight:700;font-size:12.5px;color:var(--txt-mut)}
   .pgb.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+
+  /* ── facturatie table ── */
+  .fac-head{
+    display:grid;grid-template-columns:44px 80px 155px 90px 1fr 65px 90px 110px 130px;gap:14px;
+    padding:10px 18px;border-bottom:1px solid var(--line);background:var(--surface-2);
+    font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--txt-faint)
+  }
+  .fac-row{
+    display:grid;grid-template-columns:44px 80px 155px 90px 1fr 65px 90px 110px 130px;gap:14px;
+    padding:12px 18px;align-items:center;border-bottom:1px solid var(--line);
+    transition:background .12s var(--ease)
+  }
+  .fac-row:last-child{border-bottom:none}
+  .fac-row:hover{background:var(--surface-2)}
+  .fac-row.akk{background:#f0fdf4}
+  .fac-row.akk:hover{background:#dcfce7}
+  .fac-check{width:20px;height:20px;border-radius:6px;border:2px solid var(--line-2);background:var(--surface);cursor:pointer;display:grid;place-items:center;flex-shrink:0;transition:all .15s var(--ease)}
+  .fac-check:hover{border-color:var(--brand)}
+  .fac-check.checked{background:var(--afgeleverd);border-color:var(--afgeleverd);color:#fff}
+  .fac-check svg{width:12px;height:12px;display:none}
+  .fac-check.checked svg{display:block}
+  .fac-date{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--txt-mut)}
+  .fac-awb{font-family:var(--mono);font-size:13px;font-weight:700}
+  .fac-al{font-size:12.5px;font-weight:700;color:var(--txt-mut);display:flex;align-items:center;gap:6px}
+  .fac-route{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:12.5px;font-weight:700;color:var(--txt-mut)}
+  .fac-row.akk .fac-awb{color:var(--afgeleverd)}
 
   /* entrance */
   .reveal{opacity:0;transform:translateY(14px)}
@@ -367,10 +395,10 @@
     <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Overzicht</a>
     <div class="nav-cap">Operatie</div>
     <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg>Zendingen</a>
-    <a href="#" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V8M5 12l7-4 7 4M3 22h18M5 18h.01M9 18h.01M13 18h.01M17 18h.01"/><path d="m4 8 8-6 8 6"/></svg>Binnenkomsten<span class="cnt" id="navCnt">0</span></a>
+    <a href="#" class="on" data-view="binnenkomsten"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V8M5 12l7-4 7 4M3 22h18M5 18h.01M9 18h.01M13 18h.01M17 18h.01"/><path d="m4 8 8-6 8 6"/></svg>Binnenkomsten<span class="cnt" id="navCnt">0</span></a>
     <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Tracking</a>
     <div class="nav-cap">Beheer</div>
-    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>Facturatie</a>
+    <a href="#" data-view="facturatie"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>Facturatie<span class="cnt" id="navFacCnt" style="display:none">0</span></a>
     <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg>Rapporten</a>
     <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-2.92.99V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 7 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 14H4.5a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 6 7.6l-.6-.6a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 11 4.6V4.5a2 2 0 1 1 4 0v.09A1.65 1.65 0 0 0 18 6l.6-.6a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 20.4 11h.1a2 2 0 1 1 0 4h-.1Z"/></svg>Instellingen</a>
   </nav>
@@ -389,7 +417,7 @@
     <button class="burger" onclick="document.body.classList.toggle('nav-open')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
     </button>
-    <div class="crumb"><span class="pth">Operatie / Luchtvracht</span><h1>Binnenkomsten</h1></div>
+    <div class="crumb"><span class="pth" id="crumbPth">Operatie / Luchtvracht</span><h1 id="crumbH1">Binnenkomsten</h1></div>
     <div class="top-right">
       <span class="proxy"><span class="d"></span>Proxy actief</span>
       <button class="ico-btn" title="Meldingen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></button>
@@ -397,7 +425,7 @@
     </div>
   </header>
 
-  <div class="content">
+  <div class="content" id="viewBinnenkomsten">
     <!-- stats -->
     <div class="stats reveal">
       <div class="stat hero"><div class="lb">Totale AWB-waarde</div><div class="vl" id="sVal">–</div></div>
@@ -440,11 +468,27 @@
       <div id="rows"></div>
       <div class="list-foot">
         <span id="footCount">0 binnenkomsten</span>
-        <div class="pg">
-          <button class="pgb"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
-          <button class="pgb on">1</button><button class="pgb">2</button>
-          <button class="pgb"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
-        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FACTURATIE VIEW ── -->
+  <div class="content" id="viewFacturatie" style="display:none">
+    <div class="stats reveal" id="facStats">
+      <div class="stat hero"><div class="lb">Totaal gefactureerd</div><div class="vl" id="fVal">–</div></div>
+      <div class="stat"><div class="lb"><i style="background:var(--afgeleverd)"></i>Akkoord</div><div class="vl" id="fOk">0</div></div>
+      <div class="stat"><div class="lb"><i style="background:var(--vertrokken)"></i>Openstaand</div><div class="vl" id="fOpen">0</div></div>
+      <div class="stat"><div class="lb"><i style="background:var(--brand)"></i>Zendingen</div><div class="vl" id="fTotal">0</div></div>
+    </div>
+    <div class="listwrap reveal">
+      <div class="fac-head">
+        <div></div><div>Datum</div><div>AWB</div><div>Airline</div><div>Route</div>
+        <div class="r">Colli</div><div class="r">Gewicht</div><div class="r">Carrier</div><div class="r">Totaal AWB</div>
+      </div>
+      <div id="facRows"></div>
+      <div class="list-foot" id="facFoot">
+        <span id="facCount">0 zendingen</span>
+        <span id="facSumLine" style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--afgeleverd)"></span>
       </div>
     </div>
   </div>
@@ -526,6 +570,18 @@ function money(v){
 }
 function val(v){
   return v===null||v===undefined||v===''?'–':String(v);
+}
+
+// \u2500\u2500\u2500 IATA AWB prefix \u2192 airline \u2500\u2500\u2500
+const AWB_AL={
+  '001':'AA','006':'DL','014':'AC','020':'LH','023':'UA','057':'AA',
+  '074':'KLM','075':'BA','080':'IB','125':'BA','131':'KLM','157':'SQ',
+  '176':'UA','180':'LX','217':'SA','220':'QF','235':'TG','247':'AF',
+  '369':'LATAM','405':'FX','406':'PO','549':'MP','604':'LAN','618':'INS'
+};
+function airlineFromAwb(awb){
+  var pfx=String(awb||'').replace(/[^0-9]/g,'').slice(0,3);
+  return AWB_AL[pfx]||'';
 }
 
 // \u2500\u2500\u2500 Utility functions \u2500\u2500\u2500
@@ -706,7 +762,9 @@ function renderRows(){
       +'<div class="sub">'+(dateShort?'<span class="mono">'+dateShort+'</span> · ':'')+esc(s.from_ci||s.from_cd)+'</div></div>'
       +'<div class="route">'+flag(s.from_cd)
       +'<div class="ap"><div class="cd mono">'+esc(s.from_cd)+'</div><div class="ct">'+esc(s.from_ci||'')+'</div></div>'
-      +'<div class="r-line"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12h14"/><path d="m13 6 6 6-6 6"/></svg></div>'
+      +'<div class="r-line"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12h14"/><path d="m13 6 6 6-6 6"/></svg>'
+      +(s.airline?'<span class="rl-al">'+esc(s.airline)+'</span>':'')
+      +'</div>'
       +'<div class="ap"><div class="cd mono">'+esc(s.to_cd)+'</div><div class="ct">'+esc(s.to_ci||'')+'</div></div>'
       +flag(s.to_cd)+'</div>'
       +'<div class="st"><span class="st-badge" style="color:'+stColor+'"><span class="d" style="background:'+stColor+'"></span>'+STATUS[st].label+'</span>'
@@ -760,6 +818,7 @@ function mapItem(s){
     fb:s.fb||'',
     rate:s.rate||r0.rate||'',
     km:s.km||0,
+    airline:airlineFromAwb(s.awb),
     carrier_amt:Number(s.totalCarrier)||0,
     agent_amt:Number(s.totalAgent)||0,
     cha:'',
@@ -875,6 +934,96 @@ document.getElementById('awbIn').addEventListener('input',function(){
 });
 
 document.getElementById('searchBtn').addEventListener('click',loadShipments);
+
+// ─── View switching ───
+var currentView='binnenkomsten';
+var VIEWS={
+  binnenkomsten:{el:'viewBinnenkomsten',pth:'Operatie / Luchtvracht',h1:'Binnenkomsten'},
+  facturatie:   {el:'viewFacturatie',   pth:'Beheer / Financieel',   h1:'Facturatie'}
+};
+
+function switchView(name){
+  if(!VIEWS[name]) return;
+  currentView=name;
+  Object.keys(VIEWS).forEach(function(k){
+    document.getElementById(VIEWS[k].el).style.display=k===name?'':'none';
+  });
+  document.getElementById('crumbPth').textContent=VIEWS[name].pth;
+  document.getElementById('crumbH1').textContent=VIEWS[name].h1;
+  document.querySelectorAll('.nav a[data-view]').forEach(function(a){
+    a.classList.toggle('on', a.getAttribute('data-view')===name);
+  });
+  if(name==='facturatie') renderFacturatie();
+}
+
+document.querySelectorAll('.nav a[data-view]').forEach(function(a){
+  a.addEventListener('click',function(e){
+    e.preventDefault();
+    switchView(this.getAttribute('data-view'));
+  });
+});
+
+// ─── Facturatie: akkoord opslag ───
+function akkGet(awb){ try{return localStorage.getItem('ffs:akk:'+awb)==='1';}catch(x){return false;} }
+function akkSet(awb,v){ try{localStorage.setItem('ffs:akk:'+awb, v?'1':'0');}catch(x){} }
+
+// ─── Facturatie renderen ───
+function renderFacturatie(){
+  var data=shipmentData.slice();
+  var totalVal=0, okVal=0, okCnt=0;
+  data.forEach(function(s){ totalVal+=Number(s.value||0); });
+
+  // stats
+  document.getElementById('fTotal').textContent=data.length;
+  document.getElementById('fVal').textContent=money(totalVal);
+
+  if(!data.length){
+    document.getElementById('facRows').innerHTML='<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg><div class="em-t">Geen gegevens</div><div class="em-s">Laad eerst zendingen via Binnenkomsten</div></div>';
+    document.getElementById('fOk').textContent='0';
+    document.getElementById('fOpen').textContent='0';
+    document.getElementById('facCount').textContent='0 zendingen';
+    document.getElementById('facSumLine').textContent='';
+    return;
+  }
+
+  var html='';
+  data.forEach(function(s){
+    var isAkk=akkGet(s.awb);
+    if(isAkk){ okCnt++; okVal+=Number(s.value||0); }
+    var dp=s.date?s.date.split('-'):[];
+    var dateStr=dp.length===3?dp[2]+'-'+dp[1]+'-'+dp[0]:'';
+    var r0=s.rates&&s.rates[0]?s.rates[0]:{};
+    html+='<div class="fac-row'+(isAkk?' akk':'')+'" data-awb="'+esc(s.awb)+'">'
+      +'<div class="fac-check'+(isAkk?' checked':'')+'" data-akk="'+esc(s.awb)+'">'
+      +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
+      +'</div>'
+      +'<div class="fac-date">'+esc(dateStr)+'</div>'
+      +'<div class="fac-awb mono">'+esc(s.awb)+'</div>'
+      +'<div class="fac-al">'+flag(s.from_cd)+esc(s.airline||'–')+'</div>'
+      +'<div class="fac-route">'+esc(s.from_cd)+' → '+esc(s.to_cd)+'</div>'
+      +'<div class="num r">'+val(s.pieces)+'</div>'
+      +'<div class="num r">'+val(r0.grossWeight||s.kg||'–')+' kg</div>'
+      +'<div class="num r">'+money(s.carrier_amt)+'</div>'
+      +'<div class="val">'+money(s.value)+'</div>'
+      +'</div>';
+  });
+  document.getElementById('facRows').innerHTML=html;
+
+  document.getElementById('fOk').textContent=okCnt;
+  document.getElementById('fOpen').textContent=data.length-okCnt;
+  document.getElementById('facCount').textContent=data.length+' zendingen';
+  document.getElementById('facSumLine').textContent=okCnt>0?okCnt+' akkoord: '+money(okVal):'';
+
+  document.getElementById('facRows').querySelectorAll('.fac-check').forEach(function(btn){
+    btn.addEventListener('click',function(e){
+      e.stopPropagation();
+      var awb=this.getAttribute('data-akk');
+      var newVal=!akkGet(awb);
+      akkSet(awb,newVal);
+      renderFacturatie();
+    });
+  });
+}
 </script>
 </body>
 </html>
