@@ -259,9 +259,9 @@
   .dp-route .head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
   .dp-route .head .awb{font-family:var(--mono);font-weight:700;font-size:15px}
   .route-big{display:flex;align-items:center;gap:12px}
-  .flag-lg{width:46px;height:46px;border-radius:50%;overflow:hidden;flex-shrink:0;box-shadow:0 0 0 1px rgba(15,23,42,.12),0 3px 8px rgba(15,23,42,.18)}
-  .flag-lg svg{width:100%;height:100%}
-  .route-big .ep{text-align:center}
+  .flag-lg{display:block;width:46px;height:46px;border-radius:50%;overflow:hidden;flex-shrink:0;box-shadow:0 0 0 1px rgba(15,23,42,.12),0 3px 8px rgba(15,23,42,.18)}
+  .flag-lg svg{width:100%;height:100%;display:block}
+  .route-big .ep{display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center}
   .route-big .ep .cd{font-family:var(--mono);font-weight:800;font-size:19px;letter-spacing:-.01em}
   .route-big .ep .ci{font-size:11px;color:var(--txt-mut);font-weight:600}
   .route-big .mid{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
@@ -647,31 +647,41 @@ function timeline(s){
 // \u2500\u2500\u2500 Detail panel \u2500\u2500\u2500
 function detail(s){
   var r0=s.rates&&s.rates[0]?s.rates[0]:{};
-  var chargeTags=(s.charges||[]).map(function(c){
-    return '<span class="tag"><b>'+esc(c.charge)+'</b> '+money(c.value)+'</span>';
-  }).join('');
-  var html='<div class="detail-pad">'
+  var st=inferStatus(s);
+  var stColor=STATUS_COLOR[st];
+  var tags='';
+  if(s.carrier_amt) tags+='<span class="tag">Carrier '+money(s.carrier_amt)+'</span>';
+  if(s.agent_amt) tags+='<span class="tag">Agent '+money(s.agent_amt)+'</span>';
+  (s.charges||[]).forEach(function(c){
+    tags+='<span class="tag"><b>'+esc(c.charge)+'</b> '+money(c.value)+'</span>';
+  });
+  return '<div class="detail-pad">'
     +'<div class="dp-route">'
-    +'<div class="head"><div class="awb mono">'+esc(s.awb)+'</div></div>'
-    +'<div class="route-big">'
-    +'<div class="ep">'+flagLg(s.from_cd)+'<div class="cd">'+esc(s.from_cd)+'</div><div class="ci">'+esc(s.from_ci)+'</div></div>'
-    +'<div class="mid"><div class="ln"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12h14"/><path d="m13 6 6 6-6 6"/></svg></div>'
-    +'<div class="km">'+(s.km?val(s.km)+' km':'')+'</div></div>'
-    +'<div class="ep">'+flagLg(s.to_cd)+'<div class="cd">'+esc(s.to_cd)+'</div><div class="ci">'+esc(s.to_ci)+'</div></div>'
+    +'<div class="head">'
+    +'<div class="awb mono">'+esc(s.awb)+'</div>'
+    +'<span class="st-badge" style="color:'+stColor+'"><span class="d" style="background:'+stColor+'"></span>'+STATUS[st].label+'</span>'
     +'</div>'
-    +timeline(s)
+    +'<div class="route-big">'
+    +'<div class="ep">'+flagLg(s.from_cd)+'<div class="cd">'+esc(s.from_cd)+'</div><div class="ci">'+esc(cc(s.from_cd))+(s.from_ci?' \u00b7 '+esc(s.from_ci):'')+'</div></div>'
+    +'<div class="mid"><div class="ln"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12h14"/><path d="m13 6 6 6-6 6"/></svg></div>'
+    +(s.km?'<div class="km">'+val(s.km)+' km</div>':'<div class="km">\u2708</div>')
+    +'</div>'
+    +'<div class="ep">'+flagLg(s.to_cd)+'<div class="cd">'+esc(s.to_cd)+'</div><div class="ci">'+esc(cc(s.to_cd))+(s.to_ci?' \u00b7 '+esc(s.to_ci):'')+'</div></div>'
+    +'</div>'
     +'<div class="dp-specs">'
     +'<div class="spec"><div class="l">Colli</div><div class="v">'+val(s.pieces)+'</div></div>'
     +'<div class="spec"><div class="l">Gewicht</div><div class="v">'+val(r0.grossWeight||s.kg||'\u2013')+' kg</div></div>'
     +'<div class="spec"><div class="l">Tarief</div><div class="v">'+val(r0.rate||s.rate||'\u2013')+' /kg</div></div>'
     +'<div class="spec"><div class="l">FB</div><div class="v">'+val(s.fb)+'</div></div>'
     +'</div>'
-    +'<div class="dp-foot">'
-    +chargeTags
-    +'<div class="dp-actions"><a class="lnk" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h6l2-3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2Z"/><circle cx="12" cy="13" r="4"/></svg>Bekijk colli</a></div>'
+    +'<div class="dp-foot">'+tags
+    +'<div class="dp-actions">'
+    +'<a class="lnk" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Bekijk colli</a>'
+    +'<a class="lnk" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Track</a>'
+    +'</div></div>'
     +'</div>'
+    +timeline(s)
     +'</div>';
-  return html;
 }
 
 // \u2500\u2500\u2500 Render shipment rows \u2500\u2500\u2500
@@ -705,8 +715,11 @@ function renderRows(){
     });
     // Detail panel rendered lazily \u2014 only for the open row
     var detailHtml=isOpen?detail(s):'';
+    var dp=s.date?s.date.split('-'):[];
+    var dateShort=dp.length===3?dp[2]+'-'+dp[1]:'';
     html+='<div class="row '+(isOpen?'open':'')+'" data-awb="'+esc(s.awb)+'">'
-      +'<div class="c-awb"><div class="a mono">'+esc(s.awb)+'</div><div class="sub">'+esc(s.from_ci||s.from_cd)+'</div></div>'
+      +'<div class="c-awb"><div class="a mono">'+esc(s.awb)+'</div>'
+      +'<div class="sub">'+(dateShort?'<span class="mono">'+dateShort+'</span> · ':'')+esc(s.from_ci||s.from_cd)+'</div></div>'
       +'<div class="route">'+flag(s.from_cd)
       +'<div class="ap"><div class="cd mono">'+esc(s.from_cd)+'</div><div class="ct">'+esc(s.from_ci||'')+'</div></div>'
       +'<div class="r-line"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12h14"/><path d="m13 6 6 6-6 6"/></svg></div>'
@@ -763,8 +776,8 @@ function mapItem(s){
     fb:s.fb||'',
     rate:s.rate||r0.rate||'',
     km:s.km||0,
-    carrier:'',
-    agent:'',
+    carrier_amt:Number(s.totalCarrier)||0,
+    agent_amt:Number(s.totalAgent)||0,
     cha:'',
     awc:'',
     fsc:'',
