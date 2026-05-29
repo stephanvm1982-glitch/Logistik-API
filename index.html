@@ -330,10 +330,14 @@
   .fac-check.checked{background:var(--afgeleverd);border-color:var(--afgeleverd);color:#fff}
   .fac-check svg{width:12px;height:12px;display:none}
   .fac-check.checked svg{display:block}
-  .fac-date{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--txt-mut)}
+  .fac-date{font-family:var(--mono);font-size:12px;font-weight:600}
   .fac-awb{font-family:var(--mono);font-size:13px;font-weight:700}
-  .fac-al{font-size:12.5px;font-weight:700;color:var(--txt-mut);display:flex;align-items:center;gap:6px}
-  .fac-route{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:12.5px;font-weight:700;color:var(--txt-mut)}
+  .fac-al{font-size:12.5px;font-weight:700;display:flex;align-items:center;gap:6px}
+  .fac-route{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:12.5px;font-weight:700}
+  .fac-tabs{display:flex;gap:0;padding:12px 18px 0;border-bottom:1px solid var(--line)}
+  .fac-tab{padding:7px 18px;font-size:12.5px;font-weight:700;cursor:pointer;border:none;background:none;
+    color:var(--txt-faint);border-bottom:2px solid transparent;margin-bottom:-1px;letter-spacing:.03em}
+  .fac-tab.on{color:var(--brand);border-bottom-color:var(--brand)}
   .fac-row.akk .fac-awb{color:var(--afgeleverd)}
 
   /* ── instellingen ── */
@@ -510,6 +514,10 @@
       <div class="stat"><div class="lb"><i style="background:var(--brand)"></i>Zendingen</div><div class="vl" id="fTotal">0</div></div>
     </div>
     <div class="listwrap reveal">
+      <div class="fac-tabs">
+        <button class="fac-tab on" data-fac="openstaand" onclick="setFacTab('openstaand')">Openstaand</button>
+        <button class="fac-tab" data-fac="akkoord" onclick="setFacTab('akkoord')">Akkoord</button>
+      </div>
       <div style="padding:10px 18px 0;display:flex;gap:10px;align-items:center">
         <input id="facFilter" type="text" placeholder="Zoek op datum, AWB of airline…"
           style="flex:1;max-width:380px;padding:7px 12px;border:1px solid var(--line);border-radius:6px;
@@ -518,7 +526,7 @@
       </div>
       <div class="fac-head">
         <div>Datum</div><div>AWB</div><div>Airline</div><div>Route</div>
-        <div class="r">Colli</div><div class="r">FB</div><div class="r">Gewicht</div><div class="r">Tarief</div><div class="r">Carrier</div><div class="r">Totaal AWB</div><div></div>
+        <div class="r">Colli</div><div class="r">FB</div><div class="r">Gewicht</div><div class="r">Tarief</div><div class="r">Carrier</div><div class="r">Totaal</div><div></div>
       </div>
       <div id="facRows"></div>
       <div class="list-foot" id="facFoot">
@@ -1146,6 +1154,16 @@ document.getElementById('awbIn').addEventListener('input',function(){
 
 document.getElementById('searchBtn').addEventListener('click',loadShipments);
 
+// ─── Facturatie tab state ───
+var _facTab='openstaand';
+function setFacTab(tab){
+  _facTab=tab;
+  document.querySelectorAll('.fac-tab').forEach(function(b){
+    b.classList.toggle('on', b.getAttribute('data-fac')===tab);
+  });
+  renderFacturatie();
+}
+
 // ─── View switching ───
 var currentView='binnenkomsten';
 var VIEWS={
@@ -1156,6 +1174,7 @@ var VIEWS={
 function switchView(name){
   if(!VIEWS[name]) return;
   currentView=name;
+  location.hash=name;
   Object.keys(VIEWS).forEach(function(k){
     document.getElementById(VIEWS[k].el).style.display=k===name?'':'none';
   });
@@ -1180,19 +1199,21 @@ function renderFacRow(s){
   var dp=s.date?s.date.split('-'):[];
   var dateStr=dp.length===3?dp[2]+'-'+dp[1]+'-'+dp[0]:'';
   var r0=s.rates&&s.rates[0]?s.rates[0]:{};
-  var kg=r0&&r0.grossWeight?r0.grossWeight:s.kg||'';
-  var tarief=s.rate?Number(s.rate).toFixed(4):'–';
+  var kgRaw=r0&&r0.grossWeight?r0.grossWeight:s.kg||'';
+  var kgStr=kgRaw?Math.round(Number(kgRaw))+' kg':'–';
+  var fbStr=s.fb?Number(s.fb).toFixed(2):'–';
+  var tariefStr=s.rate?Number(s.rate).toFixed(2):'–';
   return '<div class="fac-row'+(isAkk?' akk':'')+'" data-awb="'+esc(s.awb)+'">'
     +'<div class="fac-date">'+esc(dateStr)+'</div>'
     +'<div class="fac-awb mono">'+esc(s.awb)+'</div>'
     +'<div class="fac-al">'+esc(s.airline||'–')+'</div>'
-    +'<div class="fac-route">'+flag(s.from_cd)+esc(s.from_cd)+' → '+esc(s.to_cd)+'</div>'
+    +'<div class="fac-route">'+flag(s.from_cd)+esc(s.from_cd)+' → '+flag(s.to_cd)+esc(s.to_cd)+'</div>'
     +'<div class="num r">'+val(s.pieces)+'</div>'
-    +'<div class="num r">'+val(s.fb||'–')+'</div>'
-    +'<div class="num r">'+(kg?val(kg)+' kg':'–')+'</div>'
-    +'<div class="num r">'+tarief+'</div>'
+    +'<div class="num r">'+fbStr+'</div>'
+    +'<div class="num r">'+kgStr+'</div>'
+    +'<div class="num r">'+tariefStr+'</div>'
     +'<div class="num r">'+money(s.carrier_amt)+'</div>'
-    +'<div class="val">'+money(s.value)+'</div>'
+    +'<div class="val">'+money(s.carrier_amt)+'</div>'
     +'<div class="fac-check'+(isAkk?' checked':'')+'" data-akk="'+esc(s.awb)+'">'
     +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
     +'</div>'
@@ -1206,8 +1227,13 @@ function renderFacturatie(){
     var store=env.data||{};
     var q=(document.getElementById('facFilter')||{}).value||'';
     q=q.trim().toLowerCase();
-    var data=Object.values(store).map(mapItem)
-      .filter(function(s){ return Number(s.value||0)>0; })
+    var all=Object.values(store).map(mapItem)
+      .filter(function(s){ return Number(s.carrier_amt||0)>0; })
+      .sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});
+    var data=all
+      .filter(function(s){
+        return _facTab==='akkoord' ? s.akkoord : !s.akkoord;
+      })
       .filter(function(s){
         if(!q) return true;
         return (s.awb||'').toLowerCase().includes(q)
@@ -1215,31 +1241,29 @@ function renderFacturatie(){
           || (s.airline||'').toLowerCase().includes(q)
           || (s.from_cd||'').toLowerCase().includes(q)
           || (s.to_cd||'').toLowerCase().includes(q);
-      })
-      .sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});
+      });
 
-    var totalVal=0,okVal=0,okCnt=0;
-    data.forEach(function(s){ totalVal+=Number(s.value||0); });
-    document.getElementById('fTotal').textContent=data.length;
-    document.getElementById('fVal').textContent=money(totalVal);
+    var totalCarrier=0,okCnt=0,okVal=0,openCnt=0;
+    all.forEach(function(s){
+      totalCarrier+=Number(s.carrier_amt||0);
+      if(s.akkoord){okCnt++;okVal+=Number(s.carrier_amt||0);}
+      else openCnt++;
+    });
+    document.getElementById('fTotal').textContent=all.length;
+    document.getElementById('fVal').textContent=money(totalCarrier);
+    document.getElementById('fOk').textContent=okCnt;
+    document.getElementById('fOpen').textContent=openCnt;
 
-    if(!data.length){
+    if(!all.length){
       document.getElementById('facRows').innerHTML='<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg><div class="em-t">Nog geen zendingen in de database</div><div class="em-s">Laad zendingen via Zendingen om ze hier te zien</div></div>';
-      document.getElementById('fOk').textContent='0';
-      document.getElementById('fOpen').textContent='0';
       document.getElementById('facCount').textContent='0 zendingen';
       document.getElementById('facSumLine').textContent='';
       return;
     }
 
     var html='';
-    data.forEach(function(s){
-      if(s.akkoord){okCnt++;okVal+=Number(s.value||0);}
-      html+=renderFacRow(s);
-    });
-    document.getElementById('facRows').innerHTML=html;
-    document.getElementById('fOk').textContent=okCnt;
-    document.getElementById('fOpen').textContent=data.length-okCnt;
+    data.forEach(function(s){ html+=renderFacRow(s); });
+    document.getElementById('facRows').innerHTML=html||'<div style="padding:24px;color:var(--txt-faint);text-align:center">Geen zendingen gevonden</div>';
     document.getElementById('facCount').textContent=data.length+' zendingen';
     document.getElementById('facSumLine').textContent=okCnt>0?okCnt+' akkoord: '+money(okVal):'';
 
@@ -1434,6 +1458,12 @@ document.querySelectorAll('.set-tab').forEach(function(btn){
     if(panel) panel.style.display='';
   });
 });
+
+// ─── Herstel view uit URL-hash bij laden ───
+(function(){
+  var hash=(location.hash||'').replace('#','');
+  if(hash&&VIEWS[hash]) switchView(hash);
+})();
 
 // ─── Extend VIEWS and switchView for instellingen ───
 VIEWS['instellingen']={el:'viewInstellingen',pth:'Beheer',h1:'Instellingen'};
