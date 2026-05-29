@@ -851,36 +851,40 @@ function loadColli(e, awb){
       var groups={}, groupOrder=[];
       env.data.forEach(function(c){
         var key=c.consigneeName||c.consigneeCode||'\u2013';
-        if(!groups[key]){groups[key]={name:key,items:[],gross:0,vol:0,hawbs:{}};groupOrder.push(key);}
+        if(!groups[key]){groups[key]={name:key,items:[],gross:0,vol:0,chargeable:0,hawbs:{}};groupOrder.push(key);}
+        var chg=Math.max(Number(c.grossWeight||0),Number(c.volumeWeight||0));
         groups[key].items.push(c);
         groups[key].gross=Math.round((groups[key].gross+Number(c.grossWeight||0))*1000)/1000;
         groups[key].vol=Math.round((groups[key].vol+Number(c.volumeWeight||0))*1000)/1000;
+        groups[key].chargeable=Math.round((groups[key].chargeable+chg)*1000)/1000;
         if(c.hawb) groups[key].hawbs[c.hawb]=1;
       });
       groupOrder.sort();
       var html='<table class="colli-tbl"><thead><tr>'
-        +'<th>Consignee</th><th>Dozen</th><th>HAWB\'s</th><th>Bruto</th><th>Vol.</th><th></th>'
+        +'<th>Consignee</th><th>Dozen</th><th>HAWB\'s</th><th>Bruto</th><th>Vol.</th><th>Chargebaar</th>'
         +'</tr></thead><tbody>';
       groupOrder.forEach(function(key,gi){
         var g=groups[key];
-        var hawbCount=Object.keys(g.hawbs).length;
+        var hawbKeys=Object.keys(g.hawbs);
+        var hawbLabel=hawbKeys.length===1?hawbKeys[0]:hawbKeys.length+' HAWB\'s';
         html+='<tr class="colli-group" onclick="toggleColliGroup(this,\'cg-'+awb+'-'+gi+'\')">'
           +'<td><span class="colli-chev">\u25b6</span>'+esc(g.name)+'</td>'
           +'<td>'+g.items.length+'</td>'
-          +'<td>'+hawbCount+'</td>'
+          +'<td>'+esc(hawbLabel)+'</td>'
           +'<td>'+g.gross+' kg</td>'
           +'<td>'+g.vol+' kg</td>'
-          +'<td></td>'
+          +'<td><b>'+g.chargeable+' kg</b></td>'
           +'</tr>';
         g.items.forEach(function(c,i){
           var dims=(c.length&&c.width&&c.height)?c.length+'\xd7'+c.width+'\xd7'+c.height+(c.unitOfMeasurement?' '+c.unitOfMeasurement:''):'\u2013';
+          var chg=Math.max(Number(c.grossWeight||0),Number(c.volumeWeight||0));
           html+='<tr class="colli-sub" data-grp="cg-'+awb+'-'+gi+'">'
             +'<td>'+esc(c.barcode||'\u2013')+'</td>'
-            +'<td>'+(i+1)+'</td>'
             +'<td>'+esc(c.hawb||'\u2013')+'</td>'
             +'<td>'+dims+'</td>'
             +'<td>'+(c.grossWeight!=null?c.grossWeight+' kg':'\u2013')+'</td>'
             +'<td>'+(c.volumeWeight!=null?c.volumeWeight+' kg':'\u2013')+'</td>'
+            +'<td>'+(chg?chg+' kg':'\u2013')+'</td>'
             +'</tr>';
         });
       });
