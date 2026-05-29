@@ -242,6 +242,7 @@
   .num{font-family:var(--mono);font-weight:600;font-size:13px}
   .num.r,.val{text-align:right;display:block}
   .val{font-family:var(--mono);font-weight:700;font-size:13px}
+  .num-sub{display:block;font-family:var(--mono);font-size:10.5px;font-weight:500;color:var(--txt-faint);margin-top:1px;text-align:right}
   .chev{display:grid;place-items:center;color:var(--txt-faint);transition:transform .25s var(--ease)}
   .chev svg{width:18px;height:18px}
   .row.open .chev{transform:rotate(180deg);color:var(--brand)}
@@ -959,8 +960,13 @@ function renderRows(){
       +flag(s.to_cd)+'</div>'
       +'<div class="st"><span class="st-badge" style="color:'+stColor+'"><span class="d" style="background:'+stColor+'"></span>'+STATUS[st].label+'</span>'
       +'<div class="st-bar">'+bar+'</div></div>'
-      +'<div class="num r">'+val(s.pieces)+'</div>'
-      +'<div class="num r">'+val(s.kg)+' kg</div>'
+      +'<div class="num r">'+val(s.pieces)
+        +(s.fb?'<span class="num-sub">FB '+s.fb+'</span>':'')
+        +(s.value?'<span class="num-sub">'+money(s.value)+'</span>':'')
+      +'</div>'
+      +'<div class="num r">'+(s.chargeable?s.chargeable+' kg':val(s.kg)+' kg')
+        +(s.kg&&s.chargeable&&s.kg!==s.chargeable?'<span class="num-sub">'+s.kg+' kg bruto</span>':'')
+      +'</div>'
       +'<div class="val">'+money(s.value)+'</div>'
       +'<div class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></div>'
       +'</div>'
@@ -1010,6 +1016,7 @@ function mapItem(s){
     status:s.status||'',
     pieces:s.pieces||s.colli||0,
     kg:s.weight||s.totalWeight||s.kg||r0.grossWeight||0,
+    chargeable:r0.chargeableWeight||0,
     value:s.totalAWB||s.value||0,
     fb:s.fb||'',
     rate:s.rate||r0.rate||'',
