@@ -284,6 +284,14 @@
   }
   .lnk:hover{border-color:var(--brand);background:var(--surface-2)}
   .lnk svg{width:15px;height:15px}
+  .lnk.active{border-color:var(--brand);background:var(--surface-2)}
+
+  .colli-wrap{width:100%;border-top:1px solid var(--line);margin-top:6px;padding:10px 2px 2px}
+  .colli-tbl{width:100%;border-collapse:collapse}
+  .colli-tbl th{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--txt-faint);padding:0 8px 6px;text-align:left;border-bottom:1px solid var(--line)}
+  .colli-tbl td{padding:5px 8px;border-bottom:1px solid var(--line-2);color:var(--txt);font-size:12px;font-family:var(--mono)}
+  .colli-tbl tr:last-child td{border-bottom:none}
+  .colli-msg{font-size:12.5px;color:var(--txt-mut);padding:6px 0}
 
   .list-foot{
     display:flex;align-items:center;justify-content:space-between;padding:12px 18px;
@@ -797,10 +805,65 @@ function detail(s){
     +(tags?'<div class="dp-div"></div><div class="dp-seg dp-seg-charges">'+tags+'</div>':'')
     // \u2463 Buttons (push to right)
     +'<div class="dp-seg dp-seg-act">'
-    +'<a class="lnk" href="#" onclick="return false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Bekijk colli</a>'
+    +'<a class="lnk" id="colli-btn-'+esc(s.awb)+'" href="#" onclick="loadColli(event,\''+esc(s.awb)+'\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Bekijk colli</a>'
     +'<a class="lnk" href="#" onclick="return false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Track</a>'
     +'</div>'
+    +'<div class="colli-wrap" id="colli-'+esc(s.awb)+'"></div>'
     +'</div>';
+}
+
+// \u2500\u2500\u2500 Colli panel \u2500\u2500\u2500
+function loadColli(e, awb){
+  e.preventDefault();
+  e.stopPropagation();
+  var wrap=document.getElementById('colli-'+awb);
+  var btn=document.getElementById('colli-btn-'+awb);
+  if(!wrap) return;
+  if(wrap.dataset.loaded){
+    var hidden=wrap.style.display==='none';
+    wrap.style.display=hidden?'':'none';
+    if(btn) btn.classList.toggle('active',hidden);
+    return;
+  }
+  if(btn) btn.classList.add('active');
+  wrap.innerHTML='<div class="colli-msg">Colli laden\u2026</div>';
+  fetch('/api/barcodes?shipment='+encodeURIComponent(awb))
+    .then(function(r){return r.json();})
+    .then(function(env){
+      var w=document.getElementById('colli-'+awb); // re-fetch in case DOM updated
+      if(!w) return;
+      if(!env.ok||!Array.isArray(env.data)||!env.data.length){
+        var msg;
+        if(env.data&&env.data.error) msg=esc(env.data.error);
+        else if(typeof env.data==='string'&&env.data) msg=esc(env.data);
+        else msg='Geen colli gevonden voor dit AWB.';
+        w.innerHTML='<div class="colli-msg">'+msg+'</div>';
+        return;
+      }
+      var html='<table class="colli-tbl"><thead><tr>'
+        +'<th>#</th><th>Barcode</th><th>HAWB</th><th>Consignee</th><th>Afm (cm)</th><th>Bruto</th><th>Vol.</th>'
+        +'</tr></thead><tbody>';
+      env.data.forEach(function(c,i){
+        var dims=(c.length&&c.width&&c.height)?c.length+'\xd7'+c.width+'\xd7'+c.height+(c.unitOfMeasurement?' '+c.unitOfMeasurement:''):'\u2013';
+        html+='<tr>'
+          +'<td>'+(i+1)+'</td>'
+          +'<td>'+esc(c.barcode||'\u2013')+'</td>'
+          +'<td>'+esc(c.hawb||'\u2013')+'</td>'
+          +'<td>'+esc(c.consigneeName||c.consigneeCode||'\u2013')+'</td>'
+          +'<td>'+dims+'</td>'
+          +'<td>'+(c.grossWeight!=null?c.grossWeight+' kg':'\u2013')+'</td>'
+          +'<td>'+(c.volumeWeight!=null?c.volumeWeight+' kg':'\u2013')+'</td>'
+          +'</tr>';
+      });
+      html+='</tbody></table>';
+      w.innerHTML=html;
+      w.dataset.loaded='1';
+    })
+    .catch(function(err){
+      var w=document.getElementById('colli-'+awb);
+      if(w) w.innerHTML='<div class="colli-msg">Fout: '+esc(String(err))+'</div>';
+      if(btn) btn.classList.remove('active');
+    });
 }
 
 // \u2500\u2500\u2500 Render shipment rows \u2500\u2500\u2500
@@ -858,7 +921,8 @@ function renderRows(){
   rowsEl.innerHTML=html;
 
   rowsEl.querySelectorAll('.row').forEach(function(row){
-    row.addEventListener('click',function(){
+    row.addEventListener('click',function(e){
+      if(e.target.closest('a')) return; // let link buttons handle themselves
       var awb=this.getAttribute('data-awb');
       openAwb=(openAwb===awb)?null:awb;
       renderRows();
