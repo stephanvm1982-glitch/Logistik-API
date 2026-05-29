@@ -654,11 +654,12 @@ const AWB_AL={
 };
 function airlineFromAwb(awb){
   var pfx=String(awb||'').replace(/[^0-9]/g,'').slice(0,3);
-  // Use dynamic prefix table (editable in Instellingen) when available
   if(typeof getPrefixes==='function'){
     var prefs=getPrefixes();
-    for(var i=0;i<prefs.length;i++){
-      if(prefs[i].p===pfx) return prefs[i].i;
+    if(Array.isArray(prefs)){
+      for(var i=0;i<prefs.length;i++){
+        if(prefs[i].p===pfx) return prefs[i].i;
+      }
     }
   }
   return AWB_AL[pfx]||'';
@@ -940,7 +941,7 @@ function loadShipments(){
   // Show cached data instantly if available
   var cached=dateFrom===dateTo?lsGet(dateFrom):null;
   if(cached){
-    applyData(cached);
+    try{ applyData(cached); }catch(e){ cached=null; }
     setStatus('Cache \u2014 laden op achtergrond\u2026','');
   } else {
     var skelRow='<div class="skel">'
