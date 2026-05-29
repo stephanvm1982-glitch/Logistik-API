@@ -1331,7 +1331,7 @@ applyData=function(list){
 };
 
 // ─── Admin mode ───
-var isAdmin=localStorage.getItem('ffs:admin')==='1';
+var isAdmin=true;
 function toggleAdmin(){
   if(!isAdmin){
     var pin=prompt('Admin PIN (standaard: 1234):');
