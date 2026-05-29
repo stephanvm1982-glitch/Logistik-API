@@ -62,10 +62,10 @@
   }
   .side-brand{display:flex;flex-direction:column;gap:9px;padding:20px 18px 18px;align-items:flex-start}
   .logo-slot{
-    background:#fff;border-radius:12px;padding:10px 14px;display:flex;align-items:center;justify-content:center;
-    min-width:60px;min-height:60px;box-shadow:0 8px 18px rgba(0,0,0,.42),inset 0 0 0 1px rgba(0,0,0,.05)
+    background:#fff;border-radius:12px;padding:12px 16px;display:flex;align-items:center;justify-content:center;
+    min-width:80px;min-height:80px;box-shadow:0 8px 18px rgba(0,0,0,.42),inset 0 0 0 1px rgba(0,0,0,.05)
   }
-  .logo-slot img{display:block;height:48px;width:auto;max-width:200px;object-fit:contain}
+  .logo-slot img{display:block;height:120px;width:auto;max-width:240px;object-fit:contain}
   .cargo-tag{
     display:inline-flex;align-items:center;gap:7px;font-size:9.5px;color:var(--ink-txt-dim);
     font-weight:800;letter-spacing:.2em;text-transform:uppercase
@@ -559,7 +559,7 @@
             oninput="renderAirlineSearch()">
           <span style="font-size:11px;color:var(--txt-faint)">Zoek en klik + om toe te voegen aan je lijst</span>
         </div>
-        <div id="airlineSearchResults" style="display:none;border-bottom:1px solid var(--line);max-height:220px;overflow-y:auto"></div>
+        <div id="airlineSearchResults" style="border-bottom:1px solid var(--line);max-height:340px;overflow-y:auto"></div>
         <!-- Actieve prefix-lijst -->
         <div style="display:grid;grid-template-columns:70px 80px 1fr 80px;gap:0;border-bottom:1px solid var(--line);padding:10px 18px;font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--txt-faint);background:var(--surface-2)">
           <div>Prefix</div><div>IATA</div><div>Naam</div><div></div>
@@ -2062,26 +2062,26 @@ function savePrefixes(arr){ try{localStorage.setItem('ffs:prefixes',JSON.stringi
 window.renderAirlineSearch=function(){
   var q=(document.getElementById('airlineSearch').value||'').trim().toLowerCase();
   var res=document.getElementById('airlineSearchResults');
-  if(!q){res.style.display='none';res.innerHTML='';return;}
-  var hits=AIRLINE_DB.filter(function(a){
-    return a.n.toLowerCase().includes(q)||a.i.toLowerCase().includes(q)||a.p.includes(q);
-  }).slice(0,12);
+  var hits=q
+    ? AIRLINE_DB.filter(function(a){
+        return a.n.toLowerCase().includes(q)||a.i.toLowerCase().includes(q)||a.p.includes(q);
+      })
+    : AIRLINE_DB.slice();
+  res.style.display='block';
   if(!hits.length){
-    res.style.display='block';
     res.innerHTML='<div style="padding:12px 18px;font-size:12px;color:var(--txt-faint)">Geen resultaten gevonden</div>';
     return;
   }
   var existing=getPrefixes().map(function(x){return x.p;});
-  res.style.display='block';
   res.innerHTML=hits.map(function(a){
     var inList=existing.includes(a.p);
-    return '<div style="display:grid;grid-template-columns:70px 80px 1fr 60px;gap:0;padding:9px 18px;border-bottom:1px solid var(--line);align-items:center;font-size:13px">'
+    return '<div style="display:grid;grid-template-columns:70px 60px 1fr 90px;gap:0;padding:8px 18px;border-bottom:1px solid var(--line);align-items:center;font-size:12px">'
       +'<span style="font-family:var(--mono);font-weight:700">'+esc(a.p)+'</span>'
       +'<span style="color:var(--txt-faint)">'+esc(a.i)+'</span>'
       +'<span>'+esc(a.n)+'</span>'
       +'<button onclick="addAirlineToList(\''+esc(a.p)+'\',\''+esc(a.i)+'\',\''+esc(a.n)+'\')" '
       +'style="padding:4px 10px;border-radius:5px;border:1px solid var(--line);background:'+(inList?'var(--afgeleverd)':'var(--brand)')+';color:#fff;font-size:11px;font-weight:700;cursor:'+(inList?'default':'pointer')+'">'
-      +(inList?'✓':'+ Voeg toe')+'</button>'
+      +(inList?'✓ In lijst':'+ Voeg toe')+'</button>'
       +'</div>';
   }).join('');
 };
@@ -2224,6 +2224,7 @@ document.querySelectorAll('.nav a[data-view]').forEach(function(a){
     switchView(v);
     if(v==='instellingen'){
       renderPrefixTable();
+      renderAirlineSearch();
       updateAdminUI();
       var logoStatus=document.getElementById('logoStatus');
       if(logoStatus) logoStatus.textContent='';
@@ -2236,7 +2237,7 @@ document.querySelectorAll('.nav a[data-view]').forEach(function(a){
   var hash=(location.hash||'').replace(/^#/,'');
   if(hash&&VIEWS[hash]){
     switchView(hash);
-    if(hash==='instellingen'){ renderPrefixTable(); updateAdminUI(); }
+    if(hash==='instellingen'){ renderPrefixTable(); renderAirlineSearch(); updateAdminUI(); }
   }
 })();
 </script>
