@@ -1,11 +1,21 @@
+'use strict';
+
 /**
  * POST /api/akkoord  body: { awb: string, value: boolean }
- * Sets the akkoord flag for one AWB in the permanent store.
+ * Zet de akkoord-vlag voor één AWB in Postgres.
+ * Vereist INTERNAL_TOKEN in Authorization-header.
  */
 
-const { kvGetJSON, kvSetJSON } = require('../lib/kv');
+const { query } = require('../lib/db');
 
-const STORE_KEY = 'awb:all';
+function checkToken(req, res) {
+  const token = (process.env.INTERNAL_TOKEN || '').trim();
+  if (!token) return true;
+  const header = req.headers['authorization'] || '';
+  if (header === 'Bearer ' + token) return true;
+  res.status(401).json({ error: 'Niet geautoriseerd.' });
+  return false;
+}
 
 async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
@@ -13,6 +23,8 @@ async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
+
+  if (!checkToken(req, res)) return;
 
   let body = req.body;
   if (typeof body === 'string') {
@@ -26,15 +38,21 @@ async function handler(req, res) {
     return res.status(400).json({ error: 'Verwacht { awb: string, value: boolean }' });
   }
 
-  const store = await kvGetJSON(STORE_KEY) || {};
-  if (!store[awb]) {
-    return res.status(404).json({ error: `AWB ${awb} niet gevonden in de database` });
+  try {
+    const rows = await query(
+      `UPDATE shipments SET akkoord=$1, last_updated=now()
+       WHERE awb=$2 RETURNING awb`,
+      [value, awb]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ error: `AWB ${awb} niet gevonden in de database` });
+    }
+
+    return res.status(200).json({ ok: true, awb, akkoord: value });
+  } catch (err) {
+    return res.status(200).json({ ok: false, error: err.message });
   }
-
-  store[awb] = { ...store[awb], akkoord: value };
-  await kvSetJSON(STORE_KEY, store, 0);
-
-  return res.status(200).json({ ok: true, awb, akkoord: value });
 }
 
 module.exports = handler;

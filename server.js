@@ -148,6 +148,32 @@ function sendJson(res, status, obj) {
   res.end(JSON.stringify(obj));
 }
 
+// Leest de request-body en parseert als JSON. Geeft undefined terug als leeg.
+function readBody(req) {
+  return new Promise((resolve) => {
+    let data = '';
+    req.on('data', chunk => { data += chunk; });
+    req.on('end', () => {
+      if (!data) { resolve(undefined); return; }
+      try { resolve(JSON.parse(data)); } catch { resolve(data); }
+    });
+  });
+}
+
+// Past res aan zodat api/*.js handlers (Vercel-stijl) werken met native Node res.
+function addVercelMethods(req, res, body) {
+  req.body = body;
+  res.status = (code) => {
+    const statusObj = {
+      json: (obj) => sendJson(res, code, obj),
+      end:  (text) => { res.writeHead(code); res.end(text || ''); },
+    };
+    return statusObj;
+  };
+  res.setHeader = res.setHeader.bind(res);
+  return { req, res };
+}
+
 const requestHandler = async (req, res) => {
   let url;
   try {
@@ -170,15 +196,49 @@ const requestHandler = async (req, res) => {
     return;
   }
 
-  // --- Config voor de UI (geen geheimen, alleen status) ---
+  // --- Config voor de UI ---
   if (req.method === 'GET' && url.pathname === '/api/config') {
     sendJson(res, 200, {
-      customerCode: CUSTOMER_CODE || null,
-      environment: 'Productie',
-      apiKeyHeader: API_KEY_HEADER,
-      configured: Boolean(CUSTOMER_CODE && API_KEY),
+      customerCode:  CUSTOMER_CODE || null,
+      environment:   'Productie',
+      apiKeyHeader:  API_KEY_HEADER,
+      configured:    Boolean(CUSTOMER_CODE && API_KEY),
+      internalToken: (process.env.INTERNAL_TOKEN || '').trim() || null,
     });
     return;
+  }
+
+  // --- AWB-store (Postgres) ---
+  if (url.pathname === '/api/awb-store') {
+    const body = await readBody(req);
+    const { req: r, res: s } = addVercelMethods(req, res, body);
+    return require('./api/awb-store')(r, s);
+  }
+
+  // --- Akkoord-vlag ---
+  if (url.pathname === '/api/akkoord') {
+    const body = await readBody(req);
+    const { req: r, res: s } = addVercelMethods(req, res, body);
+    return require('./api/akkoord')(r, s);
+  }
+
+  // --- Cron refresh (handmatig triggeren lokaal) ---
+  if (url.pathname === '/api/cron-refresh') {
+    const body = await readBody(req);
+    const { req: r, res: s } = addVercelMethods(req, res, body);
+    return require('./api/cron-refresh')(r, s);
+  }
+
+  // --- Logo (doorsluizen naar api/logo.js als dat bestaat) ---
+  if (url.pathname === '/api/logo') {
+    try {
+      const body = await readBody(req);
+      const { req: r, res: s } = addVercelMethods(req, res, body);
+      return require('./api/logo')(r, s);
+    } catch {
+      sendJson(res, 404, { error: 'Logo-endpoint niet beschikbaar.' });
+      return;
+    }
   }
 
   // --- Zendingen (Shipment Information V2) - 1 dag of een periode ---

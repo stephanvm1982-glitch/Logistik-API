@@ -1229,7 +1229,7 @@ function renderFacturatie(){
         var newVal=!this.classList.contains('checked');
         fetch('/api/akkoord',{
           method:'POST',
-          headers:{'Content-Type':'application/json'},
+          headers:_authHeaders(),
           body:JSON.stringify({awb:awb,value:newVal})
         }).then(function(){ renderFacturatie(); })
           .catch(function(err){ console.error('Akkoord opslaan mislukt:',err); });
@@ -1240,13 +1240,25 @@ function renderFacturatie(){
   });
 }
 
+// ─── Internal auth token (geladen uit /api/config) ───
+var _internalToken = null;
+fetch('/api/config').then(function(r){return r.json();}).then(function(cfg){
+  _internalToken = cfg.internalToken || null;
+}).catch(function(){});
+
+function _authHeaders(){
+  var h={'Content-Type':'application/json'};
+  if(_internalToken) h['Authorization']='Bearer '+_internalToken;
+  return h;
+}
+
 // ─── Persist raw shipments to KV-database on load ───
 var _origApplyData=applyData;
 applyData=function(list){
   _origApplyData(list);
   fetch('/api/awb-store',{
     method:'POST',
-    headers:{'Content-Type':'application/json'},
+    headers:_authHeaders(),
     body:JSON.stringify(list)
   }).catch(function(e){ console.warn('AWB store sync mislukt:',e); });
   if(currentView==='facturatie') renderFacturatie();
