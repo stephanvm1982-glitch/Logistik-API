@@ -2279,6 +2279,8 @@ window.savePfxName=function(idx){
 };
 
 // ─── Logo management ───
+var LS_LOGO='ffs:logo';
+
 function applyLogo(dataUrl){
   var src=dataUrl||'brand/ffs-logo.png';
   document.querySelectorAll('.logo-slot img').forEach(function(img){img.src=src;img.style.display='';});
@@ -2286,10 +2288,16 @@ function applyLogo(dataUrl){
   if(prev) prev.src=src;
 }
 
-// Load logo from server on startup
-fetch('/api/logo').then(function(r){return r.json();}).then(function(env){
-  if(env.ok&&env.data) applyLogo(env.data);
-}).catch(function(){});
+// Load from localStorage first (instant), then confirm/update from server
+(function(){
+  try{var cached=localStorage.getItem(LS_LOGO);if(cached)applyLogo(cached);}catch(x){}
+  fetch('/api/logo').then(function(r){return r.json();}).then(function(env){
+    if(env.ok&&env.data){
+      applyLogo(env.data);
+      try{localStorage.setItem(LS_LOGO,env.data);}catch(x){}
+    }
+  }).catch(function(){});
+})();
 
 window.handleLogoFile=function(input){
   var file=input.files&&input.files[0];
@@ -2309,24 +2317,28 @@ window.handleLogoFile=function(input){
       var canvas=document.createElement('canvas');
       canvas.width=w; canvas.height=h;
       canvas.getContext('2d').drawImage(img,0,0,w,h);
-      var dataUrl=canvas.toDataURL('image/png');
+      var dataUrl=canvas.toDataURL('image/jpeg',0.88);
 
+      // Sla direct op in localStorage (werkt altijd, ook offline)
+      try{localStorage.setItem(LS_LOGO,dataUrl);}catch(x){}
+      applyLogo(dataUrl);
+
+      // Sla permanent op in Postgres
       fetch('/api/logo',{
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({image:dataUrl})
       }).then(function(r){return r.json();}).then(function(env){
         if(env.ok){
-          applyLogo(dataUrl);
           status.textContent='Logo opgeslagen.';
           status.style.color='var(--afgeleverd)';
         } else {
-          status.textContent='Fout: '+(env.error||'onbekend');
-          status.style.color='var(--vertrokken)';
+          status.textContent='Lokaal opgeslagen, server: '+(env.error||'fout');
+          status.style.color='var(--txt-faint)';
         }
-      }).catch(function(err){
-        status.textContent='Upload mislukt: '+err.message;
-        status.style.color='var(--vertrokken)';
+      }).catch(function(){
+        status.textContent='Lokaal opgeslagen (server niet bereikbaar).';
+        status.style.color='var(--txt-faint)';
       });
     };
     img.src=e.target.result;
@@ -2335,11 +2347,12 @@ window.handleLogoFile=function(input){
 };
 
 window.resetLogo=function(){
+  try{localStorage.removeItem(LS_LOGO);}catch(x){}
   fetch('/api/logo',{method:'DELETE'}).then(function(){
     applyLogo(null);
     var status=document.getElementById('logoStatus');
     if(status){ status.textContent='Logo teruggezet naar standaard.'; status.style.color='var(--txt-faint)'; }
-  }).catch(function(){});
+  }).catch(function(){applyLogo(null);});
 };
 
 // ─── Settings tabs ───
