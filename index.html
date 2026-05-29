@@ -291,6 +291,13 @@
   .colli-tbl th{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--txt-faint);padding:0 8px 6px;text-align:left;border-bottom:1px solid var(--line)}
   .colli-tbl td{padding:5px 8px;border-bottom:1px solid var(--line-2);color:var(--txt);font-size:12px;font-family:var(--mono)}
   .colli-tbl tr:last-child td{border-bottom:none}
+  .colli-group{cursor:pointer;background:var(--surface-2)}
+  .colli-group:hover td{background:var(--surface)}
+  .colli-group td:first-child{font-weight:700;color:var(--txt)}
+  .colli-chev{display:inline-block;transition:transform .15s var(--ease);margin-right:5px;font-size:10px;color:var(--txt-faint)}
+  .colli-group.open .colli-chev{transform:rotate(90deg)}
+  .colli-sub{display:none}
+  .colli-sub td{padding-left:22px;color:var(--txt-mut);background:var(--bg)}
   .colli-msg{font-size:12.5px;color:var(--txt-mut);padding:6px 0}
 
   .list-foot{
@@ -449,7 +456,7 @@
   <div class="content" id="viewBinnenkomsten">
     <!-- stats -->
     <div class="stats reveal">
-      <div class="stat hero"><div class="lb">Airwaybills</div><div class="vl" id="sVal">0</div></div>
+      <div class="stat hero"><div class="lb">Zendingen</div><div class="vl" id="sVal">0</div></div>
       <div class="stat"><div class="lb"><i style="background:var(--brand)"></i>Colli</div><div class="vl" id="sCount">0</div></div>
       <div class="stat"><div class="lb"><i style="background:var(--sky)"></i>Gewicht</div><div class="vl" id="sColli">0</div></div>
     </div>
@@ -840,20 +847,42 @@ function loadColli(e, awb){
         w.innerHTML='<div class="colli-msg">'+msg+'</div>';
         return;
       }
+      // Group by consignee
+      var groups={}, groupOrder=[];
+      env.data.forEach(function(c){
+        var key=c.consigneeName||c.consigneeCode||'\u2013';
+        if(!groups[key]){groups[key]={name:key,items:[],gross:0,vol:0,hawbs:{}};groupOrder.push(key);}
+        groups[key].items.push(c);
+        groups[key].gross=Math.round((groups[key].gross+Number(c.grossWeight||0))*1000)/1000;
+        groups[key].vol=Math.round((groups[key].vol+Number(c.volumeWeight||0))*1000)/1000;
+        if(c.hawb) groups[key].hawbs[c.hawb]=1;
+      });
+      groupOrder.sort();
       var html='<table class="colli-tbl"><thead><tr>'
-        +'<th>#</th><th>Barcode</th><th>HAWB</th><th>Consignee</th><th>Afm (cm)</th><th>Bruto</th><th>Vol.</th>'
+        +'<th>Consignee</th><th>Dozen</th><th>HAWB\'s</th><th>Bruto</th><th>Vol.</th><th></th>'
         +'</tr></thead><tbody>';
-      env.data.forEach(function(c,i){
-        var dims=(c.length&&c.width&&c.height)?c.length+'\xd7'+c.width+'\xd7'+c.height+(c.unitOfMeasurement?' '+c.unitOfMeasurement:''):'\u2013';
-        html+='<tr>'
-          +'<td>'+(i+1)+'</td>'
-          +'<td>'+esc(c.barcode||'\u2013')+'</td>'
-          +'<td>'+esc(c.hawb||'\u2013')+'</td>'
-          +'<td>'+esc(c.consigneeName||c.consigneeCode||'\u2013')+'</td>'
-          +'<td>'+dims+'</td>'
-          +'<td>'+(c.grossWeight!=null?c.grossWeight+' kg':'\u2013')+'</td>'
-          +'<td>'+(c.volumeWeight!=null?c.volumeWeight+' kg':'\u2013')+'</td>'
+      groupOrder.forEach(function(key,gi){
+        var g=groups[key];
+        var hawbCount=Object.keys(g.hawbs).length;
+        html+='<tr class="colli-group" onclick="toggleColliGroup(this,\'cg-'+awb+'-'+gi+'\')">'
+          +'<td><span class="colli-chev">\u25b6</span>'+esc(g.name)+'</td>'
+          +'<td>'+g.items.length+'</td>'
+          +'<td>'+hawbCount+'</td>'
+          +'<td>'+g.gross+' kg</td>'
+          +'<td>'+g.vol+' kg</td>'
+          +'<td></td>'
           +'</tr>';
+        g.items.forEach(function(c,i){
+          var dims=(c.length&&c.width&&c.height)?c.length+'\xd7'+c.width+'\xd7'+c.height+(c.unitOfMeasurement?' '+c.unitOfMeasurement:''):'\u2013';
+          html+='<tr class="colli-sub" data-grp="cg-'+awb+'-'+gi+'">'
+            +'<td>'+esc(c.barcode||'\u2013')+'</td>'
+            +'<td>'+(i+1)+'</td>'
+            +'<td>'+esc(c.hawb||'\u2013')+'</td>'
+            +'<td>'+dims+'</td>'
+            +'<td>'+(c.grossWeight!=null?c.grossWeight+' kg':'\u2013')+'</td>'
+            +'<td>'+(c.volumeWeight!=null?c.volumeWeight+' kg':'\u2013')+'</td>'
+            +'</tr>';
+        });
       });
       html+='</tbody></table>';
       w.innerHTML=html;
@@ -864,6 +893,14 @@ function loadColli(e, awb){
       if(w) w.innerHTML='<div class="colli-msg">Fout: '+esc(String(err))+'</div>';
       if(btn) btn.classList.remove('active');
     });
+}
+
+function toggleColliGroup(row, grpId){
+  var open=row.classList.toggle('open');
+  var tbl=row.closest('table');
+  tbl.querySelectorAll('tr.colli-sub[data-grp="'+grpId+'"]').forEach(function(r){
+    r.style.display=open?'':'none';
+  });
 }
 
 // \u2500\u2500\u2500 Render shipment rows \u2500\u2500\u2500
