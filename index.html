@@ -837,6 +837,7 @@ function detail(s){
 
   // Charge tags
   var tags='';
+  if(s.value)       tags+='<span class="tag">AWB totaal '+money(s.value)+'</span>';
   if(s.carrier_amt) tags+='<span class="tag">Carrier '+money(s.carrier_amt)+'</span>';
   if(s.agent_amt)   tags+='<span class="tag">Agent '+money(s.agent_amt)+'</span>';
   (s.charges||[]).forEach(function(c){
@@ -1243,7 +1244,7 @@ function renderFacRow(s){
     +'<div class="num r">'+fbStr+'</div>'
     +'<div class="num r">'+kgStr+'</div>'
     +'<div class="num r">'+tariefStr+'</div>'
-    +'<div class="val">'+money(s.carrier_amt)+'</div>'
+    +'<div class="val">'+money(s.value)+'</div>'
     +'<div class="fac-check'+(isAkk?' checked':'')+'" data-akk="'+esc(s.awb)+'">'
     +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
     +'</div>'
@@ -1258,7 +1259,7 @@ function renderFacturatie(onDone){
     var q=(document.getElementById('facFilter')||{}).value||'';
     q=q.trim().toLowerCase();
     var all=Object.values(store).map(mapItem)
-      .filter(function(s){ return Number(s.carrier_amt||0)>0; })
+      .filter(function(s){ return Number(s.value||0)>0; })
       .sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});
     var data=all
       .filter(function(s){
@@ -1273,14 +1274,14 @@ function renderFacturatie(onDone){
           || (s.to_cd||'').toLowerCase().includes(q);
       });
 
-    var totalCarrier=0,okCnt=0,okVal=0,openCnt=0;
+    var totalAWB=0,okCnt=0,okVal=0,openCnt=0;
     all.forEach(function(s){
-      totalCarrier+=Number(s.carrier_amt||0);
-      if(s.akkoord){okCnt++;okVal+=Number(s.carrier_amt||0);}
+      totalAWB+=Number(s.value||0);
+      if(s.akkoord){okCnt++;okVal+=Number(s.value||0);}
       else openCnt++;
     });
     document.getElementById('fTotal').textContent=all.length;
-    document.getElementById('fVal').textContent=money(totalCarrier);
+    document.getElementById('fVal').textContent=money(totalAWB);
     document.getElementById('fOk').textContent=okCnt;
     document.getElementById('fOpen').textContent=openCnt;
 
