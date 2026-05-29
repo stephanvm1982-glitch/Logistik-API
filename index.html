@@ -694,6 +694,16 @@ function airlineFromAwb(awb){
   }
   return AWB_AL[pfx]||'';
 }
+function airlineNameFromAwb(awb){
+  var pfx=String(awb||'').replace(/[^0-9]/g,'').slice(0,3);
+  var prefs=typeof getPrefixes==='function'?getPrefixes():[];
+  if(Array.isArray(prefs)){
+    for(var i=0;i<prefs.length;i++){
+      if(prefs[i].p===pfx) return prefs[i].n||prefs[i].i||'';
+    }
+  }
+  return AWB_AL[pfx]||'';
+}
 
 // \u2500\u2500\u2500 Utility functions \u2500\u2500\u2500
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
@@ -1206,8 +1216,8 @@ function renderFacRow(s){
   return '<div class="fac-row'+(isAkk?' akk':'')+'" data-awb="'+esc(s.awb)+'">'
     +'<div class="fac-date">'+esc(dateStr)+'</div>'
     +'<div class="fac-awb mono">'+esc(s.awb)+'</div>'
-    +'<div class="fac-al">'+esc(s.airline||'–')+'</div>'
-    +'<div class="fac-route">'+esc(s.from_cd)+flag(s.from_cd)+' → '+esc(s.to_cd)+flag(s.to_cd)+'</div>'
+    +'<div class="fac-al">'+esc(airlineNameFromAwb(s.awb)||s.airline||'–')+'</div>'
+    +'<div class="fac-route">'+flag(s.from_cd)+esc(s.from_cd)+' → '+esc(s.to_cd)+flag(s.to_cd)+'</div>'
     +'<div class="num r">'+val(s.pieces)+'</div>'
     +'<div class="num r">'+fbStr+'</div>'
     +'<div class="num r">'+kgStr+'</div>'
