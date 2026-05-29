@@ -1207,7 +1207,7 @@ function renderFacRow(s){
     +'<div class="fac-date">'+esc(dateStr)+'</div>'
     +'<div class="fac-awb mono">'+esc(s.awb)+'</div>'
     +'<div class="fac-al">'+esc(s.airline||'–')+'</div>'
-    +'<div class="fac-route">'+flag(s.from_cd)+esc(s.from_cd)+' → '+flag(s.to_cd)+esc(s.to_cd)+'</div>'
+    +'<div class="fac-route">'+esc(s.from_cd)+flag(s.from_cd)+' → '+esc(s.to_cd)+flag(s.to_cd)+'</div>'
     +'<div class="num r">'+val(s.pieces)+'</div>'
     +'<div class="num r">'+fbStr+'</div>'
     +'<div class="num r">'+kgStr+'</div>'
