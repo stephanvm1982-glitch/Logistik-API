@@ -441,10 +441,9 @@
   <div class="content" id="viewBinnenkomsten">
     <!-- stats -->
     <div class="stats reveal">
-      <div class="stat hero"><div class="lb">Totale AWB-waarde</div><div class="vl" id="sVal">–</div></div>
-      <div class="stat"><div class="lb"><i style="background:var(--brand)"></i>Zendingen</div><div class="vl" id="sCount">0</div></div>
-      <div class="stat"><div class="lb"><i style="background:var(--sky)"></i>Totaal colli</div><div class="vl" id="sColli">0</div></div>
-      <div class="stat"><div class="lb"><i style="background:var(--afgeleverd)"></i>Totaal gewicht</div><div class="vl" id="sKg">0<small> kg</small></div></div>
+      <div class="stat hero"><div class="lb">Airwaybills</div><div class="vl" id="sVal">0</div></div>
+      <div class="stat"><div class="lb"><i style="background:var(--brand)"></i>Colli</div><div class="vl" id="sCount">0</div></div>
+      <div class="stat"><div class="lb"><i style="background:var(--sky)"></i>Gewicht</div><div class="vl" id="sColli">0</div></div>
     </div>
 
     <!-- toolbar -->
@@ -696,10 +695,9 @@ function renderStats(){
     totalColli+=Number(s.pieces||0);
     totalKg+=Number(s.kg||0);
   });
-  document.getElementById('sVal').textContent=money(totalVal);
-  document.getElementById('sCount').textContent=count;
-  document.getElementById('sColli').textContent=totalColli.toLocaleString('nl-NL');
-  document.getElementById('sKg').innerHTML=totalKg.toLocaleString('nl-NL')+' <small>kg</small>';
+  document.getElementById('sVal').textContent=count;
+  document.getElementById('sCount').textContent=totalColli.toLocaleString('nl-NL');
+  document.getElementById('sColli').innerHTML=totalKg.toLocaleString('nl-NL')+' <small>kg</small>';
 }
 
 // \u2500\u2500\u2500 Status filter chips \u2500\u2500\u2500
