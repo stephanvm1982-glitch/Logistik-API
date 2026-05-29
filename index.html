@@ -552,6 +552,15 @@
           <span style="font-size:12px;color:var(--txt-mut)">AWB-prefix bepaalt de airline. Admin kan namen aanpassen.</span>
           <span id="adminBadge" class="proxy" style="cursor:pointer" onclick="toggleAdmin()"><span class="d"></span><span id="adminLabel">Gebruiker</span></span>
         </div>
+        <!-- Zoekbox om airlines toe te voegen -->
+        <div style="padding:12px 18px;border-bottom:1px solid var(--line);background:var(--surface-2);display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input id="airlineSearch" type="text" placeholder="Zoek airline (naam of IATA-code)…"
+            style="flex:1;min-width:200px;max-width:340px;padding:7px 12px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--txt);font-size:13px;outline:none"
+            oninput="renderAirlineSearch()">
+          <span style="font-size:11px;color:var(--txt-faint)">Zoek en klik + om toe te voegen aan je lijst</span>
+        </div>
+        <div id="airlineSearchResults" style="display:none;border-bottom:1px solid var(--line);max-height:220px;overflow-y:auto"></div>
+        <!-- Actieve prefix-lijst -->
         <div style="display:grid;grid-template-columns:70px 80px 1fr 80px;gap:0;border-bottom:1px solid var(--line);padding:10px 18px;font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--txt-faint);background:var(--surface-2)">
           <div>Prefix</div><div>IATA</div><div>Naam</div><div></div>
         </div>
@@ -1349,6 +1358,63 @@ function updateAdminUI(){
   }
 }
 
+// ─── Volledige airline AWB-prefix database ───
+const AIRLINE_DB=[
+  {p:'001',i:'AA',n:'American Airlines'},{p:'005',i:'CO',n:'Continental Airlines'},
+  {p:'006',i:'DL',n:'Delta Air Lines'},{p:'014',i:'AC',n:'Air Canada'},
+  {p:'016',i:'UA',n:'United Airlines'},{p:'020',i:'LH',n:'Lufthansa'},
+  {p:'023',i:'UA',n:'United Airlines'},{p:'027',i:'NW',n:'Northwest Airlines'},
+  {p:'043',i:'FI',n:'Icelandair'},{p:'057',i:'AA',n:'American Airlines'},
+  {p:'074',i:'KL',n:'KLM'},{p:'075',i:'BA',n:'British Airways'},
+  {p:'080',i:'IB',n:'Iberia'},{p:'083',i:'CX',n:'Cathay Pacific'},
+  {p:'086',i:'AZ',n:'Alitalia'},{p:'098',i:'JL',n:'Japan Airlines'},
+  {p:'112',i:'AI',n:'Air India'},{p:'117',i:'OS',n:'Austrian Airlines'},
+  {p:'125',i:'BA',n:'British Airways Cargo'},{p:'131',i:'KL',n:'KLM Cargo'},
+  {p:'139',i:'SK',n:'SAS Scandinavian Airlines'},{p:'157',i:'SQ',n:'Singapore Airlines'},
+  {p:'160',i:'AY',n:'Finnair'},{p:'164',i:'RJ',n:'Royal Jordanian'},
+  {p:'172',i:'CA',n:'Air China'},{p:'176',i:'UA',n:'United Airlines Cargo'},
+  {p:'180',i:'LX',n:'Swiss International Air Lines'},{p:'185',i:'CI',n:'China Airlines'},
+  {p:'188',i:'MU',n:'China Eastern Airlines'},{p:'191',i:'CZ',n:'China Southern Airlines'},
+  {p:'197',i:'BR',n:'EVA Air'},{p:'205',i:'NH',n:'All Nippon Airways'},
+  {p:'214',i:'AV',n:'Avianca'},{p:'217',i:'SA',n:'South African Airways'},
+  {p:'220',i:'QF',n:'Qantas'},{p:'228',i:'LO',n:'LOT Polish Airlines'},
+  {p:'232',i:'EI',n:'Aer Lingus'},{p:'235',i:'TG',n:'Thai Airways'},
+  {p:'247',i:'AF',n:'Air France'},{p:'257',i:'MS',n:'EgyptAir'},
+  {p:'265',i:'TK',n:'Turkish Airlines'},{p:'271',i:'AT',n:'Royal Air Maroc'},
+  {p:'279',i:'ET',n:'Ethiopian Airlines'},{p:'281',i:'LA',n:'LATAM Airlines'},
+  {p:'283',i:'AV',n:'Avianca Colombia'},{p:'289',i:'AM',n:'Aeromexico'},
+  {p:'297',i:'KE',n:'Korean Air'},{p:'309',i:'IR',n:'Iran Air'},
+  {p:'315',i:'EK',n:'Emirates'},{p:'324',i:'FZ',n:'flydubai'},
+  {p:'343',i:'EY',n:'Etihad Airways'},{p:'369',i:'5Y',n:'Atlas Air'},
+  {p:'377',i:'QR',n:'Qatar Airways'},{p:'390',i:'OZ',n:'Asiana Airlines'},
+  {p:'405',i:'FX',n:'FedEx'},{p:'406',i:'PO',n:'Polar Air Cargo'},
+  {p:'413',i:'WY',n:'Oman Air'},{p:'434',i:'GA',n:'Garuda Indonesia'},
+  {p:'524',i:'CV',n:'Cargolux'},{p:'549',i:'MP',n:'Martinair'},
+  {p:'555',i:'5X',n:'UPS Airlines'},{p:'587',i:'SN',n:'Brussels Airlines'},
+  {p:'604',i:'LA',n:'LAN Chile'},{p:'618',i:'7I',n:'InselAir'},
+  {p:'695',i:'MH',n:'Malaysia Airlines'},{p:'706',i:'PR',n:'Philippine Airlines'},
+  {p:'731',i:'MK',n:'Air Mauritius'},{p:'781',i:'GA',n:'Garuda Indonesia'},
+  {p:'831',i:'OS',n:'Austrian Airlines'},{p:'879',i:'SN',n:'Brussels Airlines'},
+  {p:'895',i:'LO',n:'LOT Polish Airlines'},{p:'100',i:'CF',n:'City Jet'},
+  {p:'108',i:'VN',n:'Vietnam Airlines'},{p:'250',i:'SU',n:'Aeroflot'},
+  {p:'555',i:'5X',n:'UPS Airlines'},{p:'996',i:'9W',n:'Jet Airways'},
+  {p:'176',i:'UA',n:'United Airlines'},{p:'020',i:'LH',n:'Lufthansa Cargo'},
+  {p:'045',i:'OA',n:'Olympic Air'},{p:'127',i:'SR',n:'Swiss Air'},
+  {p:'240',i:'OK',n:'Czech Airlines'},{p:'335',i:'SV',n:'Saudi Arabian Airlines'},
+  {p:'444',i:'WB',n:'RwandAir'},{p:'512',i:'RB',n:'Syrian Arab Airlines'},
+  {p:'518',i:'ME',n:'Middle East Airlines'},{p:'526',i:'EL',n:'Air Lingus Cargo'},
+  {p:'607',i:'G3',n:'Gol Linhas Aereas'},{p:'610',i:'AR',n:'Aerolineas Argentinas'},
+  {p:'644',i:'UX',n:'Air Europa'},{p:'656',i:'CM',n:'Copa Airlines'},
+  {p:'679',i:'AD',n:'Azul Brazilian Airlines'},{p:'700',i:'AB',n:'Air Berlin'},
+  {p:'709',i:'TP',n:'TAP Air Portugal'},{p:'745',i:'IW',n:'Wings Air'},
+  {p:'760',i:'VY',n:'Vueling'},{p:'807',i:'AH',n:'Air Algerie'},
+  {p:'838',i:'KU',n:'Kuwait Airways'},{p:'843',i:'GF',n:'Gulf Air'},
+  {p:'850',i:'WB',n:'RwandAir'},{p:'862',i:'PK',n:'Pakistan International Airlines'},
+  {p:'876',i:'UL',n:'SriLankan Airlines'},{p:'890',i:'KC',n:'Air Astana'},
+  {p:'903',i:'UM',n:'Air Zimbabwe'},{p:'920',i:'5H',n:'Five Forty Aviation'},
+  {p:'930',i:'QV',n:'Lao Airlines'},{p:'950',i:'PG',n:'Bangkok Airways'}
+];
+
 // ─── Airline prefix table ───
 var DEFAULT_PREFIXES=[
   {p:'001',i:'AA',n:'American Airlines'},{p:'005',i:'CO',n:'Continental'},{p:'006',i:'DL',n:'Delta Air Lines'},
@@ -1367,6 +1433,51 @@ function getPrefixes(){
 }
 function savePrefixes(arr){ try{localStorage.setItem('ffs:prefixes',JSON.stringify(arr));}catch(x){} }
 
+window.renderAirlineSearch=function(){
+  var q=(document.getElementById('airlineSearch').value||'').trim().toLowerCase();
+  var res=document.getElementById('airlineSearchResults');
+  if(!q){res.style.display='none';res.innerHTML='';return;}
+  var hits=AIRLINE_DB.filter(function(a){
+    return a.n.toLowerCase().includes(q)||a.i.toLowerCase().includes(q)||a.p.includes(q);
+  }).slice(0,12);
+  if(!hits.length){
+    res.style.display='block';
+    res.innerHTML='<div style="padding:12px 18px;font-size:12px;color:var(--txt-faint)">Geen resultaten gevonden</div>';
+    return;
+  }
+  var existing=getPrefixes().map(function(x){return x.p;});
+  res.style.display='block';
+  res.innerHTML=hits.map(function(a){
+    var inList=existing.includes(a.p);
+    return '<div style="display:grid;grid-template-columns:70px 80px 1fr 60px;gap:0;padding:9px 18px;border-bottom:1px solid var(--line);align-items:center;font-size:13px">'
+      +'<span style="font-family:var(--mono);font-weight:700">'+esc(a.p)+'</span>'
+      +'<span style="color:var(--txt-faint)">'+esc(a.i)+'</span>'
+      +'<span>'+esc(a.n)+'</span>'
+      +'<button onclick="addAirlineToList(\''+esc(a.p)+'\',\''+esc(a.i)+'\',\''+esc(a.n)+'\')" '
+      +'style="padding:4px 10px;border-radius:5px;border:1px solid var(--line);background:'+(inList?'var(--afgeleverd)':'var(--brand)')+';color:#fff;font-size:11px;font-weight:700;cursor:'+(inList?'default':'pointer')+'">'
+      +(inList?'✓':'+ Voeg toe')+'</button>'
+      +'</div>';
+  }).join('');
+};
+
+window.addAirlineToList=function(p,i,n){
+  var list=getPrefixes();
+  if(list.find(function(x){return x.p===p;})) return;
+  list.push({p:p,i:i,n:n});
+  list.sort(function(a,b){return a.p.localeCompare(b.p);});
+  savePrefixes(list);
+  AWB_AL[p]=i;
+  renderPrefixTable();
+  renderAirlineSearch();
+};
+
+window.removePrefixRow=function(idx){
+  var list=getPrefixes();
+  list.splice(idx,1);
+  savePrefixes(list);
+  renderPrefixTable();
+};
+
 function renderPrefixTable(){
   var list=getPrefixes();
   var html='';
@@ -1377,7 +1488,7 @@ function renderPrefixTable(){
       +(isAdmin
         ?'<input class="pfx-edit" value="'+esc(row.n)+'" data-idx="'+i+'" onchange="savePfxName(this)">'
         :'<div>'+esc(row.n)+'</div>')
-      +'<div style="font-size:10px;color:var(--txt-faint)">'+(isAdmin?'✎':'')+'</div>'
+      +'<div style="text-align:right">'+(isAdmin?'<button onclick="removePrefixRow('+i+')" style="padding:2px 8px;border-radius:4px;border:1px solid var(--line);background:none;color:var(--txt-faint);cursor:pointer;font-size:11px">✕</button>':'')+'</div>'
       +'</div>';
   });
   var el=document.getElementById('prefixRows');
