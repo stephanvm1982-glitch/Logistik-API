@@ -880,16 +880,15 @@ function loadColli(e, awb){
           +'</tr>';
         // sub-header row (hidden, same toggle)
         html+='<tr class="colli-sub colli-sub-hdr" data-grp="'+grpId+'">'
-          +'<td>Exporteur</td><td>Afm (cm)</td><td>Box</td><td>Bruto</td><td>Vol.</td><td>Product / Packing / Status</td>'
+          +'<td>Exporteur</td><td>Afm (cm)</td><td>HAWB</td><td>Bruto</td><td>Vol.</td><td>Product / Box / Status</td>'
           +'</tr>';
         g.items.forEach(function(c,i){
           var dims=(c.length&&c.width&&c.height)?c.length+'\xd7'+c.width+'\xd7'+c.height:'\u2013';
-          var chg=Math.max(Number(c.grossWeight||0),Number(c.volumeWeight||0));
-          var prod=[c.productDescription,c.packing?c.packing+' st/doos':null,c.status].filter(Boolean).join(' \u00b7 ');
+          var prod=[c.productDescription,c.boxSize,c.packing?c.packing+' st/doos':null,c.status].filter(Boolean).join(' \u00b7 ');
           html+='<tr class="colli-sub" data-grp="'+grpId+'">'
             +'<td>'+esc(c.exporterName||'\u2013')+'</td>'
             +'<td>'+dims+'</td>'
-            +'<td>'+esc(c.boxSize||'\u2013')+'</td>'
+            +'<td>'+esc(c.hawb||'\u2013')+'</td>'
             +'<td>'+(c.grossWeight!=null?c.grossWeight+' kg':'\u2013')+'</td>'
             +'<td>'+(c.volumeWeight!=null?c.volumeWeight+' kg':'\u2013')+'</td>'
             +'<td>'+esc(prod||'\u2013')+'</td>'
