@@ -297,7 +297,8 @@
   .colli-chev{display:inline-block;transition:transform .15s var(--ease);margin-right:5px;font-size:10px;color:var(--txt-faint)}
   .colli-group.open .colli-chev{transform:rotate(90deg)}
   .colli-sub{display:none}
-  .colli-sub td{padding-left:22px;color:var(--txt-mut);background:var(--bg)}
+  .colli-sub td{padding-left:14px;color:var(--txt-mut);background:var(--bg)}
+  .colli-sub-hdr td{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--txt-faint);padding-top:8px;padding-bottom:4px;border-bottom:1px solid var(--line)}
   .colli-msg{font-size:12.5px;color:var(--txt-mut);padding:6px 0}
 
   .list-foot{
@@ -860,6 +861,7 @@ function loadColli(e, awb){
         if(c.hawb) groups[key].hawbs[c.hawb]=1;
       });
       groupOrder.sort();
+      var COL=6;
       var html='<table class="colli-tbl"><thead><tr>'
         +'<th>Consignee</th><th>Dozen</th><th>HAWB\'s</th><th>Bruto</th><th>Vol.</th><th>Chargebaar</th>'
         +'</tr></thead><tbody>';
@@ -867,7 +869,8 @@ function loadColli(e, awb){
         var g=groups[key];
         var hawbKeys=Object.keys(g.hawbs);
         var hawbLabel=hawbKeys.length===1?hawbKeys[0]:hawbKeys.length+' HAWB\'s';
-        html+='<tr class="colli-group" onclick="toggleColliGroup(this,\'cg-'+awb+'-'+gi+'\')">'
+        var grpId='cg-'+awb+'-'+gi;
+        html+='<tr class="colli-group" onclick="toggleColliGroup(this,\''+grpId+'\')">'
           +'<td><span class="colli-chev">\u25b6</span>'+esc(g.name)+'</td>'
           +'<td>'+g.items.length+'</td>'
           +'<td>'+esc(hawbLabel)+'</td>'
@@ -875,16 +878,21 @@ function loadColli(e, awb){
           +'<td>'+g.vol+' kg</td>'
           +'<td><b>'+g.chargeable+' kg</b></td>'
           +'</tr>';
+        // sub-header row (hidden, same toggle)
+        html+='<tr class="colli-sub colli-sub-hdr" data-grp="'+grpId+'">'
+          +'<td>Exporteur</td><td>Afm (cm)</td><td>Box</td><td>Bruto</td><td>Vol.</td><td>Product / Packing / Status</td>'
+          +'</tr>';
         g.items.forEach(function(c,i){
-          var dims=(c.length&&c.width&&c.height)?c.length+'\xd7'+c.width+'\xd7'+c.height+(c.unitOfMeasurement?' '+c.unitOfMeasurement:''):'\u2013';
+          var dims=(c.length&&c.width&&c.height)?c.length+'\xd7'+c.width+'\xd7'+c.height:'\u2013';
           var chg=Math.max(Number(c.grossWeight||0),Number(c.volumeWeight||0));
-          html+='<tr class="colli-sub" data-grp="cg-'+awb+'-'+gi+'">'
-            +'<td>'+esc(c.barcode||'\u2013')+'</td>'
-            +'<td>'+esc(c.hawb||'\u2013')+'</td>'
+          var prod=[c.productDescription,c.packing?c.packing+' st/doos':null,c.status].filter(Boolean).join(' \u00b7 ');
+          html+='<tr class="colli-sub" data-grp="'+grpId+'">'
+            +'<td>'+esc(c.exporterName||'\u2013')+'</td>'
             +'<td>'+dims+'</td>'
+            +'<td>'+esc(c.boxSize||'\u2013')+'</td>'
             +'<td>'+(c.grossWeight!=null?c.grossWeight+' kg':'\u2013')+'</td>'
             +'<td>'+(c.volumeWeight!=null?c.volumeWeight+' kg':'\u2013')+'</td>'
-            +'<td>'+(chg?chg+' kg':'\u2013')+'</td>'
+            +'<td>'+esc(prod||'\u2013')+'</td>'
             +'</tr>';
         });
       });
@@ -903,7 +911,7 @@ function toggleColliGroup(row, grpId){
   var open=row.classList.toggle('open');
   var tbl=row.closest('table');
   tbl.querySelectorAll('tr.colli-sub[data-grp="'+grpId+'"]').forEach(function(r){
-    r.style.display=open?'':'none';
+    r.style.display=open?'table-row':'none';
   });
 }
 
