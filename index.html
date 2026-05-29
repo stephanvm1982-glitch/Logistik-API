@@ -1582,12 +1582,6 @@ document.querySelectorAll('.set-tab').forEach(function(btn){
   });
 });
 
-// ─── Herstel view uit URL-hash bij laden ───
-(function(){
-  var hash=(location.hash||'').replace('#','');
-  if(hash&&VIEWS[hash]) switchView(hash);
-})();
-
 // ─── Extend VIEWS and switchView for instellingen ───
 VIEWS['instellingen']={el:'viewInstellingen',pth:'Beheer',h1:'Instellingen'};
 document.querySelectorAll('.nav a[data-view]').forEach(function(a){
@@ -1603,6 +1597,15 @@ document.querySelectorAll('.nav a[data-view]').forEach(function(a){
     }
   });
 });
+
+// ─── Herstel view uit URL-hash bij laden (staat ALTIJD als laatste) ───
+(function(){
+  var hash=(location.hash||'').replace(/^#/,'');
+  if(hash&&VIEWS[hash]){
+    switchView(hash);
+    if(hash==='instellingen'){ renderPrefixTable(); updateAdminUI(); }
+  }
+})();
 </script>
 </body>
 </html>
