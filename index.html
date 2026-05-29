@@ -869,7 +869,12 @@ function renderRows(){
 }
 
 // \u2500\u2500\u2500 Date control \u2500\u2500\u2500
-var dateFrom=todayStr, dateTo=todayStr, awbFilter='';
+function offsetDate(days){
+  var d=new Date(); d.setDate(d.getDate()+days);
+  var p=function(n){return String(n).padStart(2,'0');};
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());
+}
+var dateFrom=offsetDate(-3), dateTo=offsetDate(2), awbFilter='';
 function updateDateLabel(){
   var lbl=dateFrom===dateTo ? 'Vandaag' : dateFrom+' tot '+dateTo;
   document.getElementById('dateLabel').textContent=lbl;
@@ -986,8 +991,8 @@ document.getElementById('clientCode').textContent='CLIB113847';
   var pop=document.getElementById('calPop');
   pop.className='cal-pop';
   pop.innerHTML='<div class="rw">'
-    +'<div class="dg"><label>Van</label><input type="date" id="dpFrom" value="'+todayStr+'"></div>'
-    +'<div class="dg"><label>Tot</label><input type="date" id="dpTo" value="'+todayStr+'"></div>'
+    +'<div class="dg"><label>Van</label><input type="date" id="dpFrom" value="'+dateFrom+'"></div>'
+    +'<div class="dg"><label>Tot</label><input type="date" id="dpTo" value="'+dateTo+'"></div>'
     +'<button class="ap-btn" id="dpApply">Toepassen</button>'
     +'</div>';
 
