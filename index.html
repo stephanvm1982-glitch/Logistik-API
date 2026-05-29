@@ -1481,29 +1481,39 @@ window.removePrefixRow=function(idx){
   renderPrefixTable();
 };
 
-function renderPrefixTable(){
+function renderPrefixTable(editIdx){
   var list=getPrefixes();
   var html='';
   list.forEach(function(row,i){
+    var editing=isAdmin&&i===editIdx;
     html+='<div class="pfx-row">'
       +'<div class="pfx-code">'+esc(row.p)+'</div>'
       +'<div class="pfx-iata">'+esc(row.i)+'</div>'
-      +(isAdmin
-        ?'<input class="pfx-edit" value="'+esc(row.n)+'" data-idx="'+i+'" onchange="savePfxName(this)">'
+      +(editing
+        ?'<input class="pfx-edit" id="pfx-inp-'+i+'" value="'+esc(row.n)+'" onkeydown="if(event.key===\'Enter\')savePfxName('+i+')">'
         :'<div>'+esc(row.n)+'</div>')
-      +'<div style="text-align:right">'+(isAdmin?'<button onclick="removePrefixRow('+i+')" style="padding:2px 8px;border-radius:4px;border:1px solid var(--line);background:none;color:var(--txt-faint);cursor:pointer;font-size:11px">✕</button>':'')+'</div>'
+      +'<div style="text-align:right;display:flex;gap:4px;justify-content:flex-end">'
+      +(isAdmin&&!editing?'<button onclick="renderPrefixTable('+i+')" style="padding:2px 8px;border-radius:4px;border:1px solid var(--line);background:none;color:var(--txt-faint);cursor:pointer;font-size:11px">✎</button>':'')
+      +(isAdmin&&editing?'<button onclick="savePfxName('+i+')" style="padding:2px 8px;border-radius:4px;border:none;background:var(--brand);color:#fff;cursor:pointer;font-size:11px">Opslaan</button>':'')
+      +(isAdmin?'<button onclick="removePrefixRow('+i+')" style="padding:2px 8px;border-radius:4px;border:1px solid var(--line);background:none;color:var(--txt-faint);cursor:pointer;font-size:11px">✕</button>':'')
+      +'</div>'
       +'</div>';
   });
   var el=document.getElementById('prefixRows');
   if(el) el.innerHTML=html||'<div style="padding:20px;color:var(--txt-faint)">Geen prefixen</div>';
+  if(editIdx!==undefined){
+    var inp=document.getElementById('pfx-inp-'+editIdx);
+    if(inp){inp.focus();inp.select();}
+  }
 }
-window.savePfxName=function(input){
-  var idx=parseInt(input.getAttribute('data-idx'));
+window.savePfxName=function(idx){
+  var inp=document.getElementById('pfx-inp-'+idx);
+  if(!inp) return;
   var list=getPrefixes();
-  if(list[idx]) list[idx].n=input.value;
+  if(list[idx]) list[idx].n=inp.value;
   savePrefixes(list);
-  // rebuild AWB_AL lookup
   list.forEach(function(r){ AWB_AL[r.p]=r.i; });
+  renderPrefixTable();
 };
 
 // ─── Logo management ───
