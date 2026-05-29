@@ -80,31 +80,24 @@ function enumerateDays(from, to) {
 // ---------------------------------------------------------------------------
 // Aanroep naar de Logiztik API
 // ---------------------------------------------------------------------------
-function callLogiztik(apiPath) {
+function callLogiztik(apiPath, headerName = API_KEY_HEADER, addTokenParam = true) {
   return new Promise((resolve) => {
-    // De Api-Key wordt op twee plekken meegestuurd, want Logiztik is daar
-    // niet consistent in:
-    //   - Als HTTP-header (Shipment V2 leest 'm zo).
-    //   - Als query-parameter "token" (Barcode V2 antwoordt anders met
-    //     "Missing input parameters. Please send token.").
-    // De endpoint pakt wat 'ie nodig heeft; de andere wordt genegeerd.
-    const sep = apiPath.indexOf('?') > -1 ? '&' : '?';
-    const pathWithToken = apiPath + sep + 'token=' + encodeURIComponent(API_KEY);
-
-    console.log('[DEBUG] Full URL:', `https://${API_HOST}:${API_PORT}${pathWithToken}`);
+    let path = apiPath;
+    if (addTokenParam) {
+      const sep = apiPath.indexOf('?') > -1 ? '&' : '?';
+      path = apiPath + sep + 'token=' + encodeURIComponent(API_KEY);
+    }
 
     const options = {
       hostname: API_HOST,
       port: API_PORT,
-      path: pathWithToken,
+      path,
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        [API_KEY_HEADER]: API_KEY,
+        [headerName]: API_KEY,
       },
-      // Standaard wordt het TLS-certificaat geverifieerd. Alleen uitzetten
-      // via ALLOW_INSECURE_TLS=true als de eerste live-test een certfout geeft.
       rejectUnauthorized: !ALLOW_INSECURE_TLS,
     };
 
@@ -275,11 +268,8 @@ const requestHandler = async (req, res) => {
         data: { error: 'Server niet geconfigureerd. Vul CUSTOMER_CODE en API_KEY in het .env-bestand in.' } });
       return;
     }
-    const barcodePath = BARCODE_PATH(CUSTOMER_CODE, shipment);
-    const fullUrl = `https://${API_HOST}:${API_PORT}${barcodePath}?token=${encodeURIComponent(API_KEY)}`;
-    console.log('[BARCODE] Request to:', fullUrl);
-    const result = await callLogiztik(barcodePath);
-    result._debug = { url: fullUrl, customerCode: CUSTOMER_CODE, shipmentNr: shipment, apiKeyLen: API_KEY.length };
+    // Barcode V2 uses 'APIkey' header (not 'Api-Key') and no ?token= in URL
+    const result = await callLogiztik(BARCODE_PATH(CUSTOMER_CODE, shipment), 'APIkey', false);
     sendJson(res, 200, result);
     return;
   }
