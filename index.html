@@ -1238,7 +1238,7 @@ function renderFacRow(s){
     +'</div>';
 }
 
-function renderFacturatie(){
+function renderFacturatie(onDone){
   document.getElementById('facRows').innerHTML='<div style="padding:24px;color:var(--txt-faint);text-align:center">Laden…</div>';
   fetch('/api/awb-store').then(function(r){return r.json();}).then(function(env){
     if(!env.ok) throw new Error('API fout');
@@ -1294,10 +1294,13 @@ function renderFacturatie(){
           method:'POST',
           headers:_authHeaders(),
           body:JSON.stringify({awb:awb,value:newVal})
-        }).then(function(){ renderFacturatie(); })
-          .catch(function(err){ console.error('Akkoord opslaan mislukt:',err); });
+        }).then(function(){
+          var sy=document.getElementById('facRows').parentElement.scrollTop||window.scrollY;
+          renderFacturatie(function(){ window.scrollTo(0,sy); });
+        }).catch(function(err){ console.error('Akkoord opslaan mislukt:',err); });
       });
     });
+    if(typeof onDone==='function') onDone();
   }).catch(function(err){
     document.getElementById('facRows').innerHTML='<div style="padding:24px;color:var(--vertrokken)">Kon zendingen niet laden: '+esc(err.message)+'</div>';
   });
