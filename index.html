@@ -962,7 +962,6 @@ function renderRows(){
       +'<div class="st-bar">'+bar+'</div></div>'
       +'<div class="num r">'+val(s.pieces)
         +(s.fb?'<span class="num-sub">FB '+s.fb+'</span>':'')
-        +(s.value?'<span class="num-sub">'+money(s.value)+'</span>':'')
       +'</div>'
       +'<div class="num r">'+(s.chargeable?s.chargeable+' kg':val(s.kg)+' kg')
         +(s.kg&&s.chargeable&&s.kg!==s.chargeable?'<span class="num-sub">'+s.kg+' kg bruto</span>':'')
