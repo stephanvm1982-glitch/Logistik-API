@@ -688,8 +688,19 @@ function getTodayISO(){
 
 // ─── Moneyformatter ───
 function money(v){
-  // If already a JS number, use directly; otherwise parse Dutch-formatted string ("1.234,56")
-  var n=typeof v==='number'?v:Number(String(v).replace(/\./g,'').replace(',','.'));
+  var n;
+  if(typeof v==='number'){
+    n=v;
+  } else {
+    var s=String(v||'');
+    if(s.indexOf(',')!==-1){
+      // Dutch-formatted string: "1.234,56" → strip . then swap , to .
+      n=Number(s.replace(/\./g,'').replace(',','.'));
+    } else {
+      // DB/English decimal string: "7143.20"
+      n=parseFloat(s);
+    }
+  }
   return isFinite(n)&&n!==0?'$ '+n.toLocaleString('nl-NL',{minimumFractionDigits:2,maximumFractionDigits:2}):'–';
 }
 function val(v){
