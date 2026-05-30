@@ -52,6 +52,10 @@ async function scrapeAtlas(prefix, serial) {
   // (BKD, FOH, RCS, ULD, ARR, RCF). We groeperen per (origin,destination,flightNo) en
   // verzamelen alle status-codes per leg. Zo kunnen we onderscheiden of bv. ARR op een
   // tussenstation gebeurde of op de eindbestemming.
+  // Belangrijk: Atlas's response BEVAT GEEN 'DEP' code. We leiden 'DEP' zelf af uit
+  // DepatureDate < vandaag (de Atlas UI doet hetzelfde, en die tonen 'Departed Flight'
+  // dan keurig in de status-tabel).
+  const todayISO = new Date().toISOString().slice(0, 10);
   const rawRows = Array.isArray(data.LstFrieghtDtlEnhanced) ? data.LstFrieghtDtlEnhanced : [];
   const byLeg = new Map();
   rawRows.forEach((f) => {
@@ -74,6 +78,11 @@ async function scrapeAtlas(prefix, serial) {
     const code = String(f.Status || '').toUpperCase().trim();
     const leg = byLeg.get(key);
     if (code && !leg.statuses.includes(code)) leg.statuses.push(code);
+    // Inferred DEP: scheduled departure ligt vóór vandaag (UTC datum)
+    const departISO = (f.DepatureDate || '').slice(0, 10);
+    if (departISO && departISO < todayISO && !leg.statuses.includes('DEP')) {
+      leg.statuses.push('DEP');
+    }
   });
   const flights = Array.from(byLeg.values());
 
