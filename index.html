@@ -326,6 +326,17 @@
   .rap-name{font-weight:600}
   .rap-loading{text-align:center;padding:56px 24px;color:var(--txt-faint);font-size:14px}
   .rap-loading svg{display:block;margin:0 auto 12px;opacity:.3}
+  .rap-row{cursor:pointer}
+  .rap-row:hover td{background:var(--surface-2)}
+  .rap-chev{display:inline-block;width:14px;color:var(--txt-faint);transition:transform .15s var(--ease);margin-right:6px;font-size:10px}
+  .rap-row.open .rap-chev{transform:rotate(90deg);color:var(--brand)}
+  .rap-children-row{display:none;background:#fafbfd}
+  .rap-children-row.open{display:table-row}
+  .rap-children-row > td{padding:0!important;border-bottom:1px solid var(--line)!important}
+  .rap-subtbl{width:100%;border-collapse:collapse;font-size:12.5px;background:#fafbfd}
+  .rap-subtbl td{padding:7px 14px 7px 38px;border-bottom:1px dashed var(--line);color:var(--txt-mut)}
+  .rap-subtbl tr:last-child td{border-bottom:none}
+  .rap-sub-loading{padding:14px 14px 14px 38px;color:var(--txt-faint);font-size:12px}
 
   .colli-wrap{width:100%;border-top:1px solid var(--line);margin-top:6px;padding:10px 2px 2px}
   .colli-tbl{width:100%;border-collapse:collapse}
@@ -624,7 +635,11 @@
       <div class="rap-card rap-card-wide">
         <div class="rap-card-hd">
           <h3>Efficiëntie trend per week</h3>
-          <span class="rap-card-sub">Hoger = beter; doel ≥ 85%</span>
+          <span class="rap-card-sub">
+            Doel:
+            <input type="number" id="effTargetInp" min="50" max="99" step="1" style="width:50px;font-family:var(--mono);font-size:11.5px;padding:2px 6px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--brand);font-weight:700">
+            % &nbsp;<span style="opacity:.7" title="Standaard 85% voor perishables. Voor algemene vracht eerder 70-80%. Verander naar wat voor jullie realistisch is.">ⓘ</span>
+          </span>
         </div>
         <div class="rap-chart-wrap"><canvas id="chartEffTrend"></canvas></div>
       </div>
@@ -1362,9 +1377,15 @@ var _rapCustomFrom=null;
 var _rapCustomTo=null;
 var _rapCharts={};         // chart.js instances
 
-function rapScoreColor(pct){return pct>=85?'#16a34a':pct>=70?'#d97706':'#dc2626';}
-function rapScoreClass(pct){return pct>=85?'eff-good':pct>=70?'eff-mid':'eff-bad';}
-function rapScoreLabel(pct){return pct>=85?'Goed':pct>=70?'Matig':'Inefficiënt';}
+// Drempel is een UI-preference (geen data), opgeslagen per browser
+function getEffTarget(){
+  try{var v=Number(localStorage.getItem('ffs:effTarget'));if(v>=50&&v<=99)return v;}catch(x){}
+  return 85;
+}
+function setEffTarget(v){try{localStorage.setItem('ffs:effTarget',v);}catch(x){}}
+function rapScoreColor(pct){var t=getEffTarget();return pct>=t?'#16a34a':pct>=t-15?'#d97706':'#dc2626';}
+function rapScoreClass(pct){var t=getEffTarget();return pct>=t?'eff-good':pct>=t-15?'eff-mid':'eff-bad';}
+function rapScoreLabel(pct){var t=getEffTarget();return pct>=t?'Goed':pct>=t-15?'Matig':'Inefficiënt';}
 function rapKg(v){return v>0?v.toLocaleString('nl-NL',{minimumFractionDigits:1,maximumFractionDigits:1}):'–';}
 function rapEur(v){return v>0?'$ '+Number(v).toLocaleString('nl-NL',{minimumFractionDigits:2,maximumFractionDigits:2}):'–';}
 
@@ -1382,7 +1403,8 @@ function rapDateRange(){
 }
 
 // Filter alle zendingen op gekozen periode
-// Toekomstige zendingen (datum > vandaag) altijd uitsluiten - die zijn nog niet af
+// - Toekomstige zendingen (datum > vandaag) altijd uitsluiten
+// - Incomplete zendingen (kg=0) altijd uitsluiten - nog in afhandeling, vertekenen het beeld
 function rapFilteredShipments(){
   if(!_rapAllShipments) return [];
   var today=new Date().toISOString().slice(0,10);
@@ -1390,10 +1412,22 @@ function rapFilteredShipments(){
   return _rapAllShipments.filter(function(s){
     var d=(s.date||'').slice(0,10);
     if(!d) return false;
-    if(d>today) return false; // toekomst altijd skippen
+    if(d>today) return false;
+    if(Number(s.kg||0)<=0) return false; // incompleet
     if(!r.from) return true;
     return d>=r.from && d<=r.to;
   });
+}
+function rapIncompleteCount(){
+  if(!_rapAllShipments) return 0;
+  var today=new Date().toISOString().slice(0,10);
+  var r=rapDateRange();
+  return _rapAllShipments.filter(function(s){
+    var d=(s.date||'').slice(0,10);
+    if(!d||d>today) return false;
+    if(r.from && (d<r.from||d>r.to)) return false;
+    return Number(s.kg||0)<=0;
+  }).length;
 }
 
 function parseRapFromShipments(){
@@ -1412,19 +1446,25 @@ function parseRapFromShipments(){
 
     totalGross+=gross; totalCharg+=charg; totalPieces+=pieces; totalValue+=value;
 
-    awbRows.push({name:s.awb,sub:route+' · '+(s.date||''),gross:gross,charg:charg,pieces:pieces,value:value});
+    var awbRow={name:s.awb,awb:s.awb,sub:route+' · '+(s.date||''),date:s.date||'',route:route,gross:gross,charg:charg,pieces:pieces,value:value};
+    awbRows.push(awbRow);
 
-    if(!routes[route]) routes[route]={name:route,count:0,gross:0,charg:0,pieces:0,value:0};
+    if(!routes[route]) routes[route]={name:route,count:0,gross:0,charg:0,pieces:0,value:0,children:[]};
     routes[route].count++; routes[route].gross+=gross; routes[route].charg+=charg; routes[route].pieces+=pieces; routes[route].value+=value;
+    routes[route].children.push(awbRow);
 
-    if(!carriers[airlineName]) carriers[airlineName]={name:airlineName,count:0,gross:0,charg:0,pieces:0,value:0};
+    if(!carriers[airlineName]) carriers[airlineName]={name:airlineName,count:0,gross:0,charg:0,pieces:0,value:0,children:[]};
     carriers[airlineName].count++; carriers[airlineName].gross+=gross; carriers[airlineName].charg+=charg; carriers[airlineName].pieces+=pieces; carriers[airlineName].value+=value;
+    carriers[airlineName].children.push(awbRow);
   });
 
   var byEff=function(a,b){
     var pa=a.charg>0?a.gross/a.charg:1, pb=b.charg>0?b.gross/b.charg:1;
     return pa-pb;
   };
+  // sort children by least-efficient first too
+  Object.values(routes).forEach(function(r){r.children.sort(byEff);});
+  Object.values(carriers).forEach(function(r){r.children.sort(byEff);});
   return {
     list:list,
     awbs:awbRows.sort(byEff),
@@ -1441,13 +1481,26 @@ function parseRapFromBarcodes(barcodeMap){
   var filtered=rapFilteredShipments();
   var allowedAwbs={};
   filtered.forEach(function(s){allowedAwbs[s.awb]=s;});
+
+  // helpers voor child-buckets
+  var bumpByAwb=function(parent,awb,sd,g,v,ch,share){
+    if(!parent._byAwb) parent._byAwb={};
+    var k=awb;
+    if(!parent._byAwb[k]) parent._byAwb[k]={name:k,awb:k,sub:(sd.from_cd&&sd.to_cd?sd.from_cd+'→'+sd.to_cd:'')+(sd.date?' · '+sd.date:''),pieces:0,gross:0,charg:0,value:0};
+    var x=parent._byAwb[k]; x.pieces++; x.gross+=g; x.charg+=ch; x.value+=share;
+  };
+  var bumpByCons=function(parent,name,g,v,ch,share){
+    if(!parent._byCons) parent._byCons={};
+    if(!parent._byCons[name]) parent._byCons[name]={name:name,pieces:0,gross:0,vol:0,charg:0,value:0};
+    var x=parent._byCons[name]; x.pieces++; x.gross+=g; x.vol+=v; x.charg+=ch; x.value+=share;
+  };
+
   Object.keys(barcodeMap).forEach(function(awb){
     if(!allowedAwbs[awb]) return;
     var items=barcodeMap[awb]||[];
     if(!items.length) return;
     var sd=allowedAwbs[awb]||{};
     var awbValue=Number(sd.value||0);
-    // bereken totaal chargeable kg voor deze AWB op basis van colli
     var awbCharg=0;
     items.forEach(function(c){
       awbCharg+=Math.max(Number(c.grossWeight||0),Number(c.volumeWeight||0));
@@ -1462,28 +1515,83 @@ function parseRapFromBarcodes(barcodeMap){
       if(!cons[ck]) cons[ck]={name:ck,pieces:0,gross:0,vol:0,charg:0,value:0,hawbs:{}};
       cons[ck].pieces++; cons[ck].gross+=g; cons[ck].vol+=v; cons[ck].charg+=ch; cons[ck].value+=share;
       if(c.hawb) cons[ck].hawbs[c.hawb]=1;
+      bumpByAwb(cons[ck],awb,sd,g,v,ch,share);
 
       var ek=(c.exporterName||c.exporterCode||'–');
       if(!exps[ek]) exps[ek]={name:ek,pieces:0,gross:0,vol:0,charg:0,value:0,hawbs:{}};
       exps[ek].pieces++; exps[ek].gross+=g; exps[ek].vol+=v; exps[ek].charg+=ch; exps[ek].value+=share;
       if(c.hawb) exps[ek].hawbs[c.hawb]=1;
+      bumpByCons(exps[ek],ck,g,v,ch,share);
     });
   });
   var byEff=function(a,b){
     var pa=a.charg>0?a.gross/a.charg:1, pb=b.charg>0?b.gross/b.charg:1;
     return pa-pb;
   };
+  // map _byAwb / _byCons naar children arrays
+  Object.values(cons).forEach(function(c){c.children=Object.values(c._byAwb||{}).sort(byEff);delete c._byAwb;});
+  Object.values(exps).forEach(function(e){e.children=Object.values(e._byCons||{}).sort(byEff);delete e._byCons;});
   return {
     consignees:Object.values(cons).sort(byEff),
     exporteurs:Object.values(exps).sort(byEff)
   };
 }
 
+function rapPpkStr(v){return v>0?'$ '+v.toLocaleString('nl-NL',{minimumFractionDigits:2,maximumFractionDigits:2}):'–';}
+
+// Render één rij (gebruikt voor parent + child). expandable=true voegt chevron toe.
+function rapRowCells(r,opts,colCount){
+  var pct=r.charg>0?Math.round(r.gross/r.charg*100):100;
+  var col=rapScoreColor(pct);
+  var volOverhead=Math.max(0,r.charg-r.gross);
+  var ppk=(r.value>0&&r.charg>0)?(r.value/r.charg):0;
+  var hwCount=r.hawbs?Object.keys(r.hawbs).length:0;
+  var nameCell=(opts.expandable?'<span class="rap-chev">▶</span>':'')
+    +'<span class="rap-name">'+esc(r.name)+'</span>'
+    +(opts.showSub&&r.sub?'<br><span class="rap-sub">'+esc(r.sub)+'</span>':'');
+  return '<td>'+nameCell+'</td>'
+    +(opts.showCount?'<td style="text-align:center;color:var(--txt-mut)">'+(r.count||'–')+'</td>':'')
+    +(opts.showHawb?'<td style="text-align:center;color:var(--txt-mut)">'+(hwCount||'–')+'</td>':'')
+    +'<td style="text-align:right;font-family:var(--mono)">'+Number(r.pieces||0).toLocaleString('nl-NL')+'</td>'
+    +'<td style="text-align:right;font-family:var(--mono)">'+rapKg(r.gross)+'</td>'
+    +'<td style="text-align:right;font-family:var(--mono);color:'+(volOverhead>0?'#d97706':'var(--txt-faint)')+'">'+rapKg(volOverhead)+'</td>'
+    +'<td style="text-align:right;font-family:var(--mono)">'+rapKg(r.charg)+'</td>'
+    +'<td style="text-align:right;font-family:var(--mono);color:var(--brand)">'+rapEur(r.value)+'</td>'
+    +'<td style="text-align:right;font-family:var(--mono);font-weight:700">'+rapPpkStr(ppk)+'</td>'
+    +'<td><div class="eff-bar-wrap">'
+      +'<div class="eff-bar"><div class="eff-fill" style="width:'+Math.min(pct,100)+'%;background:'+col+'"></div></div>'
+      +'<span class="eff-pct" style="color:'+col+'">'+pct+'%</span>'
+      +'<span class="eff-badge '+rapScoreClass(pct)+'">'+rapScoreLabel(pct)+'</span>'
+    +'</div></td>';
+}
+
+// Sub-tabel HTML (compact, geen header herhaling)
+function rapChildSubtableHtml(children,colCount){
+  if(!children||!children.length) return '<div class="rap-sub-loading">Geen onderliggende data.</div>';
+  var html='<table class="rap-subtbl"><tbody>';
+  children.forEach(function(c){
+    var pct=c.charg>0?Math.round(c.gross/c.charg*100):100;
+    var col=rapScoreColor(pct);
+    var ppk=(c.value>0&&c.charg>0)?(c.value/c.charg):0;
+    var sub=c.sub?'<span class="rap-sub" style="font-size:11px;opacity:.7"> · '+esc(c.sub)+'</span>':'';
+    html+='<tr>'
+      +'<td><span style="font-family:var(--mono);font-weight:600;color:var(--txt)">'+esc(c.name)+'</span>'+sub+'</td>'
+      +'<td style="text-align:right;font-family:var(--mono)">'+Number(c.pieces||0).toLocaleString('nl-NL')+' colli</td>'
+      +'<td style="text-align:right;font-family:var(--mono)">'+rapKg(c.gross)+' kg bruto</td>'
+      +'<td style="text-align:right;font-family:var(--mono)">'+rapKg(c.charg)+' kg charg.</td>'
+      +'<td style="text-align:right;font-family:var(--mono);color:var(--brand)">'+rapEur(c.value)+'</td>'
+      +'<td style="text-align:right;font-family:var(--mono);font-weight:700">'+rapPpkStr(ppk)+'</td>'
+      +'<td style="text-align:right;font-family:var(--mono);color:'+col+';font-weight:700">'+pct+'%</td>'
+      +'</tr>';
+  });
+  html+='</tbody></table>';
+  return html;
+}
+
 function rapTableHtml(rows,nameLabel,opts){
   opts=opts||{};
   if(!rows.length) return '<p style="padding:32px 16px;color:var(--txt-faint)">Geen gegevens beschikbaar.</p>';
-  var html='<table class="rap-tbl"><thead><tr>'
-    +'<th>'+nameLabel+'</th>'
+  var headers='<th>'+nameLabel+'</th>'
     +(opts.showCount?'<th style="text-align:center">AWB\'s</th>':'')
     +(opts.showHawb?'<th style="text-align:center">HAWB\'s</th>':'')
     +'<th style="text-align:right">Colli</th>'
@@ -1492,34 +1600,28 @@ function rapTableHtml(rows,nameLabel,opts){
     +'<th style="text-align:right">Chargeabel&nbsp;kg</th>'
     +'<th style="text-align:right">Factuurwaarde</th>'
     +'<th style="text-align:right">$/kg</th>'
-    +'<th style="min-width:210px">Efficiëntie</th>'
-    +'</tr></thead><tbody>';
+    +'<th style="min-width:210px">Efficiëntie</th>';
+  var colCount=headers.split('<th').length-1;
+  var html='<table class="rap-tbl"><thead><tr>'+headers+'</tr></thead><tbody>';
 
-  rows.forEach(function(r){
-    var pct=r.charg>0?Math.round(r.gross/r.charg*100):100;
-    var col=rapScoreColor(pct);
-    var volOverhead=Math.max(0,r.charg-r.gross);
-    var ppk=(r.value>0&&r.charg>0)?(r.value/r.charg):0;
-    var hwCount=r.hawbs?Object.keys(r.hawbs).length:0;
-    html+='<tr>'
-      +'<td>'
-        +'<span class="rap-name">'+esc(r.name)+'</span>'
-        +(opts.showSub&&r.sub?'<br><span class="rap-sub">'+esc(r.sub)+'</span>':'')
-      +'</td>'
-      +(opts.showCount?'<td style="text-align:center;color:var(--txt-mut)">'+(r.count||'–')+'</td>':'')
-      +(opts.showHawb?'<td style="text-align:center;color:var(--txt-mut)">'+(hwCount||'–')+'</td>':'')
-      +'<td style="text-align:right;font-family:var(--mono)">'+Number(r.pieces||0).toLocaleString('nl-NL')+'</td>'
-      +'<td style="text-align:right;font-family:var(--mono)">'+rapKg(r.gross)+'</td>'
-      +'<td style="text-align:right;font-family:var(--mono);color:'+(volOverhead>0?'#d97706':'var(--txt-faint)')+'">'+rapKg(volOverhead)+'</td>'
-      +'<td style="text-align:right;font-family:var(--mono)">'+rapKg(r.charg)+'</td>'
-      +'<td style="text-align:right;font-family:var(--mono);color:var(--brand)">'+rapEur(r.value)+'</td>'
-      +'<td style="text-align:right;font-family:var(--mono);font-weight:700">'+(ppk>0?'$ '+ppk.toLocaleString('nl-NL',{minimumFractionDigits:2,maximumFractionDigits:2}):'–')+'</td>'
-      +'<td><div class="eff-bar-wrap">'
-        +'<div class="eff-bar"><div class="eff-fill" style="width:'+Math.min(pct,100)+'%;background:'+col+'"></div></div>'
-        +'<span class="eff-pct" style="color:'+col+'">'+pct+'%</span>'
-        +'<span class="eff-badge '+rapScoreClass(pct)+'">'+rapScoreLabel(pct)+'</span>'
-      +'</div></td>'
-      +'</tr>';
+  rows.forEach(function(r,idx){
+    var rowKey=opts.tabKey+'-'+idx;
+    var hasChildren=opts.expandable && r.children && r.children.length;
+    var trClass=hasChildren?'rap-row':'';
+    html+='<tr class="'+trClass+'" data-rkey="'+esc(rowKey)+'" data-rtype="'+esc(opts.expandable||'')+'" data-rname="'+esc(r.name||'')+'">'
+      +rapRowCells(r,opts,colCount)+'</tr>';
+    if(opts.expandable){
+      // For pre-loaded children render direct; voor 'awb-consignees' lazy
+      var content='';
+      if(opts.expandable==='awb-consignees'){
+        content='<div class="rap-sub-loading">Klik om consignees te laden…</div>';
+      } else if(hasChildren){
+        content=rapChildSubtableHtml(r.children,colCount);
+      } else {
+        content='<div class="rap-sub-loading">Geen onderliggende data.</div>';
+      }
+      html+='<tr class="rap-children-row" data-parent-key="'+esc(rowKey)+'"><td colspan="'+colCount+'">'+content+'</td></tr>';
+    }
   });
   html+='</tbody></table>';
   return html;
@@ -1558,21 +1660,27 @@ function renderRapTab(){
   var d=parseRapFromShipments();
   renderRapSummary(d);
 
-  if(_rapActiveTab==='awb')         el.innerHTML=rapTableHtml(d.awbs,'AWB',{showSub:true});
-  else if(_rapActiveTab==='route')  el.innerHTML=rapTableHtml(d.routes,'Route',{showCount:true});
-  else if(_rapActiveTab==='carrier')el.innerHTML=rapTableHtml(d.carriers,'Luchtvaartmaatschappij',{showCount:true});
-  else if(_rapActiveTab==='consignee' || _rapActiveTab==='exporteur'){
+  if(_rapActiveTab==='awb'){
+    el.innerHTML=rapTableHtml(d.awbs,'AWB',{showSub:true,tabKey:'awb',expandable:'awb-consignees'});
+  } else if(_rapActiveTab==='route'){
+    el.innerHTML=rapTableHtml(d.routes,'Route',{showCount:true,tabKey:'route',expandable:'route-awbs'});
+  } else if(_rapActiveTab==='carrier'){
+    el.innerHTML=rapTableHtml(d.carriers,'Luchtvaartmaatschappij',{showCount:true,tabKey:'carrier',expandable:'carrier-awbs'});
+  } else if(_rapActiveTab==='consignee' || _rapActiveTab==='exporteur'){
     if(_rapBarcodeCache){
       var b=parseRapFromBarcodes(_rapBarcodeCache);
       var rows=_rapActiveTab==='consignee'?b.consignees:b.exporteurs;
       var label=_rapActiveTab==='consignee'?'Consignee':'Exporteur';
-      el.innerHTML=rapTableHtml(rows,label,{showHawb:true});
+      var expandKind=_rapActiveTab==='consignee'?'consignee-awbs':'exporteur-consignees';
+      el.innerHTML=rapTableHtml(rows,label,{showHawb:true,tabKey:_rapActiveTab,expandable:expandKind});
     } else if(_rapBarcodeLoading){
-      el.innerHTML=rapLoadingHtml(0,shipmentData.length);
+      var total=(_rapAllShipments||shipmentData||[]).length;
+      el.innerHTML=rapLoadingHtml(0,total);
     } else {
       _rapBarcodeLoading=true;
-      el.innerHTML=rapLoadingHtml(0,shipmentData.length);
-      var awbList=shipmentData.map(function(s){return s.awb;});
+      var totalA=(rapFilteredShipments()||[]).length;
+      el.innerHTML=rapLoadingHtml(0,totalA);
+      var awbList=rapFilteredShipments().map(function(s){return s.awb;});
       fetchAllBarcodesForRap(awbList,function(done,total){
         if(_rapActiveTab==='consignee'||_rapActiveTab==='exporteur'){
           el.innerHTML=rapLoadingHtml(done,total);
@@ -1605,8 +1713,8 @@ function renderRapSummary(d){
   if(infoEl){
     var r=rapDateRange();
     var range=r.from?(r.from+' → '+r.to):('alle data t/m '+r.to);
-    var skipped=(_rapAllShipments||[]).length-d.list.length;
-    var note=skipped>0?' · '+skipped+' buiten range (incl. toekomst)':'';
+    var inc=rapIncompleteCount();
+    var note=inc>0?' · '+inc+' incompleet (kg=0) overgeslagen':'';
     infoEl.textContent=d.list.length+' zendingen · '+range+note;
   }
 }
@@ -1707,7 +1815,7 @@ function renderRapCharts(d){
     type:'line',
     data:{labels:weekLabels,datasets:[
       {label:'Efficiëntie %',data:weekEff,borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.12)',borderWidth:2.5,fill:true,tension:.35,pointRadius:4,pointBackgroundColor:'#2563eb'},
-      {label:'Doel 85%',data:weekEff.map(function(){return 85;}),borderColor:'#16a34a',borderDash:[6,4],borderWidth:1.5,pointRadius:0,fill:false}
+      {label:'Doel '+getEffTarget()+'%',data:weekEff.map(function(){return getEffTarget();}),borderColor:'#16a34a',borderDash:[6,4],borderWidth:1.5,pointRadius:0,fill:false}
     ]},
     options:Object.assign({},commonOpts,{
       scales:{
@@ -1719,6 +1827,8 @@ function renderRapCharts(d){
 }
 
 function renderRapAll(){
+  var inp=document.getElementById('effTargetInp');
+  if(inp && !inp.value) inp.value=getEffTarget();
   var d=parseRapFromShipments();
   renderRapSummary(d);
   renderRapCharts(d);
@@ -1757,7 +1867,6 @@ document.addEventListener('click',function(e){
   var val=p.getAttribute('data-period');
   _rapPeriodDays=val==='all'?'all':Number(val);
   document.querySelectorAll('.rap-period').forEach(function(b){b.classList.toggle('on',b===p);});
-  // reset barcode cache (eerst alleen periode-filter; barcode-aggregatie hangt af van AWB-lijst)
   renderRapAll();
 });
 
@@ -1771,6 +1880,12 @@ document.addEventListener('change',function(e){
       renderRapAll();
     }
   }
+  if(e.target.id==='effTargetInp'){
+    var v=Math.max(50,Math.min(99,Number(e.target.value)||85));
+    e.target.value=v;
+    setEffTarget(v);
+    renderRapAll();
+  }
 });
 
 document.addEventListener('click',function(e){
@@ -1779,6 +1894,51 @@ document.addEventListener('click',function(e){
   _rapActiveTab=btn.getAttribute('data-rtab');
   document.querySelectorAll('.rap-tab').forEach(function(b){b.classList.toggle('on',b===btn);});
   renderRapTab();
+});
+
+// Expand/collapse: AWB→consignees lazy, andere instant uit pre-computed children
+document.addEventListener('click',function(e){
+  var row=e.target.closest('.rap-row');
+  if(!row) return;
+  var key=row.getAttribute('data-rkey');
+  var kind=row.getAttribute('data-rtype');
+  var name=row.getAttribute('data-rname');
+  var childRow=document.querySelector('.rap-children-row[data-parent-key="'+key+'"]');
+  if(!childRow) return;
+  var open=row.classList.toggle('open');
+  childRow.classList.toggle('open',open);
+  if(!open) return;
+  // lazy load alleen voor awb-consignees
+  if(kind==='awb-consignees' && childRow.getAttribute('data-loaded')!=='1'){
+    var cell=childRow.querySelector('td');
+    cell.innerHTML='<div class="rap-sub-loading">Colli-data voor '+esc(name)+' laden…</div>';
+    fetch('/api/barcodes?shipment='+encodeURIComponent(name))
+      .then(function(r){return r.json();})
+      .then(function(env){
+        var items=(env.ok&&Array.isArray(env.data))?env.data:[];
+        var sd=(_rapAllShipments||[]).find(function(s){return s.awb===name;})||{};
+        var awbValue=Number(sd.value||0);
+        var awbCharg=0;
+        items.forEach(function(c){awbCharg+=Math.max(Number(c.grossWeight||0),Number(c.volumeWeight||0));});
+        var cons={};
+        items.forEach(function(c){
+          var g=Number(c.grossWeight||0), v=Number(c.volumeWeight||0), ch=Math.max(g,v);
+          var share=awbCharg>0?(ch/awbCharg)*awbValue:0;
+          var ck=(c.consigneeName||c.consigneeCode||'–');
+          if(!cons[ck]) cons[ck]={name:ck,pieces:0,gross:0,vol:0,charg:0,value:0};
+          cons[ck].pieces++; cons[ck].gross+=g; cons[ck].vol+=v; cons[ck].charg+=ch; cons[ck].value+=share;
+        });
+        var children=Object.values(cons).sort(function(a,b){
+          var pa=a.charg>0?a.gross/a.charg:1, pb=b.charg>0?b.gross/b.charg:1;
+          return pa-pb;
+        });
+        cell.innerHTML=rapChildSubtableHtml(children);
+        childRow.setAttribute('data-loaded','1');
+      })
+      .catch(function(err){
+        cell.innerHTML='<div class="rap-sub-loading">Fout bij laden: '+esc(err.message||'onbekend')+'</div>';
+      });
+  }
 });
 
 // ─── View switching ───
