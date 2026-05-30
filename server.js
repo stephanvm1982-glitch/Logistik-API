@@ -334,6 +334,12 @@ const requestHandler = async (req, res) => {
     return;
   }
 
+  // --- Tracking scraper (per carrier) ---
+  if (req.method === 'GET' && url.pathname === '/api/track') {
+    const { req: r, res: s } = addVercelMethods(req, res, null);
+    return require('./api/track')(r, s);
+  }
+
   res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
   res.end('Niet gevonden');
 };
