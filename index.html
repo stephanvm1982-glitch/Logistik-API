@@ -1688,7 +1688,10 @@ function rapTableHtml(rows,nameLabel,opts){
 
   rows.forEach(function(r,idx){
     var rowKey=opts.tabKey+'-'+idx;
-    var hasChildren=opts.expandable && r.children && r.children.length;
+    // awb-consignees: lazy load via barcode-fetch op klik (children niet pre-loaded)
+    // andere expand-types: alleen klikbaar als children daadwerkelijk bestaan
+    var isLazyAwb=opts.expandable==='awb-consignees';
+    var hasChildren=opts.expandable && (isLazyAwb || (r.children && r.children.length));
     var trClass=hasChildren?'rap-row':'';
     html+='<tr class="'+trClass+'" data-rkey="'+esc(rowKey)+'" data-rtype="'+esc(opts.expandable||'')+'" data-rname="'+esc(r.name||'')+'">'
       +rapRowCells(r,opts)+'</tr>';
