@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
   :root {
     --ink-0:#0a0f1c; --ink-1:#0e1424; --ink-line:rgba(255,255,255,.07);
@@ -288,6 +289,24 @@
   .lnk.active{border-color:var(--brand);background:var(--surface-2)}
 
   /* ── Rapporten ── */
+  .rap-filter{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-bottom:16px}
+  .rap-filter-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--txt-faint)}
+  .rap-filter-sep{width:1px;height:24px;background:var(--line)}
+  .rap-period{background:var(--surface-2);border:1px solid var(--line);border-radius:18px;padding:6px 14px;font-size:12.5px;font-weight:600;color:var(--txt-mut);cursor:pointer;transition:all .15s var(--ease)}
+  .rap-period.on{background:var(--brand);border-color:var(--brand);color:#fff}
+  .rap-period:hover:not(.on){border-color:var(--brand);color:var(--brand)}
+  .rap-date{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12.5px;font-family:var(--mono);color:var(--txt)}
+  .rap-date:focus{outline:none;border-color:var(--brand)}
+  .rap-charts{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+  .rap-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column}
+  .rap-card-wide{grid-column:1 / -1}
+  .rap-card-hd{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px}
+  .rap-card-hd h3{margin:0;font-size:14px;font-weight:700;color:var(--txt)}
+  .rap-card-sub{font-size:11.5px;color:var(--txt-faint);font-weight:500}
+  .rap-chart-wrap{position:relative;height:240px}
+  .rap-card-wide .rap-chart-wrap{height:260px}
+  @media(max-width:980px){.rap-charts{grid-template-columns:1fr}.rap-card-wide{grid-column:auto}}
+
   .rap-tabs{display:flex;gap:6px;padding:0 0 18px;flex-wrap:wrap}
   .rap-tab{background:var(--surface);border:1.5px solid var(--line);border-radius:20px;padding:7px 20px;font-size:13px;font-weight:600;color:var(--txt-mut);cursor:pointer;transition:all .15s var(--ease)}
   .rap-tab.on{background:var(--brand);border-color:var(--brand);color:#fff}
@@ -560,6 +579,22 @@
 
   <!-- ── RAPPORTEN VIEW ── -->
   <div class="content" id="viewRapporten" style="display:none">
+    <!-- Periode filter -->
+    <div class="rap-filter reveal" id="rapFilter">
+      <span class="rap-filter-lbl">Periode</span>
+      <button class="rap-period" data-period="7">7 dagen</button>
+      <button class="rap-period on" data-period="30">30 dagen</button>
+      <button class="rap-period" data-period="90">90 dagen</button>
+      <button class="rap-period" data-period="all">Alles</button>
+      <span class="rap-filter-sep"></span>
+      <span class="rap-filter-lbl">Custom</span>
+      <input type="date" id="rapDateFrom" class="rap-date">
+      <span style="color:var(--txt-faint)">tot</span>
+      <input type="date" id="rapDateTo" class="rap-date">
+      <span class="tb-spacer" style="flex:1"></span>
+      <span id="rapPeriodInfo" style="font-size:12px;color:var(--txt-mut)"></span>
+    </div>
+
     <div class="stats reveal" id="rapSummary">
       <div class="stat hero" id="rapHero">
         <div class="lb">Gewichtsefficiëntie</div>
@@ -567,8 +602,34 @@
       </div>
       <div class="stat"><div class="lb"><i style="background:#16a34a"></i>Bruto vracht</div><div class="vl" id="rapGross">—</div></div>
       <div class="stat"><div class="lb"><i style="background:#f59e0b"></i>Vol. overhead</div><div class="vl" id="rapVol">—</div></div>
-      <div class="stat"><div class="lb"><i style="background:var(--brand)"></i>Chargeabel</div><div class="vl" id="rapCharg">—</div></div>
+      <div class="stat"><div class="lb"><i style="background:var(--brand)"></i>Gem. $/kg</div><div class="vl" id="rapPpkg">—</div></div>
     </div>
+
+    <!-- Charts -->
+    <div class="rap-charts reveal">
+      <div class="rap-card">
+        <div class="rap-card-hd">
+          <h3>Zendingen per dag</h3>
+          <span class="rap-card-sub">Aantal AWB's + efficiëntie %</span>
+        </div>
+        <div class="rap-chart-wrap"><canvas id="chartDaily"></canvas></div>
+      </div>
+      <div class="rap-card">
+        <div class="rap-card-hd">
+          <h3>Chargeable kg per week</h3>
+          <span class="rap-card-sub">Bruto vs. volume-overhead</span>
+        </div>
+        <div class="rap-chart-wrap"><canvas id="chartWeekly"></canvas></div>
+      </div>
+      <div class="rap-card rap-card-wide">
+        <div class="rap-card-hd">
+          <h3>Efficiëntie trend per week</h3>
+          <span class="rap-card-sub">Hoger = beter; doel ≥ 85%</span>
+        </div>
+        <div class="rap-chart-wrap"><canvas id="chartEffTrend"></canvas></div>
+      </div>
+    </div>
+
     <div class="rap-tabs reveal" id="rapTabs">
       <button class="rap-tab on" data-rtab="awb">Per AWB</button>
       <button class="rap-tab" data-rtab="route">Per Route</button>
@@ -1295,6 +1356,11 @@ function setFacTab(tab){
 var _rapActiveTab='awb';
 var _rapBarcodeCache=null; // in-memory per sessie, geen localStorage
 var _rapBarcodeLoading=false;
+var _rapAllShipments=null; // alle zendingen uit awb-store
+var _rapPeriodDays=30;     // 7/30/90/'all'/'custom'
+var _rapCustomFrom=null;
+var _rapCustomTo=null;
+var _rapCharts={};         // chart.js instances
 
 function rapScoreColor(pct){return pct>=85?'#16a34a':pct>=70?'#d97706':'#dc2626';}
 function rapScoreClass(pct){return pct>=85?'eff-good':pct>=70?'eff-mid':'eff-bad';}
@@ -1302,11 +1368,40 @@ function rapScoreLabel(pct){return pct>=85?'Goed':pct>=70?'Matig':'Inefficiënt'
 function rapKg(v){return v>0?v.toLocaleString('nl-NL',{minimumFractionDigits:1,maximumFractionDigits:1}):'–';}
 function rapEur(v){return v>0?'$ '+Number(v).toLocaleString('nl-NL',{minimumFractionDigits:2,maximumFractionDigits:2}):'–';}
 
+// Bereken from/to datum uit gekozen periode (to gecapt op vandaag)
+function rapDateRange(){
+  var iso=function(d){return d.toISOString().slice(0,10);};
+  var today=iso(new Date());
+  if(_rapPeriodDays==='custom' && _rapCustomFrom && _rapCustomTo){
+    return {from:_rapCustomFrom, to:_rapCustomTo>today?today:_rapCustomTo};
+  }
+  if(_rapPeriodDays==='all') return {from:null, to:today};
+  var from=new Date();
+  from.setDate(from.getDate()-Number(_rapPeriodDays));
+  return {from:iso(from), to:today};
+}
+
+// Filter alle zendingen op gekozen periode
+// Toekomstige zendingen (datum > vandaag) altijd uitsluiten - die zijn nog niet af
+function rapFilteredShipments(){
+  if(!_rapAllShipments) return [];
+  var today=new Date().toISOString().slice(0,10);
+  var r=rapDateRange();
+  return _rapAllShipments.filter(function(s){
+    var d=(s.date||'').slice(0,10);
+    if(!d) return false;
+    if(d>today) return false; // toekomst altijd skippen
+    if(!r.from) return true;
+    return d>=r.from && d<=r.to;
+  });
+}
+
 function parseRapFromShipments(){
+  var list=rapFilteredShipments();
   var awbRows=[],routes={},carriers={};
   var totalGross=0,totalCharg=0,totalPieces=0,totalValue=0;
 
-  shipmentData.forEach(function(s){
+  list.forEach(function(s){
     var gross=Number(s.kg||0);
     var fb=Number(s.fb||0);
     var charg=Number(s.chargeable||0)||Math.max(gross,fb)||gross;
@@ -1331,6 +1426,7 @@ function parseRapFromShipments(){
     return pa-pb;
   };
   return {
+    list:list,
     awbs:awbRows.sort(byEff),
     routes:Object.values(routes).sort(byEff),
     carriers:Object.values(carriers).sort(byEff),
@@ -1342,10 +1438,14 @@ function parseRapFromShipments(){
 // per AWB: aandeel = (colli_chargeable / awb_totaal_chargeable) * awb_factuurwaarde
 function parseRapFromBarcodes(barcodeMap){
   var cons={},exps={};
+  var filtered=rapFilteredShipments();
+  var allowedAwbs={};
+  filtered.forEach(function(s){allowedAwbs[s.awb]=s;});
   Object.keys(barcodeMap).forEach(function(awb){
+    if(!allowedAwbs[awb]) return;
     var items=barcodeMap[awb]||[];
     if(!items.length) return;
-    var sd=shipmentData.find(function(x){return x.awb===awb;})||{};
+    var sd=allowedAwbs[awb]||{};
     var awbValue=Number(sd.value||0);
     // bereken totaal chargeable kg voor deze AWB op basis van colli
     var awbCharg=0;
@@ -1491,6 +1591,7 @@ function renderRapSummary(d){
   var pct=d.totalCharg>0?Math.round(d.totalGross/d.totalCharg*100):0;
   var col=rapScoreColor(pct);
   var overhead=Math.max(0,d.totalCharg-d.totalGross);
+  var ppkg=d.totalCharg>0?(d.totalValue/d.totalCharg):0;
   var kg=function(v){return v.toLocaleString('nl-NL',{maximumFractionDigits:0})+' kg';};
   var effEl=document.getElementById('rapEff'); if(effEl) effEl.textContent=pct+'%';
   var hero=document.getElementById('rapHero');
@@ -1498,7 +1599,145 @@ function renderRapSummary(d){
   var gEl=document.getElementById('rapGross'); if(gEl) gEl.innerHTML=kg(d.totalGross);
   var vEl=document.getElementById('rapVol');
   if(vEl) vEl.innerHTML=overhead>0?kg(overhead):'<span style="color:var(--afgeleverd)">0 kg ✓</span>';
-  var cEl=document.getElementById('rapCharg'); if(cEl) cEl.innerHTML=kg(d.totalCharg);
+  var pEl=document.getElementById('rapPpkg');
+  if(pEl) pEl.innerHTML=ppkg>0?'$ '+ppkg.toLocaleString('nl-NL',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+  var infoEl=document.getElementById('rapPeriodInfo');
+  if(infoEl){
+    var r=rapDateRange();
+    var range=r.from?(r.from+' → '+r.to):('alle data t/m '+r.to);
+    var skipped=(_rapAllShipments||[]).length-d.list.length;
+    var note=skipped>0?' · '+skipped+' buiten range (incl. toekomst)':'';
+    infoEl.textContent=d.list.length+' zendingen · '+range+note;
+  }
+}
+
+// ───────── Charts ─────────
+function rapWeekKey(dateStr){
+  // ISO week label: YYYY-Www
+  var d=new Date(dateStr+'T00:00:00Z');
+  if(isNaN(d)) return dateStr;
+  var t=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()));
+  t.setUTCDate(t.getUTCDate()+4-(t.getUTCDay()||7));
+  var yearStart=new Date(Date.UTC(t.getUTCFullYear(),0,1));
+  var wk=Math.ceil(((t-yearStart)/86400000+1)/7);
+  return t.getUTCFullYear()+'-W'+String(wk).padStart(2,'0');
+}
+
+function renderRapCharts(d){
+  if(typeof Chart==='undefined') return;
+  // Aggregeer per dag
+  var byDay={};
+  d.list.forEach(function(s){
+    var k=(s.date||'').slice(0,10);
+    if(!k) return;
+    if(!byDay[k]) byDay[k]={day:k,count:0,gross:0,charg:0};
+    byDay[k].count++;
+    byDay[k].gross+=Number(s.kg||0);
+    byDay[k].charg+=Number(s.chargeable||0)||Math.max(Number(s.kg||0),Number(s.fb||0));
+  });
+  var days=Object.keys(byDay).sort();
+  var dailyLabels=days.map(function(k){return k.slice(5);}); // MM-DD
+  var dailyCounts=days.map(function(k){return byDay[k].count;});
+  var dailyEff=days.map(function(k){var b=byDay[k];return b.charg>0?Math.round(b.gross/b.charg*100):0;});
+
+  // Aggregeer per week
+  var byWeek={};
+  d.list.forEach(function(s){
+    var k=rapWeekKey((s.date||'').slice(0,10));
+    if(!k) return;
+    if(!byWeek[k]) byWeek[k]={wk:k,gross:0,charg:0,count:0};
+    byWeek[k].gross+=Number(s.kg||0);
+    byWeek[k].charg+=Number(s.chargeable||0)||Math.max(Number(s.kg||0),Number(s.fb||0));
+    byWeek[k].count++;
+  });
+  var weeks=Object.keys(byWeek).sort();
+  var weekLabels=weeks.map(function(k){return k.replace(/^\d{4}-/,'');}); // Wnn
+  var weekGross=weeks.map(function(k){return Math.round(byWeek[k].gross);});
+  var weekOverhead=weeks.map(function(k){var w=byWeek[k];return Math.round(Math.max(0,w.charg-w.gross));});
+  var weekEff=weeks.map(function(k){var w=byWeek[k];return w.charg>0?Math.round(w.gross/w.charg*100):0;});
+
+  Object.keys(_rapCharts).forEach(function(k){if(_rapCharts[k]){_rapCharts[k].destroy();_rapCharts[k]=null;}});
+
+  var commonOpts={
+    responsive:true,
+    maintainAspectRatio:false,
+    plugins:{legend:{labels:{font:{size:11,family:'Manrope'},color:'#475569'}}},
+    scales:{
+      x:{grid:{display:false},ticks:{font:{size:10.5,family:'Manrope'},color:'#94a3b8'}},
+      y:{beginAtZero:true,grid:{color:'rgba(0,0,0,.06)'},ticks:{font:{size:10.5,family:'Manrope'},color:'#94a3b8'}}
+    }
+  };
+
+  // Chart 1: Zendingen per dag (bar + eff line)
+  var ctx1=document.getElementById('chartDaily');
+  if(ctx1) _rapCharts.daily=new Chart(ctx1,{
+    type:'bar',
+    data:{labels:dailyLabels,datasets:[
+      {label:'AWB\'s',data:dailyCounts,backgroundColor:'rgba(37,99,235,.7)',borderRadius:4,yAxisID:'y'},
+      {label:'Efficiëntie %',data:dailyEff,type:'line',borderColor:'#16a34a',backgroundColor:'#16a34a',borderWidth:2,tension:.3,yAxisID:'y1',pointRadius:3}
+    ]},
+    options:Object.assign({},commonOpts,{
+      scales:{
+        x:commonOpts.scales.x,
+        y:Object.assign({},commonOpts.scales.y,{position:'left',title:{display:true,text:'AWB\'s',color:'#475569',font:{size:11}}}),
+        y1:{position:'right',beginAtZero:true,max:100,grid:{display:false},ticks:{font:{size:10.5,family:'Manrope'},color:'#94a3b8',callback:function(v){return v+'%';}},title:{display:true,text:'Eff %',color:'#475569',font:{size:11}}}
+      }
+    })
+  });
+
+  // Chart 2: Chargeable kg per week (bruto + overhead stacked)
+  var ctx2=document.getElementById('chartWeekly');
+  if(ctx2) _rapCharts.weekly=new Chart(ctx2,{
+    type:'bar',
+    data:{labels:weekLabels,datasets:[
+      {label:'Bruto kg',data:weekGross,backgroundColor:'rgba(22,163,74,.75)',borderRadius:3,stack:'s'},
+      {label:'Vol. overhead',data:weekOverhead,backgroundColor:'rgba(245,158,11,.85)',borderRadius:3,stack:'s'}
+    ]},
+    options:Object.assign({},commonOpts,{
+      scales:{
+        x:Object.assign({},commonOpts.scales.x,{stacked:true}),
+        y:Object.assign({},commonOpts.scales.y,{stacked:true,ticks:{font:{size:10.5,family:'Manrope'},color:'#94a3b8',callback:function(v){return v.toLocaleString('nl-NL')+' kg';}}})
+      }
+    })
+  });
+
+  // Chart 3: Efficiëntie trend per week
+  var ctx3=document.getElementById('chartEffTrend');
+  if(ctx3) _rapCharts.eff=new Chart(ctx3,{
+    type:'line',
+    data:{labels:weekLabels,datasets:[
+      {label:'Efficiëntie %',data:weekEff,borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.12)',borderWidth:2.5,fill:true,tension:.35,pointRadius:4,pointBackgroundColor:'#2563eb'},
+      {label:'Doel 85%',data:weekEff.map(function(){return 85;}),borderColor:'#16a34a',borderDash:[6,4],borderWidth:1.5,pointRadius:0,fill:false}
+    ]},
+    options:Object.assign({},commonOpts,{
+      scales:{
+        x:commonOpts.scales.x,
+        y:Object.assign({},commonOpts.scales.y,{min:0,max:100,ticks:{font:{size:10.5,family:'Manrope'},color:'#94a3b8',callback:function(v){return v+'%';}}})
+      }
+    })
+  });
+}
+
+function renderRapAll(){
+  var d=parseRapFromShipments();
+  renderRapSummary(d);
+  renderRapCharts(d);
+  renderRapTab();
+}
+
+function loadRapAllShipments(cb){
+  if(_rapAllShipments){cb&&cb();return;}
+  fetch('/api/awb-store',{headers:{'Cache-Control':'no-cache'}})
+    .then(function(r){return r.json();})
+    .then(function(env){
+      var store=(env&&env.ok&&env.data)?env.data:{};
+      _rapAllShipments=Object.values(store).map(mapItem);
+      cb&&cb();
+    })
+    .catch(function(){
+      _rapAllShipments=shipmentData.slice(); // fallback
+      cb&&cb();
+    });
 }
 
 function renderRapporten(){
@@ -1506,8 +1745,33 @@ function renderRapporten(){
   var tableEl=document.getElementById('rapTable');
   if(loadEl) loadEl.style.display='none';
   if(tableEl) tableEl.style.display='';
-  renderRapTab();
+  loadRapAllShipments(function(){
+    renderRapAll();
+  });
 }
+
+// Filter handlers
+document.addEventListener('click',function(e){
+  var p=e.target.closest('.rap-period');
+  if(!p) return;
+  var val=p.getAttribute('data-period');
+  _rapPeriodDays=val==='all'?'all':Number(val);
+  document.querySelectorAll('.rap-period').forEach(function(b){b.classList.toggle('on',b===p);});
+  // reset barcode cache (eerst alleen periode-filter; barcode-aggregatie hangt af van AWB-lijst)
+  renderRapAll();
+});
+
+document.addEventListener('change',function(e){
+  if(e.target.id==='rapDateFrom'||e.target.id==='rapDateTo'){
+    _rapCustomFrom=document.getElementById('rapDateFrom').value||null;
+    _rapCustomTo=document.getElementById('rapDateTo').value||null;
+    if(_rapCustomFrom&&_rapCustomTo){
+      _rapPeriodDays='custom';
+      document.querySelectorAll('.rap-period').forEach(function(b){b.classList.remove('on');});
+      renderRapAll();
+    }
+  }
+});
 
 document.addEventListener('click',function(e){
   var btn=e.target.closest('.rap-tab');
