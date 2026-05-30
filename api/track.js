@@ -50,20 +50,20 @@ async function scrapeAtlas(prefix, serial) {
 
   const flightsRaw = Array.isArray(data.LstFrieghtDtlEnhanced) ? data.LstFrieghtDtlEnhanced : [];
   const flights = dedupeFlights(flightsRaw.map((f) => ({
-    flightNo: f.FlightNo ? '5Y' + String(f.FlightNo).trim() : '',
+    flightNo: f.FlightNo ? (f.Carrier || '5Y') + String(f.FlightNo).trim() : '',
     date: f.FlightDate ? String(f.FlightDate).slice(0, 10) : '',
-    route: [f.RouteFrom, f.RouteTo].filter(Boolean).join('-'),
+    route: [f.Origin, f.Destination].filter(Boolean).join('-'),
     pieces: Number(f.Pieces || 0) || null,
-    weight: f.Weight ? Number(String(f.Weight).replace(',', '.')) || null : null,
+    weight: f.Weight != null ? Number(f.Weight) : null,
+    departure: f.DepatureDateStr ? (f.DepatureDateStr + ' ' + (f.DepatureTime || '')).trim() : '',
+    arrival: f.ArrivalDateStr ? (f.ArrivalDateStr + ' ' + (f.ArrivalTime || '')).trim() : '',
+    flightStatus: f.Status || '',
   })).filter((f) => f.flightNo));
 
-  const status = (Array.isArray(data.LstStatus) ? data.LstStatus : []).map((s) => ({
-    station: s.Station || '',
-    code: s.StatusCode || '',
-    description: s.StatusDescription || s.Description || '',
-    eventTime: s.EventTime || s.Date || '',
-    pieces: Number(s.Pieces || 0) || null,
-    weight: s.Weight ? Number(String(s.Weight).replace(',', '.')) || null : null,
+  // LstStatus is een array van code-strings (BKD, FOH, RCS, DEP, ARR, RCF, DLV, ...).
+  // We normaliseren naar objects met `code`-veld zodat de frontend uniform werkt.
+  const status = (Array.isArray(data.LstStatus) ? data.LstStatus : []).map((code) => ({
+    code: String(code || '').toUpperCase(),
   }));
 
   return {
