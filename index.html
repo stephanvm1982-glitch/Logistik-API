@@ -983,20 +983,38 @@ function renderStats(){
 // Cache shape: { ts, label: '5Y8208 \u00b7 5Y8209', step: 'vertrokken'|null }
 var TRACK_TTL=24*3600*1000;
 
-// Map IATA FSU status codes naar onze 4-staps pipeline.
-// DLV/POD = afgeleverd; ARR/RCF = geland; DEP = vertrokken; FOH/RCS = geboekt.
-function trackStatusToStep(events){
-  if(!events||!events.length) return null;
-  var codes=events.map(function(e){return String(e.code||'').toUpperCase();});
-  if(codes.indexOf('DLV')>=0||codes.indexOf('POD')>=0) return 'afgeleverd';
-  if(codes.indexOf('ARR')>=0||codes.indexOf('RCF')>=0) return 'geland';
-  if(codes.indexOf('DEP')>=0) return 'vertrokken';
-  if(codes.indexOf('RCS')>=0||codes.indexOf('FOH')>=0) return 'geboekt';
-  return null;
+// Map IATA FSU status codes naar onze 4-staps pipeline, LEG-BEWUST.
+// Status op een tussenstation telt niet als "geland" — we kijken naar de FINAL leg.
+//   DLV/POD op final leg → afgeleverd
+//   ARR/RCF op final leg → geland
+//   DEP op final leg     → vertrokken (laatste vlucht onderweg)
+//   DEP op eerdere leg   → vertrokken (in transit, eerder vlucht gestart)
+//   FOH/RCS              → geboekt
+function trackStatusToStep(flights, finalDest){
+  if(!flights||!flights.length) return null;
+  // finalLeg = leg die naar de eindbestemming gaat (anders: laatste leg)
+  var finalLeg=null;
+  if(finalDest){
+    finalLeg=flights.find(function(f){return f.destination===finalDest;});
+  }
+  if(!finalLeg) finalLeg=flights[flights.length-1];
+  var finalSt=(finalLeg.statuses||[]).map(function(s){return String(s).toUpperCase();});
+  if(finalSt.indexOf('DLV')>=0||finalSt.indexOf('POD')>=0) return 'afgeleverd';
+  if(finalSt.indexOf('ARR')>=0||finalSt.indexOf('RCF')>=0) return 'geland';
+  if(finalSt.indexOf('DEP')>=0) return 'vertrokken';
+  // Final leg nog niet vertrokken; check eerdere legs voor in-transit signaal
+  var anyDep=flights.some(function(f){
+    return (f.statuses||[]).some(function(s){return String(s).toUpperCase()==='DEP';});
+  });
+  var anyArr=flights.some(function(f){
+    return (f.statuses||[]).some(function(s){var u=String(s).toUpperCase();return u==='ARR'||u==='RCF';});
+  });
+  if(anyDep||anyArr) return 'vertrokken';
+  return 'geboekt';
 }
 function getTrackCache(awb){
   try{
-    var raw=localStorage.getItem('ffs:track:v3:'+awb);
+    var raw=localStorage.getItem('ffs:track:v4:'+awb);
     if(!raw) return null;
     var obj=JSON.parse(raw);
     if(!obj||Date.now()-obj.ts>TRACK_TTL) return null;
@@ -1004,7 +1022,7 @@ function getTrackCache(awb){
   }catch(x){return null;}
 }
 function setTrackCache(awb,label,step){
-  try{localStorage.setItem('ffs:track:v3:'+awb,JSON.stringify({ts:Date.now(),label:label,step:step}));}catch(x){}
+  try{localStorage.setItem('ffs:track:v4:'+awb,JSON.stringify({ts:Date.now(),label:label,step:step}));}catch(x){}
 }
 function getCachedFlights(awb){var c=getTrackCache(awb);return c?(c.label||''):'';}
 function getCachedStep(awb){var c=getTrackCache(awb);return c?(c.step||null):null;}
@@ -1016,12 +1034,14 @@ function fetchTrack(awb){
     .then(function(r){return r.json();})
     .then(function(env){
       if(!env.ok||!env.data) return null;
+      // Unieke vluchtnummers in volgorde
       var seen={},uniq=[];
       (env.data.flights||[]).forEach(function(f){
         if(f.flightNo&&!seen[f.flightNo]){seen[f.flightNo]=1;uniq.push(f.flightNo);}
       });
       var label=uniq.join(' \u00b7 ');
-      var step=trackStatusToStep(env.data.status);
+      // Leg-bewuste status: gebruik flights (met origin/destination/statuses) + finalDest
+      var step=trackStatusToStep(env.data.flights, env.data.destination);
       setTrackCache(awb,label,step);
       return {label:label,step:step};
     })

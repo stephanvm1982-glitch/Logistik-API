@@ -48,20 +48,36 @@ async function scrapeAtlas(prefix, serial) {
   const url = `https://jumpseat.atlasair.com/tracktraceapi/api/FreightContProvdr/GetFrieghtDtlByAwbNo?prfx=${encodeURIComponent(prefix)}&serial=${encodeURIComponent(serial)}`;
   const data = await fetchJson(url);
 
-  const flightsRaw = Array.isArray(data.LstFrieghtDtlEnhanced) ? data.LstFrieghtDtlEnhanced : [];
-  const flights = dedupeFlights(flightsRaw.map((f) => ({
-    flightNo: f.FlightNo ? (f.Carrier || '5Y') + String(f.FlightNo).trim() : '',
-    date: f.FlightDate ? String(f.FlightDate).slice(0, 10) : '',
-    route: [f.Origin, f.Destination].filter(Boolean).join('-'),
-    pieces: Number(f.Pieces || 0) || null,
-    weight: f.Weight != null ? Number(f.Weight) : null,
-    departure: f.DepatureDateStr ? (f.DepatureDateStr + ' ' + (f.DepatureTime || '')).trim() : '',
-    arrival: f.ArrivalDateStr ? (f.ArrivalDateStr + ' ' + (f.ArrivalTime || '')).trim() : '',
-    flightStatus: f.Status || '',
-  })).filter((f) => f.flightNo));
+  // Atlas geeft per leg meerdere rows in LstFrieghtDtlEnhanced — één per status event
+  // (BKD, FOH, RCS, ULD, ARR, RCF). We groeperen per (origin,destination,flightNo) en
+  // verzamelen alle status-codes per leg. Zo kunnen we onderscheiden of bv. ARR op een
+  // tussenstation gebeurde of op de eindbestemming.
+  const rawRows = Array.isArray(data.LstFrieghtDtlEnhanced) ? data.LstFrieghtDtlEnhanced : [];
+  const byLeg = new Map();
+  rawRows.forEach((f) => {
+    if (!f.FlightNo) return;
+    const key = (f.Origin || '') + '|' + (f.Destination || '') + '|' + String(f.FlightNo).trim();
+    if (!byLeg.has(key)) {
+      byLeg.set(key, {
+        flightNo: (f.Carrier || '5Y') + String(f.FlightNo).trim(),
+        origin: f.Origin || '',
+        destination: f.Destination || '',
+        date: f.FlightDate ? String(f.FlightDate).slice(0, 10) : '',
+        route: [f.Origin, f.Destination].filter(Boolean).join('-'),
+        pieces: Number(f.Pieces || 0) || null,
+        weight: f.Weight != null ? Number(f.Weight) : null,
+        departure: f.DepatureDateStr ? (f.DepatureDateStr + ' ' + (f.DepatureTime || '')).trim() : '',
+        arrival: f.ArrivalDateStr ? (f.ArrivalDateStr + ' ' + (f.ArrivalTime || '')).trim() : '',
+        statuses: [],
+      });
+    }
+    const code = String(f.Status || '').toUpperCase().trim();
+    const leg = byLeg.get(key);
+    if (code && !leg.statuses.includes(code)) leg.statuses.push(code);
+  });
+  const flights = Array.from(byLeg.values());
 
-  // LstStatus is een array van code-strings (BKD, FOH, RCS, DEP, ARR, RCF, DLV, ...).
-  // We normaliseren naar objects met `code`-veld zodat de frontend uniform werkt.
+  // LstStatus = AWB-level milestone codes (aggregaat van alle legs). Behouden voor info.
   const status = (Array.isArray(data.LstStatus) ? data.LstStatus : []).map((code) => ({
     code: String(code || '').toUpperCase(),
   }));
