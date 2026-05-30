@@ -408,6 +408,27 @@
   .rap-subtbl .num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
   .rap-sub-loading{padding:14px 16px 14px 40px;color:var(--txt-mut);font-size:12px;font-style:italic}
 
+  /* ── Tracking view ── */
+  .trk-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--sh-sm);padding:18px 20px;margin-bottom:14px}
+  .trk-hd{display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+  .trk-awb{font-family:var(--mono);font-size:18px;font-weight:800;letter-spacing:-.01em;color:var(--txt);user-select:text;cursor:text}
+  .trk-route{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--txt-mut)}
+  .trk-meta{display:flex;gap:24px;font-size:12px;color:var(--txt-mut);flex-wrap:wrap}
+  .trk-meta b{color:var(--txt);font-weight:700;font-family:var(--mono);font-variant-numeric:tabular-nums}
+  .trk-legs{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+  .trk-leg{display:grid;grid-template-columns:100px 1fr 1fr 110px;gap:14px;align-items:center;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface-2)}
+  .trk-leg-no{font-family:var(--mono);font-weight:800;font-size:14px;color:var(--brand);user-select:text;cursor:text}
+  .trk-leg-route{font-family:var(--mono);font-size:13px;font-weight:700}
+  .trk-leg-times{font-size:12px;color:var(--txt-mut);font-family:var(--mono);font-variant-numeric:tabular-nums}
+  .trk-leg-times .lbl{display:inline-block;width:46px;color:var(--txt-faint);font-weight:700;font-family:var(--sans);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em}
+  .trk-leg-times .src{display:inline-block;font-size:10px;color:var(--txt-faint);font-style:italic;margin-left:4px;font-family:var(--sans)}
+  .trk-leg-status{display:inline-flex;align-items:center;justify-content:center;padding:4px 10px;border-radius:var(--r-sm);font-size:11px;font-weight:800;letter-spacing:.02em;text-align:center}
+  .trk-st-onschedule{background:var(--afgeleverd-bg);color:var(--afgeleverd)}
+  .trk-st-delayed{background:var(--vertrokken-bg);color:#a16207}
+  .trk-st-unknown{background:var(--surface);color:var(--txt-mut);border:1px solid var(--line-2)}
+  .trk-statuses{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+  .trk-statuses .tag{font-size:10.5px;padding:2px 6px}
+
   .colli-wrap{width:100%;border-top:1px solid var(--line);margin-top:6px;padding:10px 2px 2px}
   .colli-tbl{width:100%;border-collapse:collapse}
   .colli-tbl th{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--txt-faint);padding:0 8px 6px;text-align:left;border-bottom:1px solid var(--line)}
@@ -557,7 +578,7 @@
     <div class="nav-cap">Operatie</div>
     <a href="#" class="on" data-view="binnenkomsten"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V8M5 12l7-4 7 4M3 22h18M5 18h.01M9 18h.01M13 18h.01M17 18h.01"/><path d="m4 8 8-6 8 6"/></svg>Bookings<span class="cnt" id="navCnt">0</span></a>
     <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg>Zendingen</a>
-    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Tracking</a>
+    <a href="#" data-view="tracking"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Tracking</a>
     <div class="nav-cap">Beheer</div>
     <a href="#" data-view="facturatie"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>Facturatie<span class="cnt" id="navFacCnt" style="display:none">0</span></a>
     <a href="#" data-view="rapporten"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg>Rapporten</a>
@@ -725,6 +746,18 @@
     <div class="rap-wrap reveal">
       <div id="rapTable" style="overflow-x:auto"></div>
     </div>
+  </div>
+
+  <!-- ── TRACKING VIEW ── -->
+  <div class="content" id="viewTracking" style="display:none">
+    <div class="rap-filter reveal" style="gap:12px">
+      <span class="rap-filter-lbl">AWB</span>
+      <input id="trackInput" class="awb-in" style="width:260px;padding-left:13px;background-image:none" placeholder="bv. 369-10201984">
+      <button class="btn btn-pri" id="trackBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>Track</button>
+      <span class="tb-spacer" style="flex:1"></span>
+      <span class="rap-period-info" id="trackHint">Voer een AWB in om vluchten + actuele status (FlightAware) te zien.</span>
+    </div>
+    <div id="trackResult" class="reveal"></div>
   </div>
 
   <!-- ── INSTELLINGEN VIEW ── -->
@@ -1067,6 +1100,105 @@ function loadFlightsForVisible(list){
   Promise.all(pending).then(function(){renderRows();renderStats();renderChips();});
 }
 
+// \u2500\u2500 Tracking view + Track-knop renderer \u2500\u2500
+function fmtTrackTime(iso){
+  if(!iso) return '\u2013';
+  // ISO UTC \u2192 "DD-MM HH:MM" lokale stijl, geen seconden
+  var d=new Date(iso);
+  if(isNaN(d)) return iso;
+  var p=function(n){return String(n).padStart(2,'0');};
+  return p(d.getUTCDate())+'-'+p(d.getUTCMonth()+1)+' '+p(d.getUTCHours())+':'+p(d.getUTCMinutes())+'Z';
+}
+function fmtSource(s){
+  if(!s) return '';
+  return {actual:'actueel',estimated:'verw.',scheduled:'gepland'}[s]||s;
+}
+function trackStatusClass(label){
+  if(label==='On schedule') return 'trk-st-onschedule';
+  if(label==='Delayed') return 'trk-st-delayed';
+  return 'trk-st-unknown';
+}
+function renderTrackLeg(leg){
+  var a=leg.aero||{};
+  var statusClass=trackStatusClass(a.status);
+  var statusLabel=a.status||'\u2013';
+  var delayBit=(a.delayMin!=null&&a.delayMin!==0)?' '+(a.delayMin>0?'+':'')+a.delayMin+'m':'';
+  return '<div class="trk-leg">'
+    +'<div class="trk-leg-no">'+esc(leg.flightNo||'')+'</div>'
+    +'<div class="trk-leg-route">'+esc(leg.origin||'?')+' \u2192 '+esc(leg.destination||'?')+(leg.date?'<div style="font-size:10.5px;color:var(--txt-faint);font-weight:600;margin-top:2px">'+esc(fmtDateNL(leg.date))+'</div>':'')+'</div>'
+    +'<div class="trk-leg-times">'
+      +'<div><span class="lbl">DEP</span> '+esc(fmtTrackTime(a.depTime))+(a.depSource?'<span class="src">('+esc(fmtSource(a.depSource))+')</span>':'')+'</div>'
+      +'<div><span class="lbl">ARR</span> '+esc(fmtTrackTime(a.arrTime))+(a.arrSource?'<span class="src">('+esc(fmtSource(a.arrSource))+')</span>':'')+'</div>'
+    +'</div>'
+    +'<div class="trk-leg-status '+statusClass+'">'+esc(statusLabel)+esc(delayBit)+'</div>'
+    +'</div>';
+}
+function renderTrackResult(d){
+  if(!d) return '<div class="rap-loading">Geen data.</div>';
+  var flightLabels=(d.flights||[]).map(function(f){return f.flightNo;}).filter(Boolean);
+  var unique=[];flightLabels.forEach(function(f){if(unique.indexOf(f)<0)unique.push(f);});
+  var html='<div class="trk-card reveal">'
+    +'<div class="trk-hd">'
+      +'<div><div class="trk-awb">'+esc(d.awb||'')+'</div><div class="trk-route">'+esc(d.origin||'?')+' \u2192 '+esc(d.destination||'?')+'</div></div>'
+      +'<div class="trk-meta">'
+        +(d.carrier?'<div>Carrier: <b>'+esc(d.carrier)+'</b></div>':'')
+        +(d.pieces?'<div>Colli: <b>'+d.pieces+'</b></div>':'')
+        +(d.weight?'<div>Gewicht: <b>'+d.weight+' kg</b></div>':'')
+      +'</div>'
+    +'</div>'
+    +'<div class="trk-legs">'+(d.flights||[]).map(renderTrackLeg).join('')+'</div>'
+    +(d.status&&d.status.length?'<div class="trk-statuses">'+d.status.map(function(s){return '<span class="tag">'+esc(s.code||'')+'</span>';}).join('')+'</div>':'')
+    +'</div>';
+  return html;
+}
+function doTrack(awb){
+  awb=(awb||'').trim();
+  if(!awb) return;
+  var out=document.getElementById('trackResult');
+  var hint=document.getElementById('trackHint');
+  if(hint) hint.textContent='Bezig met laden\u2026';
+  out.innerHTML='<div class="rap-loading">Track-data voor '+esc(awb)+' laden\u2026</div>';
+  fetch('/api/track?awb='+encodeURIComponent(awb))
+    .then(function(r){return r.json();})
+    .then(function(env){
+      if(hint) hint.textContent=env.ok?'Live data via Atlas + FlightAware AeroAPI':(env.error||'Geen data');
+      if(!env.ok){
+        out.innerHTML='<div class="rap-loading">'+esc(env.error||'Geen data')+'</div>';
+        return;
+      }
+      out.innerHTML=renderTrackResult(env.data);
+    })
+    .catch(function(err){
+      if(hint) hint.textContent='Fout: '+err.message;
+      out.innerHTML='<div class="rap-loading">Fout: '+esc(err.message)+'</div>';
+    });
+}
+// Hook events: Track-knop, Enter in input, en de Track-link in elke booking-detail
+document.addEventListener('click',function(e){
+  if(e.target.closest('#trackBtn')){
+    doTrack(document.getElementById('trackInput').value);
+  }
+});
+document.addEventListener('keydown',function(e){
+  if(e.target&&e.target.id==='trackInput'&&e.key==='Enter'){
+    e.preventDefault();
+    doTrack(e.target.value);
+  }
+});
+// Wanneer Tracking-view geopend wordt en er staat een AWB in de hash, auto-zoeken
+function maybeAutoTrack(){
+  if(currentView!=='tracking') return;
+  var inp=document.getElementById('trackInput');
+  if(inp&&inp.value) doTrack(inp.value);
+}
+// Vanuit een Bookings-detail "Track"-knop direct naar de Tracking-view springen
+function openTracking(e,awb){
+  if(e&&e.preventDefault) e.preventDefault();
+  if(typeof switchView==='function') switchView('tracking');
+  var inp=document.getElementById('trackInput');
+  if(inp){ inp.value=awb||''; doTrack(awb); }
+}
+
 // "Leveringen" = som van unieke consignees per AWB (niet HAWBs \u2014 die zijn
 // verzenddocumenten, niet leveringen). E\u00e9n AWB met 3 verschillende ontvangers
 // = 3 leveringen op die vlucht.
@@ -1196,7 +1328,7 @@ function detail(s){
     // \u2460 Buttons (links, verticaal, consistent met chevron-positie)
     +'<div class="dp-seg-act">'
     +'<a class="lnk" id="colli-btn-'+esc(s.awb)+'" href="#" onclick="loadColli(event,\''+esc(s.awb)+'\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Bekijk colli</a>'
-    +'<a class="lnk" href="#" onclick="return false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Track</a>'
+    +'<a class="lnk" href="#" onclick="openTracking(event,\''+esc(s.awb)+'\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Track</a>'
     +'</div>'
     // \u2461 Specs
     +'<div class="dp-seg">'
@@ -2211,7 +2343,8 @@ var currentView='binnenkomsten';
 var VIEWS={
   binnenkomsten:{el:'viewBinnenkomsten',pth:'Operatie / Luchtvracht',h1:'Zendingen'},
   facturatie:   {el:'viewFacturatie',   pth:'Beheer / Financieel',   h1:'Facturatie'},
-  rapporten:    {el:'viewRapporten',    pth:'Beheer / Analyse',      h1:'Rapporten'}
+  rapporten:    {el:'viewRapporten',    pth:'Beheer / Analyse',      h1:'Rapporten'},
+  tracking:     {el:'viewTracking',     pth:'Operatie / Luchtvracht',h1:'Tracking'}
 };
 
 function switchView(name){
@@ -2228,6 +2361,7 @@ function switchView(name){
   });
   if(name==='facturatie') renderFacturatie();
   if(name==='rapporten') renderRapporten();
+  if(name==='tracking') maybeAutoTrack();
 }
 
 document.querySelectorAll('.nav a[data-view]').forEach(function(a){
