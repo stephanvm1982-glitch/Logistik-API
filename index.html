@@ -390,8 +390,11 @@
 
   .rap-row{cursor:pointer}
   .rap-row.open > td{background:var(--surface-2)}
-  .rap-chev{display:inline-block;width:12px;color:var(--txt-faint);transition:transform .15s var(--ease-snap),color .15s var(--ease);margin-right:8px;font-size:9px;line-height:1;vertical-align:middle}
+  .rap-chev{display:inline-block;width:14px;height:14px;color:var(--txt-faint);transition:transform .15s var(--ease-snap),color .15s var(--ease);margin-right:8px;vertical-align:middle}
   .rap-row.open .rap-chev{transform:rotate(90deg);color:var(--brand)}
+  .rap-tbl th[data-sort]{cursor:pointer;user-select:none;transition:color .15s var(--ease),background-color .15s var(--ease)}
+  .rap-tbl th[data-sort]:hover{color:var(--txt-mut);background:var(--line)}
+  .rap-tbl th.rap-sort-active{color:var(--brand)}
 
   .rap-children-row{display:none;background:var(--surface-2)}
   .rap-children-row.open{display:table-row}
@@ -427,15 +430,16 @@
 
   /* ── facturatie table ── */
   .fac-head{
-    display:grid;grid-template-columns:80px 155px 80px 1fr 50px 60px 90px 65px 130px 44px;gap:14px;
+    display:grid;grid-template-columns:36px 80px 155px 80px 1fr 50px 60px 90px 65px 130px 44px;gap:14px;
     padding:10px 18px;border-bottom:1px solid var(--line);background:var(--surface-2);
     font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--txt-faint)
   }
   .fac-row{
-    display:grid;grid-template-columns:80px 155px 80px 1fr 50px 60px 90px 65px 130px 44px;gap:14px;
+    display:grid;grid-template-columns:36px 80px 155px 80px 1fr 50px 60px 90px 65px 130px 44px;gap:14px;
     padding:12px 18px;align-items:center;border-bottom:1px solid var(--line);
     transition:background .12s var(--ease)
   }
+  .fac-rownr{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--txt-faint);text-align:right}
   .fac-row:last-child{border-bottom:none}
   .fac-row:hover{background:var(--surface-2)}
   .fac-row.akk{background:#f0fdf4}
@@ -583,9 +587,9 @@
     <!-- stats -->
     <div class="stats reveal">
       <div class="stat hero"><div class="lb">Zendingen</div><div class="vl" id="sVal">0</div></div>
+      <div class="stat"><div class="lb"><i style="background:var(--brand)"></i>Leveringen</div><div class="vl" id="sLeveringen" style="color:var(--brand)">—</div></div>
       <div class="stat"><div class="lb"><i style="background:var(--brand)"></i>Colli</div><div class="vl" id="sCount">0</div></div>
       <div class="stat"><div class="lb"><i style="background:var(--sky)"></i>Gewicht</div><div class="vl" id="sColli">0</div></div>
-      <div class="stat"><div class="lb"><i style="background:var(--brand)"></i>Leveringen</div><div class="vl" id="sLeveringen" style="color:var(--brand)">—</div></div>
     </div>
 
     <!-- toolbar -->
@@ -607,7 +611,6 @@
         <div class="tb-spacer"></div>
         <span id="apiStatus" style="font-size:12px;font-weight:600;color:var(--txt-faint)"></span>
         <button class="btn btn-gho" id="moreFilters"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M7 12h10M11 18h2"/></svg>Meer filters</button>
-        <button class="btn btn-pri" id="searchBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>Zoeken</button>
       </div>
       <div class="chips-row" id="statusChips">
         <span class="fl-label">Status</span>
@@ -629,7 +632,7 @@
   <!-- ── FACTURATIE VIEW ── -->
   <div class="content" id="viewFacturatie" style="display:none">
     <div class="stats reveal" id="facStats">
-      <div class="stat hero"><div class="lb">Totaal gefactureerd</div><div class="vl" id="fVal">–</div></div>
+      <div class="stat hero"><div class="lb">Totaal nog te accorderen</div><div class="vl" id="fVal">–</div></div>
       <div class="stat"><div class="lb"><i style="background:var(--afgeleverd)"></i>Akkoord</div><div class="vl" id="fOk">0</div></div>
       <div class="stat"><div class="lb"><i style="background:var(--vertrokken)"></i>Openstaand</div><div class="vl" id="fOpen">0</div></div>
       <div class="stat"><div class="lb"><i style="background:var(--brand)"></i>Zendingen</div><div class="vl" id="fTotal">0</div></div>
@@ -646,7 +649,7 @@
           oninput="renderFacturatie()">
       </div>
       <div class="fac-head">
-        <div>Datum</div><div>AWB</div><div>Airline</div><div>Route</div>
+        <div class="r">#</div><div>Datum</div><div>AWB</div><div>Airline</div><div>Route</div>
         <div class="r">Colli</div><div class="r">FB</div><div class="r">Gewicht</div><div class="r">Tarief</div><div class="r">Totaal</div><div></div>
       </div>
       <div id="facRows"></div>
@@ -682,7 +685,7 @@
       </div>
       <div class="stat"><div class="lb"><i style="background:#16a34a"></i>Bruto vracht</div><div class="vl" id="rapGross">—</div></div>
       <div class="stat"><div class="lb"><i style="background:#f59e0b"></i>Vol. overhead</div><div class="vl" id="rapVol">—</div></div>
-      <div class="stat"><div class="lb"><i style="background:var(--brand)"></i>Gem. $/kg</div><div class="vl" id="rapPpkg">—</div></div>
+      <div class="stat"><div class="lb"><i style="background:var(--brand)"></i>Chargeabel</div><div class="vl" id="rapCharg">—</div></div>
     </div>
 
     <!-- Charts -->
@@ -701,18 +704,12 @@
         </div>
         <div class="rap-chart-wrap"><canvas id="chartWeekly" aria-label="Chargeable kilogrammen per week, gestapeld op bruto en volume-overhead"></canvas></div>
       </div>
-      <div class="rap-card rap-card-wide">
-        <div class="rap-card-hd">
-          <h3>Efficiëntie trend per week</h3>
-          <span class="rap-card-sub">
-            Doel
-            <input type="number" id="effTargetInp" class="eff-target-inp" min="50" max="99" step="1" aria-label="Doelpercentage voor efficiëntie">
-            %
-            <span class="eff-target-info" title="Standaard 85% past bij perishables. Voor algemene vracht eerder 70–80%. Stel in wat voor jullie realistisch is op basis van je eigen historische gemiddelde.">ⓘ</span>
-          </span>
-        </div>
-        <div class="rap-chart-wrap"><canvas id="chartEffTrend" aria-label="Efficiëntie trend per week"></canvas></div>
-      </div>
+    </div>
+    <div class="reveal" style="margin-bottom:14px;font-size:12px;color:var(--txt-mut);display:flex;align-items:center;gap:8px;justify-content:flex-end">
+      Efficiëntie-doel:
+      <input type="number" id="effTargetInp" class="eff-target-inp" min="50" max="99" step="1" aria-label="Doelpercentage voor efficiëntie">
+      <span>%</span>
+      <span class="eff-target-info" title="Standaard 85% past bij perishables. Voor algemene vracht eerder 70–80%. Stel in wat voor jullie realistisch is op basis van je eigen historische gemiddelde.">ⓘ</span>
     </div>
 
     <div class="rap-tabs reveal" id="rapTabs">
@@ -973,40 +970,45 @@ function renderStats(){
   document.getElementById('sColli').innerHTML=totalKg.toLocaleString('nl-NL')+' <small>kg</small>';
 }
 
-var _hawbTotal=0;
-var _hawbDone=0;
-var _hawbExpected=0;
-function loadHawbCounts(list){
-  _hawbTotal=0; _hawbDone=0; _hawbExpected=list.length;
+// "Leveringen" = som van unieke consignees per AWB (niet HAWBs \u2014 die zijn
+// verzenddocumenten, niet leveringen). E\u00e9n AWB met 3 verschillende ontvangers
+// = 3 leveringen op die vlucht.
+var _levTotal=0;
+var _levDone=0;
+function loadConsigneeCounts(list){
+  _levTotal=0; _levDone=0;
   var el=document.getElementById('sLeveringen');
   if(el) el.textContent=list.length?'\u2026':'\u2014';
   if(!list.length) return;
   list.forEach(function(s){
-    var key='ffs:hawb:'+s.awb;
+    var key='ffs:cons:v1:'+s.awb;
     var cached=null;
     try{var v=localStorage.getItem(key);if(v!==null)cached=Number(v);}catch(x){}
     if(cached!==null&&!isNaN(cached)){
-      _hawbTotal+=cached;
-      _hawbDone++;
-      if(el) el.textContent=_hawbTotal.toLocaleString('nl-NL');
+      _levTotal+=cached;
+      _levDone++;
+      if(el) el.textContent=_levTotal.toLocaleString('nl-NL');
       return;
     }
     fetch('/api/barcodes?shipment='+encodeURIComponent(s.awb))
       .then(function(r){return r.json();})
       .then(function(env){
-        var hawbs={};
+        var cons={};
         if(env.ok&&Array.isArray(env.data)){
-          env.data.forEach(function(c){if(c.hawb)hawbs[c.hawb]=1;});
+          env.data.forEach(function(c){
+            var name=c.consigneeName||c.consigneeCode;
+            if(name) cons[name]=1;
+          });
         }
-        var n=Object.keys(hawbs).length;
+        var n=Object.keys(cons).length;
         try{localStorage.setItem(key,n);}catch(x){}
-        _hawbTotal+=n;
-        _hawbDone++;
-        if(el) el.textContent=_hawbTotal.toLocaleString('nl-NL');
+        _levTotal+=n;
+        _levDone++;
+        if(el) el.textContent=_levTotal.toLocaleString('nl-NL');
       })
       .catch(function(){
-        _hawbDone++;
-        if(el) el.textContent=_hawbTotal>0?_hawbTotal.toLocaleString('nl-NL'):'\u2014';
+        _levDone++;
+        if(el) el.textContent=_levTotal>0?_levTotal.toLocaleString('nl-NL'):'\u2014';
       });
   });
 }
@@ -1244,7 +1246,7 @@ function renderRows(){
     var dateShort=fmtDateNL(s.date);
     html+='<div class="row '+(isOpen?'open':'')+'" data-awb="'+esc(s.awb)+'">'
       +'<div class="c-awb"><div class="a mono">'+esc(s.awb)+'</div>'
-      +'<div class="sub">'+(dateShort?'<span class="mono">'+dateShort+'</span> · ':'')+esc(s.from_ci||s.from_cd)+'</div></div>'
+      +'<div class="sub">'+(dateShort?'<span class="mono">'+dateShort+'</span>':'')+'</div></div>'
       +'<div class="route">'+flag(s.from_cd)
       +'<div class="ap"><div class="cd mono">'+esc(s.from_cd)+'</div><div class="ct">'+esc(s.from_ci||'')+'</div></div>'
       +'<div class="r-line"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12h14"/><path d="m13 6 6 6-6 6"/></svg>'
@@ -1285,10 +1287,9 @@ function offsetDate(days){
 }
 var dateFrom=offsetDate(-3), dateTo=offsetDate(2), awbFilter='';
 function updateDateLabel(){
-  var today=offsetDate(0);
-  var lbl=(dateFrom===dateTo && dateFrom===today)
-    ? 'Vandaag'
-    : (dateFrom===dateTo ? fmtDateNL(dateFrom) : fmtDateNL(dateFrom)+' tot '+fmtDateNL(dateTo));
+  var lbl=(dateFrom===dateTo)
+    ? fmtDateNL(dateFrom)
+    : fmtDateNL(dateFrom)+' tot '+fmtDateNL(dateTo);
   document.getElementById('dateLabel').textContent=lbl;
 }
 
@@ -1348,7 +1349,7 @@ function applyData(list){
   renderStats();
   renderChips();
   renderRows();
-  loadHawbCounts(shipmentData);
+  loadConsigneeCounts(shipmentData);
 }
 
 // \u2500\u2500\u2500 Load shipments \u2500\u2500\u2500
@@ -1435,8 +1436,9 @@ document.getElementById('awbIn').addEventListener('input',function(){
   awbFilter=this.value;
   renderRows();
 });
-
-document.getElementById('searchBtn').addEventListener('click',loadShipments);
+document.getElementById('awbIn').addEventListener('keydown',function(e){
+  if(e.key==='Enter'){ e.preventDefault(); loadShipments(); }
+});
 
 // ─── Facturatie tab state ───
 var _facTab='openstaand';
@@ -1457,6 +1459,39 @@ var _rapPeriodDays=30;     // 7/30/90/'all'/'custom'
 var _rapCustomFrom=null;
 var _rapCustomTo=null;
 var _rapCharts={};         // chart.js instances
+
+// Sort state per tab. Default: nieuwste datum bovenaan voor 'awb', anders eff asc.
+var _rapSort={
+  awb:       {key:'date',     dir:'desc'},
+  route:     {key:'eff',      dir:'asc'},
+  carrier:   {key:'eff',      dir:'asc'},
+  consignee: {key:'eff',      dir:'asc'},
+  exporteur: {key:'eff',      dir:'asc'}
+};
+
+function rapSortRows(rows){
+  var cur=_rapSort[_rapActiveTab]||{key:'eff',dir:'asc'};
+  var keyFn={
+    date:    function(r){return r.date||'';},
+    name:    function(r){return (r.name||'').toLowerCase();},
+    pieces:  function(r){return Number(r.pieces||0);},
+    gross:   function(r){return Number(r.gross||0);},
+    overhead:function(r){return Math.max(0,Number(r.charg||0)-Number(r.gross||0));},
+    charg:   function(r){return Number(r.charg||0);},
+    value:   function(r){return Number(r.value||0);},
+    ppk:     function(r){return (r.value>0&&r.charg>0)?(r.value/r.charg):0;},
+    eff:     function(r){return r.charg>0?r.gross/r.charg:1;},
+    count:   function(r){return Number(r.count||0);},
+    hawbs:   function(r){return r.hawbs?Object.keys(r.hawbs).length:0;},
+    levs:    function(r){return r.children?r.children.length:0;}
+  }[cur.key]||function(r){return r.charg>0?r.gross/r.charg:1;};
+  return rows.slice().sort(function(a,b){
+    var va=keyFn(a), vb=keyFn(b);
+    if(va<vb) return cur.dir==='asc'?-1:1;
+    if(va>vb) return cur.dir==='asc'?1:-1;
+    return 0;
+  });
+}
 
 // Drempel is een UI-preference (geen data), opgeslagen per browser
 function getEffTarget(){
@@ -1527,7 +1562,7 @@ function parseRapFromShipments(){
 
     totalGross+=gross; totalCharg+=charg; totalPieces+=pieces; totalValue+=value;
 
-    var awbRow={name:s.awb,awb:s.awb,sub:route+' · '+fmtDateNL(s.date),date:s.date||'',route:route,gross:gross,charg:charg,pieces:pieces,value:value};
+    var awbRow={name:s.awb,awb:s.awb,sub:fmtDateNL(s.date)+' · '+route,date:s.date||'',route:route,gross:gross,charg:charg,pieces:pieces,value:value};
     awbRows.push(awbRow);
 
     if(!routes[route]) routes[route]={name:route,count:0,gross:0,charg:0,pieces:0,value:0,children:[]};
@@ -1627,13 +1662,17 @@ function rapRowCells(r,opts){
   var volOverhead=Math.max(0,r.charg-r.gross);
   var ppk=(r.value>0&&r.charg>0)?(r.value/r.charg):0;
   var hwCount=r.hawbs?Object.keys(r.hawbs).length:0;
+  var levCount=r.children?r.children.length:0;
   var ctrCell='style="text-align:center;color:var(--txt-mut);font-family:var(--mono)"';
-  var nameCell=(opts.expandable?'<span class="rap-chev">▶</span>':'')
+  // Chevron consistent met binnenkomsten: SVG (rotates via .rap-row.open .rap-chev)
+  var chevSvg='<svg class="rap-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>';
+  var nameCell=(opts.expandable?chevSvg:'')
     +'<span class="rap-name">'+esc(r.name)+'</span>'
     +(opts.showSub&&r.sub?'<br><span class="rap-sub">'+esc(r.sub)+'</span>':'');
   return '<td>'+nameCell+'</td>'
     +(opts.showCount?'<td '+ctrCell+'>'+(r.count||'–')+'</td>':'')
     +(opts.showHawb?'<td '+ctrCell+'>'+(hwCount||'–')+'</td>':'')
+    +(opts.showLevs?'<td '+ctrCell+'>'+(levCount||'–')+'</td>':'')
     +'<td class="rap-num">'+Number(r.pieces||0).toLocaleString('nl-NL')+'</td>'
     +'<td class="rap-num">'+rapKg(r.gross)+'</td>'
     +'<td class="rap-num"'+(volOverhead>0?' style="color:var(--vertrokken)"':' style="color:var(--txt-faint)"')+'>'+rapKg(volOverhead)+'</td>'
@@ -1670,19 +1709,31 @@ function rapChildSubtableHtml(children){
   return html;
 }
 
+function rapHeaderCell(label, sortKey, opts){
+  var cur=_rapSort[_rapActiveTab]||{};
+  var active=cur.key===sortKey;
+  var arrow=active?(cur.dir==='asc'?' ↑':' ↓'):'';
+  var align=(opts&&opts.align)||'left';
+  var minw=(opts&&opts.minw)?'min-width:'+opts.minw+';':'';
+  var style='text-align:'+align+';'+minw+'cursor:pointer;user-select:none';
+  return '<th data-sort="'+esc(sortKey)+'" style="'+style+'"'+(active?' class="rap-sort-active"':'')+'>'+esc(label)+arrow+'</th>';
+}
+
 function rapTableHtml(rows,nameLabel,opts){
   opts=opts||{};
   if(!rows.length) return '<p style="padding:32px 16px;color:var(--txt-faint)">Geen gegevens beschikbaar.</p>';
-  var headers='<th>'+nameLabel+'</th>'
-    +(opts.showCount?'<th style="text-align:center">AWB\'s</th>':'')
-    +(opts.showHawb?'<th style="text-align:center">HAWB\'s</th>':'')
-    +'<th style="text-align:right">Colli</th>'
-    +'<th style="text-align:right">Bruto&nbsp;kg</th>'
-    +'<th style="text-align:right">Vol. overhead</th>'
-    +'<th style="text-align:right">Chargeabel&nbsp;kg</th>'
-    +'<th style="text-align:right">Factuurwaarde</th>'
-    +'<th style="text-align:right">$/kg</th>'
-    +'<th style="min-width:210px">Efficiëntie</th>';
+  rows=rapSortRows(rows);
+  var headers=rapHeaderCell(nameLabel,'name',{})
+    +(opts.showCount?rapHeaderCell("AWB's",'count',{align:'center'}):'')
+    +(opts.showHawb?rapHeaderCell("HAWB's",'hawbs',{align:'center'}):'')
+    +(opts.showLevs?rapHeaderCell('Leveringen','levs',{align:'center'}):'')
+    +rapHeaderCell('Colli','pieces',{align:'right'})
+    +rapHeaderCell('Bruto kg','gross',{align:'right'})
+    +rapHeaderCell('Vol. overhead','overhead',{align:'right'})
+    +rapHeaderCell('Chargeabel kg','charg',{align:'right'})
+    +rapHeaderCell('Factuurwaarde','value',{align:'right'})
+    +rapHeaderCell('$/kg','ppk',{align:'right'})
+    +rapHeaderCell('Efficiëntie','eff',{minw:'210px'});
   var colCount=headers.split('<th').length-1;
   var html='<table class="rap-tbl"><thead><tr>'+headers+'</tr></thead><tbody>';
 
@@ -1756,7 +1807,7 @@ function renderRapTab(){
       var rows=_rapActiveTab==='consignee'?b.consignees:b.exporteurs;
       var label=_rapActiveTab==='consignee'?'Consignee':'Exporteur';
       var expandKind=_rapActiveTab==='consignee'?'consignee-awbs':'exporteur-consignees';
-      el.innerHTML=rapTableHtml(rows,label,{showHawb:true,tabKey:_rapActiveTab,expandable:expandKind});
+      el.innerHTML=rapTableHtml(rows,label,{showHawb:true,showLevs:true,tabKey:_rapActiveTab,expandable:expandKind});
     } else if(_rapBarcodeLoading){
       var total=(_rapAllShipments||shipmentData||[]).length;
       el.innerHTML=rapLoadingHtml(0,total);
@@ -1783,7 +1834,6 @@ function renderRapSummary(d){
   var pct=d.totalCharg>0?Math.round(d.totalGross/d.totalCharg*100):0;
   var t=getEffTarget();
   var overhead=Math.max(0,d.totalCharg-d.totalGross);
-  var ppkg=d.totalCharg>0?(d.totalValue/d.totalCharg):0;
   var kg=function(v){return v.toLocaleString('nl-NL',{maximumFractionDigits:0})+' kg';};
   var effEl=document.getElementById('rapEff'); if(effEl) effEl.textContent=pct+'%';
   var hero=document.getElementById('rapHero');
@@ -1794,8 +1844,7 @@ function renderRapSummary(d){
   var gEl=document.getElementById('rapGross'); if(gEl) gEl.innerHTML=kg(d.totalGross);
   var vEl=document.getElementById('rapVol');
   if(vEl) vEl.innerHTML=overhead>0?kg(overhead):'<span style="color:var(--afgeleverd)">0 kg ✓</span>';
-  var pEl=document.getElementById('rapPpkg');
-  if(pEl) pEl.innerHTML=ppkg>0?'$ '+ppkg.toLocaleString('nl-NL',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+  var cEl=document.getElementById('rapCharg'); if(cEl) cEl.innerHTML=kg(d.totalCharg);
   var infoEl=document.getElementById('rapPeriodInfo');
   if(infoEl){
     var r=rapDateRange();
@@ -1824,7 +1873,7 @@ function renderRapCharts(d){
   Object.keys(_rapCharts).forEach(function(k){if(_rapCharts[k]){_rapCharts[k].destroy();_rapCharts[k]=null;}});
   // Empty state: geen data in periode → toon nette melding in alle 3 canvases
   if(!d.list.length){
-    ['chartDaily','chartWeekly','chartEffTrend'].forEach(function(id){
+    ['chartDaily','chartWeekly'].forEach(function(id){
       var c=document.getElementById(id);
       if(!c) return;
       var ctx=c.getContext('2d');
@@ -1916,21 +1965,6 @@ function renderRapCharts(d){
     })
   });
 
-  // Chart 3: Efficiëntie trend per week
-  var ctx3=document.getElementById('chartEffTrend');
-  if(ctx3) _rapCharts.eff=new Chart(ctx3,{
-    type:'line',
-    data:{labels:weekLabels,datasets:[
-      {label:'Efficiëntie %',data:weekEff,borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.12)',borderWidth:2.5,fill:true,tension:.35,pointRadius:4,pointBackgroundColor:'#2563eb'},
-      {label:'Doel '+getEffTarget()+'%',data:weekEff.map(function(){return getEffTarget();}),borderColor:'#16a34a',borderDash:[6,4],borderWidth:1.5,pointRadius:0,fill:false}
-    ]},
-    options:Object.assign({},commonOpts,{
-      scales:{
-        x:commonOpts.scales.x,
-        y:Object.assign({},commonOpts.scales.y,{min:0,max:100,ticks:{font:{size:10.5,family:'Manrope'},color:'#94a3b8',callback:function(v){return v+'%';}}})
-      }
-    })
-  });
 }
 
 function renderRapAll(){
@@ -2000,6 +2034,23 @@ document.addEventListener('click',function(e){
   if(!btn)return;
   _rapActiveTab=btn.getAttribute('data-rtab');
   document.querySelectorAll('.rap-tab').forEach(function(b){b.classList.toggle('on',b===btn);});
+  renderRapTab();
+});
+
+// Sortable column headers: klik -> sort asc/desc/asc cycle per kolom per tab
+document.addEventListener('click',function(e){
+  var th=e.target.closest('th[data-sort]');
+  if(!th || !th.closest('#rapTable')) return;
+  var key=th.getAttribute('data-sort');
+  var cur=_rapSort[_rapActiveTab]||{key:'eff',dir:'asc'};
+  if(cur.key===key){
+    cur.dir=(cur.dir==='asc')?'desc':'asc';
+  } else {
+    cur.key=key;
+    // sensible defaults: kg/value/eff descend ('hoog laag'), text/dates ascend
+    cur.dir=(['gross','overhead','charg','value','ppk','pieces','count','hawbs','levs'].indexOf(key)>=0)?'desc':'asc';
+  }
+  _rapSort[_rapActiveTab]=cur;
   renderRapTab();
 });
 
@@ -2080,7 +2131,7 @@ document.querySelectorAll('.nav a[data-view]').forEach(function(a){
 });
 
 // ─── Facturatie: KV-database renderen ───
-function renderFacRow(s){
+function renderFacRow(s,idx){
   var isAkk=s.akkoord||false;
   var dateStr=fmtDateNL(s.date);
   var r0=s.rates&&s.rates[0]?s.rates[0]:{};
@@ -2089,6 +2140,7 @@ function renderFacRow(s){
   var fbStr=s.fb?Number(s.fb).toFixed(2):'–';
   var tariefStr=s.rate?Number(s.rate).toFixed(2):'–';
   return '<div class="fac-row'+(isAkk?' akk':'')+'" data-awb="'+esc(s.awb)+'">'
+    +'<div class="fac-rownr">'+(idx+1)+'</div>'
     +'<div class="fac-date">'+esc(dateStr)+'</div>'
     +'<div class="fac-awb mono">'+esc(s.awb)+'</div>'
     +'<div class="fac-al">'+esc(airlineNameFromAwb(s.awb)||s.airline||'–')+'</div>'
@@ -2128,14 +2180,13 @@ function renderFacturatie(onDone){
           || (s.to_cd||'').toLowerCase().includes(q);
       });
 
-    var totalAWB=0,okCnt=0,okVal=0,openCnt=0;
+    var openVal=0,okCnt=0,okVal=0,openCnt=0;
     all.forEach(function(s){
-      totalAWB+=Number(s.value||0);
       if(s.akkoord){okCnt++;okVal+=Number(s.value||0);}
-      else openCnt++;
+      else {openCnt++; openVal+=Number(s.value||0);}
     });
     document.getElementById('fTotal').textContent=all.length;
-    document.getElementById('fVal').textContent=money(totalAWB);
+    document.getElementById('fVal').textContent=money(openVal);
     document.getElementById('fOk').textContent=okCnt;
     document.getElementById('fOpen').textContent=openCnt;
 
@@ -2147,7 +2198,7 @@ function renderFacturatie(onDone){
     }
 
     var html='';
-    data.forEach(function(s){ html+=renderFacRow(s); });
+    data.forEach(function(s,i){ html+=renderFacRow(s,i); });
     document.getElementById('facRows').innerHTML=html||'<div style="padding:24px;color:var(--txt-faint);text-align:center">Geen zendingen gevonden</div>';
     document.getElementById('facCount').textContent=data.length+' zendingen';
     document.getElementById('facSumLine').textContent=okCnt>0?okCnt+' akkoord: '+money(okVal):'';
