@@ -287,6 +287,27 @@
   .lnk svg{width:15px;height:15px}
   .lnk.active{border-color:var(--brand);background:var(--surface-2)}
 
+  /* ── Rapporten ── */
+  .rap-tabs{display:flex;gap:6px;padding:0 0 18px;flex-wrap:wrap}
+  .rap-tab{background:var(--surface);border:1.5px solid var(--line);border-radius:20px;padding:7px 20px;font-size:13px;font-weight:600;color:var(--txt-mut);cursor:pointer;transition:all .15s var(--ease)}
+  .rap-tab.on{background:var(--brand);border-color:var(--brand);color:#fff}
+  .rap-tab:hover:not(.on){border-color:var(--brand);color:var(--brand)}
+  .rap-tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+  .rap-tbl th{text-align:left;padding:10px 14px;background:var(--surface-2);color:var(--txt-faint);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-bottom:1.5px solid var(--line)}
+  .rap-tbl td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:middle;color:var(--txt)}
+  .rap-tbl tbody tr:hover td{background:var(--surface-2)}
+  .eff-bar-wrap{display:flex;align-items:center;gap:10px;min-width:180px}
+  .eff-bar{height:7px;border-radius:4px;background:var(--line-2);flex:1;overflow:hidden}
+  .eff-fill{height:100%;border-radius:4px;transition:width .5s var(--ease)}
+  .eff-pct{font-family:var(--mono);font-size:12.5px;font-weight:700;min-width:38px;text-align:right}
+  .eff-badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700}
+  .eff-good{background:#dcfce7;color:#15803d}
+  .eff-mid{background:#fef9c3;color:#a16207}
+  .eff-bad{background:#fee2e2;color:#b91c1c}
+  .rap-name{font-weight:600}
+  .rap-loading{text-align:center;padding:56px 24px;color:var(--txt-faint);font-size:14px}
+  .rap-loading svg{display:block;margin:0 auto 12px;opacity:.3}
+
   .colli-wrap{width:100%;border-top:1px solid var(--line);margin-top:6px;padding:10px 2px 2px}
   .colli-tbl{width:100%;border-collapse:collapse}
   .colli-tbl th{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--txt-faint);padding:0 8px 6px;text-align:left;border-bottom:1px solid var(--line)}
@@ -433,7 +454,7 @@
     <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Tracking</a>
     <div class="nav-cap">Beheer</div>
     <a href="#" data-view="facturatie"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>Facturatie<span class="cnt" id="navFacCnt" style="display:none">0</span></a>
-    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg>Rapporten</a>
+    <a href="#" data-view="rapporten"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg>Rapporten</a>
     <a href="#" data-view="instellingen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-2.92.99V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 7 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 14H4.5a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 6 7.6l-.6-.6a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 11 4.6V4.5a2 2 0 1 1 4 0v.09A1.65 1.65 0 0 0 18 6l.6-.6a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 20.4 11h.1a2 2 0 1 1 0 4h-.1Z"/></svg>Instellingen</a>
   </nav>
   <div class="side-foot">
@@ -465,6 +486,7 @@
       <div class="stat hero"><div class="lb">Zendingen</div><div class="vl" id="sVal">0</div></div>
       <div class="stat"><div class="lb"><i style="background:var(--brand)"></i>Colli</div><div class="vl" id="sCount">0</div></div>
       <div class="stat"><div class="lb"><i style="background:var(--sky)"></i>Gewicht</div><div class="vl" id="sColli">0</div></div>
+      <div class="stat"><div class="lb"><i style="background:var(--brand)"></i>Leveringen</div><div class="vl" id="sLeveringen" style="color:var(--brand)">—</div></div>
     </div>
 
     <!-- toolbar -->
@@ -533,6 +555,27 @@
         <span id="facCount">0 zendingen</span>
         <span id="facSumLine" style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--afgeleverd)"></span>
       </div>
+    </div>
+  </div>
+
+  <!-- ── RAPPORTEN VIEW ── -->
+  <div class="content" id="viewRapporten" style="display:none">
+    <div class="stats reveal" id="rapSummary">
+      <div class="stat hero" id="rapHero">
+        <div class="lb">Gewichtsefficiëntie</div>
+        <div class="vl" id="rapEff">—</div>
+      </div>
+      <div class="stat"><div class="lb"><i style="background:#16a34a"></i>Bruto vracht</div><div class="vl" id="rapGross">—</div></div>
+      <div class="stat"><div class="lb"><i style="background:#f59e0b"></i>Vol. overhead</div><div class="vl" id="rapVol">—</div></div>
+      <div class="stat"><div class="lb"><i style="background:var(--brand)"></i>Chargeabel</div><div class="vl" id="rapCharg">—</div></div>
+    </div>
+    <div class="rap-tabs reveal" id="rapTabs">
+      <button class="rap-tab on" data-rtab="awb">Per AWB</button>
+      <button class="rap-tab" data-rtab="route">Per Route</button>
+      <button class="rap-tab" data-rtab="carrier">Per Airline</button>
+    </div>
+    <div class="reveal" style="background:var(--surface);border-radius:12px;border:1px solid var(--line);overflow:hidden">
+      <div id="rapTable" style="overflow-x:auto"></div>
     </div>
   </div>
 
@@ -771,6 +814,44 @@ function renderStats(){
   document.getElementById('sVal').textContent=count;
   document.getElementById('sCount').textContent=totalColli.toLocaleString('nl-NL');
   document.getElementById('sColli').innerHTML=totalKg.toLocaleString('nl-NL')+' <small>kg</small>';
+}
+
+var _hawbTotal=0;
+var _hawbDone=0;
+var _hawbExpected=0;
+function loadHawbCounts(list){
+  _hawbTotal=0; _hawbDone=0; _hawbExpected=list.length;
+  var el=document.getElementById('sLeveringen');
+  if(el) el.textContent=list.length?'\u2026':'\u2014';
+  if(!list.length) return;
+  list.forEach(function(s){
+    var key='ffs:hawb:'+s.awb;
+    var cached=null;
+    try{var v=localStorage.getItem(key);if(v!==null)cached=Number(v);}catch(x){}
+    if(cached!==null&&!isNaN(cached)){
+      _hawbTotal+=cached;
+      _hawbDone++;
+      if(el) el.textContent=_hawbTotal.toLocaleString('nl-NL');
+      return;
+    }
+    fetch('/api/barcodes?shipment='+encodeURIComponent(s.awb))
+      .then(function(r){return r.json();})
+      .then(function(env){
+        var hawbs={};
+        if(env.ok&&Array.isArray(env.data)){
+          env.data.forEach(function(c){if(c.hawb)hawbs[c.hawb]=1;});
+        }
+        var n=Object.keys(hawbs).length;
+        try{localStorage.setItem(key,n);}catch(x){}
+        _hawbTotal+=n;
+        _hawbDone++;
+        if(el) el.textContent=_hawbTotal.toLocaleString('nl-NL');
+      })
+      .catch(function(){
+        _hawbDone++;
+        if(el) el.textContent=_hawbTotal>0?_hawbTotal.toLocaleString('nl-NL'):'\u2014';
+      });
+  });
 }
 
 // \u2500\u2500\u2500 Status filter chips \u2500\u2500\u2500
@@ -1072,7 +1153,7 @@ function mapItem(s){
     status:s.status||'',
     pieces:s.pieces||s.colli||0,
     kg:s.weight||s.totalWeight||s.kg||r0.grossWeight||0,
-    chargeable:r0.chargeableWeight||0,
+    chargeable:r0.chargeableWeight||Number(s.chargeableKg||0)||0,
     value:s.totalAWB||s.value||0,
     fb:s.fb||'',
     rate:s.rate||r0.rate||'',
@@ -1108,6 +1189,7 @@ function applyData(list){
   renderStats();
   renderChips();
   renderRows();
+  loadHawbCounts(shipmentData);
 }
 
 // \u2500\u2500\u2500 Load shipments \u2500\u2500\u2500
@@ -1207,11 +1289,135 @@ function setFacTab(tab){
   renderFacturatie();
 }
 
+// ─── Rapporten: gewichtsefficiëntie (data uit Neon via awb-store) ───
+var _rapActiveTab='awb';
+
+function rapScoreColor(pct){return pct>=85?'#16a34a':pct>=70?'#d97706':'#dc2626';}
+function rapScoreClass(pct){return pct>=85?'eff-good':pct>=70?'eff-mid':'eff-bad';}
+function rapScoreLabel(pct){return pct>=85?'Goed':pct>=70?'Matig':'Inefficiënt';}
+function rapKg(v){return v>0?v.toLocaleString('nl-NL',{minimumFractionDigits:1,maximumFractionDigits:1}):'–';}
+
+function parseRapFromShipments(){
+  var awbRows=[],routes={},carriers={};
+  var totalGross=0,totalCharg=0,totalPieces=0;
+
+  shipmentData.forEach(function(s){
+    var gross=Number(s.kg||0);
+    var fb=Number(s.fb||0);
+    var charg=Number(s.chargeable||0)||Math.max(gross,fb)||gross;
+    var pieces=Number(s.pieces||0);
+    var route=(s.from_cd&&s.to_cd)?s.from_cd+' → '+s.to_cd:'–';
+    var airlineName=airlineNameFromAwb(s.awb)||'Onbekend';
+
+    totalGross+=gross; totalCharg+=charg; totalPieces+=pieces;
+
+    awbRows.push({name:s.awb,sub:route+' · '+(s.date||''),gross:gross,charg:charg,pieces:pieces,extra:s.value});
+
+    if(!routes[route]) routes[route]={name:route,count:0,gross:0,charg:0,pieces:0};
+    routes[route].count++; routes[route].gross+=gross; routes[route].charg+=charg; routes[route].pieces+=pieces;
+
+    if(!carriers[airlineName]) carriers[airlineName]={name:airlineName,count:0,gross:0,charg:0,pieces:0};
+    carriers[airlineName].count++; carriers[airlineName].gross+=gross; carriers[airlineName].charg+=charg; carriers[airlineName].pieces+=pieces;
+  });
+
+  var byEff=function(a,b){
+    var pa=a.charg>0?a.gross/a.charg:1, pb=b.charg>0?b.gross/b.charg:1;
+    return pa-pb;
+  };
+  return {
+    awbs:awbRows.sort(byEff),
+    routes:Object.values(routes).sort(byEff),
+    carriers:Object.values(carriers).sort(byEff),
+    totalGross:totalGross,totalCharg:totalCharg,totalPieces:totalPieces
+  };
+}
+
+function rapTableHtml(rows,nameLabel,showSub,showCount,showValue){
+  if(!rows.length) return '<p style="padding:32px 16px;color:var(--txt-faint)">Geen gegevens beschikbaar.</p>';
+  var html='<table class="rap-tbl"><thead><tr>'
+    +'<th>'+nameLabel+'</th>'
+    +(showCount?'<th style="text-align:center">AWB\'s</th>':'')
+    +'<th style="text-align:right">Colli</th>'
+    +'<th style="text-align:right">Bruto&nbsp;kg</th>'
+    +'<th style="text-align:right">Vol.&nbsp;kg</th>'
+    +'<th style="text-align:right">Chargeabel&nbsp;kg</th>'
+    +(showValue?'<th style="text-align:right">Factuurwaarde</th>':'')
+    +'<th style="min-width:210px">Efficiëntie</th>'
+    +'</tr></thead><tbody>';
+
+  rows.forEach(function(r){
+    var pct=r.charg>0?Math.round(r.gross/r.charg*100):100;
+    var col=rapScoreColor(pct);
+    var volOverhead=Math.max(0,r.charg-r.gross);
+    html+='<tr>'
+      +'<td>'
+        +'<span class="rap-name">'+esc(r.name)+'</span>'
+        +(showSub&&r.sub?'<br><span class="rap-sub">'+esc(r.sub)+'</span>':'')
+      +'</td>'
+      +(showCount?'<td style="text-align:center;color:var(--txt-mut)">'+(r.count||'–')+'</td>':'')
+      +'<td style="text-align:right;font-family:var(--mono)">'+Number(r.pieces||0).toLocaleString('nl-NL')+'</td>'
+      +'<td style="text-align:right;font-family:var(--mono)">'+rapKg(r.gross)+'</td>'
+      +'<td style="text-align:right;font-family:var(--mono);color:'+(volOverhead>0?'#d97706':'var(--txt-faint)')+'">'+rapKg(volOverhead)+'</td>'
+      +'<td style="text-align:right;font-family:var(--mono)">'+rapKg(r.charg)+'</td>'
+      +(showValue?'<td style="text-align:right;font-family:var(--mono);color:var(--brand)">'+money(r.extra||0)+'</td>':'')
+      +'<td><div class="eff-bar-wrap">'
+        +'<div class="eff-bar"><div class="eff-fill" style="width:'+Math.min(pct,100)+'%;background:'+col+'"></div></div>'
+        +'<span class="eff-pct" style="color:'+col+'">'+pct+'%</span>'
+        +'<span class="eff-badge '+rapScoreClass(pct)+'">'+rapScoreLabel(pct)+'</span>'
+      +'</div></td>'
+      +'</tr>';
+  });
+  html+='</tbody></table>';
+  return html;
+}
+
+function renderRapTab(){
+  var el=document.getElementById('rapTable');
+  var d=parseRapFromShipments();
+  if(!el) return;
+  if(_rapActiveTab==='awb')      el.innerHTML=rapTableHtml(d.awbs,'AWB',true,false,true);
+  else if(_rapActiveTab==='route') el.innerHTML=rapTableHtml(d.routes,'Route',false,true,false);
+  else                              el.innerHTML=rapTableHtml(d.carriers,'Luchtvaartmaatschappij',false,true,false);
+  renderRapSummary(d);
+}
+
+function renderRapSummary(d){
+  if(!d) d=parseRapFromShipments();
+  var pct=d.totalCharg>0?Math.round(d.totalGross/d.totalCharg*100):0;
+  var col=rapScoreColor(pct);
+  var overhead=Math.max(0,d.totalCharg-d.totalGross);
+  var kg=function(v){return v.toLocaleString('nl-NL',{maximumFractionDigits:0})+' kg';};
+  var effEl=document.getElementById('rapEff'); if(effEl) effEl.textContent=pct+'%';
+  var hero=document.getElementById('rapHero');
+  if(hero) hero.style.background='linear-gradient(135deg,'+col+','+rapScoreColor(Math.max(0,pct-15))+')';
+  var gEl=document.getElementById('rapGross'); if(gEl) gEl.innerHTML=kg(d.totalGross);
+  var vEl=document.getElementById('rapVol');
+  if(vEl) vEl.innerHTML=overhead>0?kg(overhead):'<span style="color:var(--afgeleverd)">0 kg ✓</span>';
+  var cEl=document.getElementById('rapCharg'); if(cEl) cEl.innerHTML=kg(d.totalCharg);
+}
+
+function renderRapporten(){
+  var loadEl=document.getElementById('rapLoading');
+  var tableEl=document.getElementById('rapTable');
+  if(loadEl) loadEl.style.display='none';
+  if(tableEl) tableEl.style.display='';
+  renderRapTab();
+}
+
+document.addEventListener('click',function(e){
+  var btn=e.target.closest('.rap-tab');
+  if(!btn)return;
+  _rapActiveTab=btn.getAttribute('data-rtab');
+  document.querySelectorAll('.rap-tab').forEach(function(b){b.classList.toggle('on',b===btn);});
+  renderRapTab();
+});
+
 // ─── View switching ───
 var currentView='binnenkomsten';
 var VIEWS={
   binnenkomsten:{el:'viewBinnenkomsten',pth:'Operatie / Luchtvracht',h1:'Zendingen'},
-  facturatie:   {el:'viewFacturatie',   pth:'Beheer / Financieel',   h1:'Facturatie'}
+  facturatie:   {el:'viewFacturatie',   pth:'Beheer / Financieel',   h1:'Facturatie'},
+  rapporten:    {el:'viewRapporten',    pth:'Beheer / Analyse',      h1:'Rapporten'}
 };
 
 function switchView(name){
@@ -1227,6 +1433,7 @@ function switchView(name){
     a.classList.toggle('on', a.getAttribute('data-view')===name);
   });
   if(name==='facturatie') renderFacturatie();
+  if(name==='rapporten') renderRapporten();
 }
 
 document.querySelectorAll('.nav a[data-view]').forEach(function(a){
