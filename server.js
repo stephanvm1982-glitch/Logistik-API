@@ -163,6 +163,13 @@ function readBody(req) {
 // Past res aan zodat api/*.js handlers (Vercel-stijl) werken met native Node res.
 function addVercelMethods(req, res, body) {
   req.body = body;
+  // Vercel parseert query automatisch; lokaal moeten we 't zelf doen
+  if (!req.query) {
+    try {
+      const u = new URL(req.url, 'http://localhost');
+      req.query = Object.fromEntries(u.searchParams);
+    } catch { req.query = {}; }
+  }
   res.status = (code) => {
     const statusObj = {
       json: (obj) => sendJson(res, code, obj),
