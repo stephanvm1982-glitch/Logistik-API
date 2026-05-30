@@ -541,7 +541,7 @@
 <aside class="side">
   <div class="side-brand">
     <div class="logo-slot">
-      <img src="brand/ffs-logo.png" alt="Fresh from Source" onerror="this.style.display='none'">
+      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50'/%3E" alt="Fresh from Source">
     </div>
     <div class="cargo-tag">Cargo</div>
   </div>
@@ -775,7 +775,7 @@
     <div class="set-panel reveal" id="tabLogo" style="display:none">
       <div class="listwrap" style="padding:24px">
         <div style="font-size:13px;font-weight:600;color:var(--txt-mut);margin-bottom:16px">Huidig logo:</div>
-        <div style="margin-bottom:20px"><img id="logoPreview" src="brand/ffs-logo.png" style="height:48px;max-width:280px;object-fit:contain;border:1px solid var(--line);border-radius:8px;padding:8px;background:#fff"></div>
+        <div style="margin-bottom:20px"><img id="logoPreview" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50'/%3E" style="height:48px;max-width:280px;object-fit:contain;border:1px solid var(--line);border-radius:8px;padding:8px;background:#fff"></div>
         <div style="display:flex;flex-direction:column;gap:10px;max-width:480px">
           <input type="file" id="logoFile" accept="image/*" style="display:none" onchange="handleLogoFile(this)">
           <div style="display:flex;gap:8px">
@@ -3124,8 +3124,10 @@ window.savePfxName=function(idx){
 // ─── Logo management ───
 var LS_LOGO='ffs:logo';
 
+// 1x1 transparent SVG placeholder voorkomt 404 voordat logo uit Postgres/localStorage komt
+var LOGO_PLACEHOLDER="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50'/%3E";
 function applyLogo(dataUrl){
-  var src=dataUrl||'brand/ffs-logo.png';
+  var src=dataUrl||LOGO_PLACEHOLDER;
   document.querySelectorAll('.logo-slot img').forEach(function(img){img.src=src;img.style.display='';});
   var prev=document.getElementById('logoPreview');
   if(prev) prev.src=src;
