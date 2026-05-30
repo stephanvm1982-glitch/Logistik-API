@@ -212,13 +212,13 @@
   /* ── list ── */
   .listwrap{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-sm)}
   .list-head{
-    display:grid;grid-template-columns:160px 1fr 188px 70px 92px 116px 36px;gap:14px;
+    display:grid;grid-template-columns:28px 160px 1fr 188px 70px 92px 116px;gap:14px;
     padding:11px 18px;border-bottom:1px solid var(--line);background:var(--surface-2);
     font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--txt-faint)
   }
   .list-head .r{text-align:right}
   .row{
-    display:grid;grid-template-columns:160px 1fr 188px 70px 92px 116px 36px;gap:14px;
+    display:grid;grid-template-columns:28px 160px 1fr 188px 70px 92px 116px;gap:14px;
     padding:13px 18px;align-items:center;border-bottom:1px solid var(--line);cursor:pointer;
     transition:background .14s var(--ease)
   }
@@ -253,9 +253,9 @@
   .num.r,.val{text-align:right;display:block}
   .val{font-family:var(--mono);font-weight:700;font-size:13px}
   .num-sub{display:block;font-family:var(--mono);font-size:10.5px;font-weight:500;color:var(--txt-faint);margin-top:1px;text-align:right}
-  .chev{display:grid;place-items:center;color:var(--txt-faint);transition:transform .25s var(--ease)}
-  .chev svg{width:18px;height:18px}
-  .row.open .chev{transform:rotate(180deg);color:var(--brand)}
+  .chev{display:grid;place-items:center;color:var(--txt-faint);transition:transform .15s var(--ease-snap),color .15s var(--ease)}
+  .chev svg{width:16px;height:16px}
+  .row.open .chev{transform:rotate(90deg);color:var(--brand)}
 
   /* detail panel */
   .detail{display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s var(--ease);background:var(--surface-2);border-bottom:1px solid var(--line)}
@@ -285,7 +285,10 @@
   .dp-slabel{font-size:9px;font-weight:700;color:var(--txt-faint);white-space:nowrap}
   .dp-step.done .dp-slabel,.dp-step.now .dp-slabel{color:var(--txt-mut)}
   .dp-seg-charges{display:flex;flex-wrap:wrap;gap:5px;align-items:center;flex:1}
-  .dp-seg-act{margin-left:auto;display:flex;gap:6px;flex-shrink:0;padding-left:16px}
+  /* actie-knoppen verticaal aan begin van detail (consistent met chevron-positie links) */
+  .dp-seg-act{display:flex;flex-direction:column;gap:4px;flex-shrink:0;padding-right:14px;padding-left:2px;border-right:1px solid var(--line-2);margin-right:4px}
+  .dp-seg-act .lnk{justify-content:flex-start;padding:5px 10px;min-width:115px;font-size:11.5px}
+  .dp-seg-act .lnk svg{width:13px;height:13px}
   .tag{font-family:var(--mono);font-size:11.5px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);padding:4px 9px;color:var(--txt-mut)}
   .tag b{color:var(--txt);font-weight:700}
   .lnk{
@@ -492,7 +495,7 @@
     .row{grid-template-columns:1fr auto;gap:10px;row-gap:10px;padding:14px}
     .row .c-awb{order:1}.row .route{order:2;grid-column:1/-1}
     .row .st{order:3;grid-column:1/-1}.row .num,.row .val{display:none}
-    .row .chev{order:4;position:absolute;right:14px;top:14px}
+    .row .chev{order:0;position:absolute;left:14px;top:14px}
     .row{position:relative}
   }
   @media (prefers-reduced-motion:reduce){
@@ -620,7 +623,7 @@
     <!-- list -->
     <div class="listwrap reveal">
       <div class="list-head">
-        <div>AWB</div><div>Route</div><div>Status</div><div class="r">Colli</div><div class="r">Gewicht</div><div class="r">Waarde</div><div></div>
+        <div></div><div>AWB</div><div>Route</div><div>Status</div><div class="r">Colli</div><div class="r">Gewicht</div><div class="r">Waarde</div>
       </div>
       <div id="rows"></div>
       <div class="list-foot">
@@ -1096,7 +1099,12 @@ function detail(s){
   });
 
   return '<div class="detail-pad">'
-    // \u2460 Specs
+    // \u2460 Buttons (links, verticaal, consistent met chevron-positie)
+    +'<div class="dp-seg-act">'
+    +'<a class="lnk" id="colli-btn-'+esc(s.awb)+'" href="#" onclick="loadColli(event,\''+esc(s.awb)+'\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Bekijk colli</a>'
+    +'<a class="lnk" href="#" onclick="return false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Track</a>'
+    +'</div>'
+    // \u2461 Specs
     +'<div class="dp-seg">'
     +'<div class="dp-kvs">'
     +'<div class="dp-kv"><span class="dp-k">Colli</span><span class="dp-v">'+val(s.pieces)+'</span></div>'
@@ -1104,16 +1112,11 @@ function detail(s){
     +'<div class="dp-kv"><span class="dp-k">Tarief</span><span class="dp-v">'+(r0.rate||s.rate||'\u2013')+' /kg</span></div>'
     +'<div class="dp-kv"><span class="dp-k">FB</span><span class="dp-v">'+val(s.fb)+'</span></div>'
     +'</div></div>'
-    // \u2461 Timeline
+    // \u2462 Timeline
     +'<div class="dp-div"></div>'
     +'<div class="dp-seg">'+tl+'</div>'
-    // \u2462 Charges
+    // \u2463 Charges
     +(tags?'<div class="dp-div"></div><div class="dp-seg dp-seg-charges">'+tags+'</div>':'')
-    // \u2463 Buttons (push to right)
-    +'<div class="dp-seg dp-seg-act">'
-    +'<a class="lnk" id="colli-btn-'+esc(s.awb)+'" href="#" onclick="loadColli(event,\''+esc(s.awb)+'\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Bekijk colli</a>'
-    +'<a class="lnk" href="#" onclick="return false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Track</a>'
-    +'</div>'
     +'<div class="colli-wrap" id="colli-'+esc(s.awb)+'"></div>'
     +'</div>';
 }
@@ -1245,6 +1248,7 @@ function renderRows(){
     var detailHtml=isOpen?detail(s):'';
     var dateShort=fmtDateNL(s.date);
     html+='<div class="row '+(isOpen?'open':'')+'" data-awb="'+esc(s.awb)+'">'
+      +'<div class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></div>'
       +'<div class="c-awb"><div class="a mono">'+esc(s.awb)+'</div>'
       +'<div class="sub">'+(dateShort?'<span class="mono">'+dateShort+'</span>':'')+'</div></div>'
       +'<div class="route">'+flag(s.from_cd)
@@ -1263,7 +1267,6 @@ function renderRows(){
         +(s.kg&&s.chargeable&&s.kg!==s.chargeable?'<span class="num-sub">'+s.kg+' kg bruto</span>':'')
       +'</div>'
       +'<div class="val">'+money(s.value)+'</div>'
-      +'<div class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></div>'
       +'</div>'
       +'<div class="detail '+(isOpen?'open':'')+'"><div class="detail-in">'+detailHtml+'</div></div>';
   });
