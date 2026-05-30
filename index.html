@@ -996,7 +996,7 @@ function trackStatusToStep(events){
 }
 function getTrackCache(awb){
   try{
-    var raw=localStorage.getItem('ffs:track:v2:'+awb);
+    var raw=localStorage.getItem('ffs:track:v3:'+awb);
     if(!raw) return null;
     var obj=JSON.parse(raw);
     if(!obj||Date.now()-obj.ts>TRACK_TTL) return null;
@@ -1004,7 +1004,7 @@ function getTrackCache(awb){
   }catch(x){return null;}
 }
 function setTrackCache(awb,label,step){
-  try{localStorage.setItem('ffs:track:v2:'+awb,JSON.stringify({ts:Date.now(),label:label,step:step}));}catch(x){}
+  try{localStorage.setItem('ffs:track:v3:'+awb,JSON.stringify({ts:Date.now(),label:label,step:step}));}catch(x){}
 }
 function getCachedFlights(awb){var c=getTrackCache(awb);return c?(c.label||''):'';}
 function getCachedStep(awb){var c=getTrackCache(awb);return c?(c.step||null):null;}
