@@ -13,22 +13,19 @@
  *       status: [{ station, code, description, eventTime, pieces, weight }] } }
  */
 
-const https = require('https');
-
-function fetchJson(url) {
-  return new Promise((resolve, reject) => {
-    https.get(url, { timeout: 20000, headers: { 'Accept': 'application/json' } }, (res) => {
-      let raw = '';
-      res.on('data', (c) => { raw += c; });
-      res.on('end', () => {
-        if (res.statusCode < 200 || res.statusCode >= 300) {
-          return reject(new Error('HTTP ' + res.statusCode));
-        }
-        try { resolve(JSON.parse(raw)); }
-        catch (e) { reject(new Error('Invalid JSON: ' + e.message)); }
-      });
-    }).on('error', reject).on('timeout', function () { this.destroy(new Error('Timeout')); });
-  });
+async function fetchJson(url) {
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 20000);
+  try {
+    const r = await fetch(url, {
+      signal: ctrl.signal,
+      headers: { 'Accept': 'application/json', 'User-Agent': 'Mozilla/5.0 (compatible; LogistikScraper/1.0)' },
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return await r.json();
+  } finally {
+    clearTimeout(to);
+  }
 }
 
 function parseAwb(input) {
