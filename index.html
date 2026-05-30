@@ -861,6 +861,15 @@ function airlineNameFromAwb(awb){
 // \u2500\u2500\u2500 Utility functions \u2500\u2500\u2500
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 
+// Datum-formaat: ISO YYYY-MM-DD (of langer) → DD-MM-YY. Lege input → ''.
+function fmtDateNL(iso){
+  if(!iso) return '';
+  var s=String(iso).slice(0,10);
+  var p=s.split('-');
+  if(p.length!==3) return s;
+  return p[2]+'-'+p[1]+'-'+p[0].slice(2);
+}
+
 function apiGet(url){
   return fetch(url).then(function(r){
     return r.json();
@@ -1162,8 +1171,7 @@ function renderRows(){
     });
     // Detail panel rendered lazily \u2014 only for the open row
     var detailHtml=isOpen?detail(s):'';
-    var dp=s.date?s.date.split('-'):[];
-    var dateShort=dp.length===3?dp[2]+'-'+dp[1]:'';
+    var dateShort=fmtDateNL(s.date);
     html+='<div class="row '+(isOpen?'open':'')+'" data-awb="'+esc(s.awb)+'">'
       +'<div class="c-awb"><div class="a mono">'+esc(s.awb)+'</div>'
       +'<div class="sub">'+(dateShort?'<span class="mono">'+dateShort+'</span> · ':'')+esc(s.from_ci||s.from_cd)+'</div></div>'
@@ -1207,7 +1215,10 @@ function offsetDate(days){
 }
 var dateFrom=offsetDate(-3), dateTo=offsetDate(2), awbFilter='';
 function updateDateLabel(){
-  var lbl=dateFrom===dateTo ? 'Vandaag' : dateFrom+' tot '+dateTo;
+  var today=offsetDate(0);
+  var lbl=(dateFrom===dateTo && dateFrom===today)
+    ? 'Vandaag'
+    : (dateFrom===dateTo ? fmtDateNL(dateFrom) : fmtDateNL(dateFrom)+' tot '+fmtDateNL(dateTo));
   document.getElementById('dateLabel').textContent=lbl;
 }
 
@@ -1446,7 +1457,7 @@ function parseRapFromShipments(){
 
     totalGross+=gross; totalCharg+=charg; totalPieces+=pieces; totalValue+=value;
 
-    var awbRow={name:s.awb,awb:s.awb,sub:route+' · '+(s.date||''),date:s.date||'',route:route,gross:gross,charg:charg,pieces:pieces,value:value};
+    var awbRow={name:s.awb,awb:s.awb,sub:route+' · '+fmtDateNL(s.date),date:s.date||'',route:route,gross:gross,charg:charg,pieces:pieces,value:value};
     awbRows.push(awbRow);
 
     if(!routes[route]) routes[route]={name:route,count:0,gross:0,charg:0,pieces:0,value:0,children:[]};
@@ -1486,7 +1497,7 @@ function parseRapFromBarcodes(barcodeMap){
   var bumpByAwb=function(parent,awb,sd,g,v,ch,share){
     if(!parent._byAwb) parent._byAwb={};
     var k=awb;
-    if(!parent._byAwb[k]) parent._byAwb[k]={name:k,awb:k,sub:(sd.from_cd&&sd.to_cd?sd.from_cd+'→'+sd.to_cd:'')+(sd.date?' · '+sd.date:''),pieces:0,gross:0,charg:0,value:0};
+    if(!parent._byAwb[k]) parent._byAwb[k]={name:k,awb:k,sub:(sd.from_cd&&sd.to_cd?sd.from_cd+'→'+sd.to_cd:'')+(sd.date?' · '+fmtDateNL(sd.date):''),pieces:0,gross:0,charg:0,value:0};
     var x=parent._byAwb[k]; x.pieces++; x.gross+=g; x.charg+=ch; x.value+=share;
   };
   var bumpByCons=function(parent,name,g,v,ch,share){
@@ -1712,7 +1723,7 @@ function renderRapSummary(d){
   var infoEl=document.getElementById('rapPeriodInfo');
   if(infoEl){
     var r=rapDateRange();
-    var range=r.from?(r.from+' → '+r.to):('alle data t/m '+r.to);
+    var range=r.from?(fmtDateNL(r.from)+' → '+fmtDateNL(r.to)):('alle data t/m '+fmtDateNL(r.to));
     var inc=rapIncompleteCount();
     var note=inc>0?' · '+inc+' incompleet (kg=0) overgeslagen':'';
     infoEl.textContent=d.list.length+' zendingen · '+range+note;
@@ -1744,7 +1755,7 @@ function renderRapCharts(d){
     byDay[k].charg+=Number(s.chargeable||0)||Math.max(Number(s.kg||0),Number(s.fb||0));
   });
   var days=Object.keys(byDay).sort();
-  var dailyLabels=days.map(function(k){return k.slice(5);}); // MM-DD
+  var dailyLabels=days.map(function(k){return fmtDateNL(k);}); // DD-MM-YY
   var dailyCounts=days.map(function(k){return byDay[k].count;});
   var dailyEff=days.map(function(k){var b=byDay[k];return b.charg>0?Math.round(b.gross/b.charg*100):0;});
 
@@ -1975,8 +1986,7 @@ document.querySelectorAll('.nav a[data-view]').forEach(function(a){
 // ─── Facturatie: KV-database renderen ───
 function renderFacRow(s){
   var isAkk=s.akkoord||false;
-  var dp=s.date?s.date.split('-'):[];
-  var dateStr=dp.length===3?dp[2]+'-'+dp[1]+'-'+dp[0]:'';
+  var dateStr=fmtDateNL(s.date);
   var r0=s.rates&&s.rates[0]?s.rates[0]:{};
   var kgRaw=r0&&r0.grossWeight?r0.grossWeight:s.kg||'';
   var kgStr=kgRaw?Math.round(Number(kgRaw))+' kg':'–';
@@ -2016,6 +2026,7 @@ function renderFacturatie(onDone){
         if(!q) return true;
         return (s.awb||'').toLowerCase().includes(q)
           || (s.date||'').toLowerCase().includes(q)
+          || fmtDateNL(s.date).toLowerCase().includes(q)
           || (s.airline||'').toLowerCase().includes(q)
           || (s.from_cd||'').toLowerCase().includes(q)
           || (s.to_cd||'').toLowerCase().includes(q);
