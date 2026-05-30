@@ -289,54 +289,106 @@
   .lnk.active{border-color:var(--brand);background:var(--surface-2)}
 
   /* ── Rapporten ── */
-  .rap-filter{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-bottom:16px}
+  /* danger token (verzadigingsschaal naast brand/sky/afgeleverd/vertrokken) */
+  :root{--danger:#dc2626;--danger-bg:#fee2e2}
+
+  .rap-filter{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
+    padding:12px 14px;margin-bottom:16px;box-shadow:var(--sh-sm)
+  }
   .rap-filter-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--txt-faint)}
-  .rap-filter-sep{width:1px;height:24px;background:var(--line)}
-  .rap-period{background:var(--surface-2);border:1px solid var(--line);border-radius:18px;padding:6px 14px;font-size:12.5px;font-weight:600;color:var(--txt-mut);cursor:pointer;transition:all .15s var(--ease)}
-  .rap-period.on{background:var(--brand);border-color:var(--brand);color:#fff}
-  .rap-period:hover:not(.on){border-color:var(--brand);color:var(--brand)}
-  .rap-date{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12.5px;font-family:var(--mono);color:var(--txt)}
-  .rap-date:focus{outline:none;border-color:var(--brand)}
+  .rap-filter-sep{width:1px;height:22px;background:var(--line)}
+  .rap-period{
+    height:32px;padding:0 14px;background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r-full);
+    font-size:12.5px;font-weight:700;color:var(--txt-mut);cursor:pointer;
+    transition:all .15s var(--ease);user-select:none
+  }
+  .rap-period:hover:not(.on){color:var(--txt);background:var(--surface-2)}
+  .rap-period.on{color:var(--txt);background:var(--surface-2);border-color:var(--brand);box-shadow:0 0 0 2px rgba(37,99,235,.1)}
+  .rap-date{
+    height:32px;background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r);
+    padding:0 10px;font-size:12.5px;font-family:var(--mono);color:var(--txt)
+  }
+  .rap-date:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(37,99,235,.13)}
+  .rap-period-info{font-size:12px;color:var(--txt-mut);font-weight:500}
+
   .rap-charts{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
-  .rap-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column}
+  .rap-card{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px 18px;
+    display:flex;flex-direction:column;box-shadow:var(--sh-sm)
+  }
   .rap-card-wide{grid-column:1 / -1}
-  .rap-card-hd{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px}
-  .rap-card-hd h3{margin:0;font-size:14px;font-weight:700;color:var(--txt)}
-  .rap-card-sub{font-size:11.5px;color:var(--txt-faint);font-weight:500}
+  .rap-card-hd{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;gap:12px;flex-wrap:wrap}
+  .rap-card-hd h3{margin:0;font-size:14px;font-weight:700;color:var(--txt);letter-spacing:-.01em}
+  .rap-card-sub{font-size:12px;color:var(--txt-mut);font-weight:500;display:inline-flex;align-items:center;gap:6px}
   .rap-chart-wrap{position:relative;height:240px}
   .rap-card-wide .rap-chart-wrap{height:260px}
   @media(max-width:980px){.rap-charts{grid-template-columns:1fr}.rap-card-wide{grid-column:auto}}
 
-  .rap-tabs{display:flex;gap:6px;padding:0 0 18px;flex-wrap:wrap}
-  .rap-tab{background:var(--surface);border:1.5px solid var(--line);border-radius:20px;padding:7px 20px;font-size:13px;font-weight:600;color:var(--txt-mut);cursor:pointer;transition:all .15s var(--ease)}
-  .rap-tab.on{background:var(--brand);border-color:var(--brand);color:#fff}
-  .rap-tab:hover:not(.on){border-color:var(--brand);color:var(--brand)}
-  .rap-tbl{width:100%;border-collapse:collapse;font-size:13.5px}
-  .rap-tbl th{text-align:left;padding:10px 14px;background:var(--surface-2);color:var(--txt-faint);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-bottom:1.5px solid var(--line)}
-  .rap-tbl td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:middle;color:var(--txt)}
+  .eff-target-inp{
+    width:54px;height:26px;padding:0 7px;font-family:var(--mono);font-size:12px;font-weight:700;
+    border:1px solid var(--line-2);border-radius:var(--r-sm);background:var(--surface);color:var(--brand);
+    transition:border-color .15s var(--ease),box-shadow .15s var(--ease)
+  }
+  .eff-target-inp:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(37,99,235,.13)}
+  .eff-target-info{cursor:help;color:var(--txt-faint);font-size:13px;line-height:1}
+
+  /* hero card varianten obv overall score - vervangt inline JS-gradient */
+  .stat.hero-good{background:linear-gradient(135deg,var(--afgeleverd),#0e8a3e);box-shadow:0 6px 16px rgba(22,163,74,.30)}
+  .stat.hero-mid{background:linear-gradient(135deg,var(--vertrokken),#c8771a);box-shadow:0 6px 16px rgba(245,158,11,.30)}
+  .stat.hero-bad{background:linear-gradient(135deg,var(--danger),#a01919);box-shadow:0 6px 16px rgba(220,38,38,.30)}
+
+  .rap-tabs{display:flex;gap:7px;padding:0 0 14px;flex-wrap:wrap}
+  .rap-tab{
+    display:inline-flex;align-items:center;height:32px;padding:0 14px;border-radius:var(--r-full);
+    border:1px solid var(--line-2);background:var(--surface);
+    font-size:12.5px;font-weight:700;color:var(--txt-mut);
+    cursor:pointer;transition:all .15s var(--ease);user-select:none
+  }
+  .rap-tab:hover:not(.on){color:var(--txt);background:var(--surface-2)}
+  .rap-tab.on{color:var(--txt);background:var(--surface-2);border-color:var(--brand);box-shadow:0 0 0 2px rgba(37,99,235,.1)}
+
+  .rap-wrap{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-sm)}
+  .rap-tbl{width:100%;border-collapse:collapse;font-size:13px}
+  .rap-tbl th{
+    text-align:left;padding:11px 16px;background:var(--surface-2);color:var(--txt-faint);
+    font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;border-bottom:1px solid var(--line)
+  }
+  .rap-tbl td{padding:13px 16px;border-bottom:1px solid var(--line);vertical-align:middle;color:var(--txt)}
+  .rap-tbl tbody tr:last-child > td{border-bottom:none}
   .rap-tbl tbody tr:hover td{background:var(--surface-2)}
-  .eff-bar-wrap{display:flex;align-items:center;gap:10px;min-width:180px}
-  .eff-bar{height:7px;border-radius:4px;background:var(--line-2);flex:1;overflow:hidden}
-  .eff-fill{height:100%;border-radius:4px;transition:width .5s var(--ease)}
-  .eff-pct{font-family:var(--mono);font-size:12.5px;font-weight:700;min-width:38px;text-align:right}
-  .eff-badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700}
-  .eff-good{background:#dcfce7;color:#15803d}
-  .eff-mid{background:#fef9c3;color:#a16207}
-  .eff-bad{background:#fee2e2;color:#b91c1c}
-  .rap-name{font-weight:600}
-  .rap-loading{text-align:center;padding:56px 24px;color:var(--txt-faint);font-size:14px}
-  .rap-loading svg{display:block;margin:0 auto 12px;opacity:.3}
+  .rap-num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+  .rap-num-bold{font-weight:700}
+  .rap-money{color:var(--brand)}
+
+  .eff-bar-wrap{display:flex;align-items:center;gap:10px;min-width:200px}
+  .eff-bar{height:6px;border-radius:3px;background:var(--line-2);flex:1;overflow:hidden}
+  .eff-fill{height:100%;border-radius:3px;transition:width .4s var(--ease-out)}
+  .eff-pct{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:12.5px;font-weight:700;min-width:38px;text-align:right}
+  .eff-badge{display:inline-block;padding:2px 8px;border-radius:var(--r-sm);font-size:10.5px;font-weight:800;letter-spacing:.02em}
+  .eff-good{background:var(--afgeleverd-bg);color:var(--afgeleverd)}
+  .eff-mid{background:var(--vertrokken-bg);color:#a16207}
+  .eff-bad{background:var(--danger-bg);color:var(--danger)}
+  .rap-name{font-weight:700;color:var(--txt)}
+  .rap-sub{font-size:11px;color:var(--txt-faint);font-weight:500}
+
+  .rap-loading{text-align:center;padding:48px 24px;color:var(--txt-mut);font-size:13px;font-weight:500}
+  .rap-loading svg{display:block;margin:0 auto 10px;opacity:.35;color:var(--txt-faint)}
+
   .rap-row{cursor:pointer}
-  .rap-row:hover td{background:var(--surface-2)}
-  .rap-chev{display:inline-block;width:14px;color:var(--txt-faint);transition:transform .15s var(--ease);margin-right:6px;font-size:10px}
+  .rap-row.open > td{background:var(--surface-2)}
+  .rap-chev{display:inline-block;width:12px;color:var(--txt-faint);transition:transform .2s var(--ease);margin-right:8px;font-size:9px;line-height:1;vertical-align:middle}
   .rap-row.open .rap-chev{transform:rotate(90deg);color:var(--brand)}
-  .rap-children-row{display:none;background:#fafbfd}
+
+  .rap-children-row{display:none;background:var(--surface-2)}
   .rap-children-row.open{display:table-row}
   .rap-children-row > td{padding:0!important;border-bottom:1px solid var(--line)!important}
-  .rap-subtbl{width:100%;border-collapse:collapse;font-size:12.5px;background:#fafbfd}
-  .rap-subtbl td{padding:7px 14px 7px 38px;border-bottom:1px dashed var(--line);color:var(--txt-mut)}
+  .rap-subtbl{width:100%;border-collapse:collapse;font-size:12px;background:var(--surface-2)}
+  .rap-subtbl td{padding:8px 16px 8px 40px;border-bottom:1px dashed var(--line);color:var(--txt-mut)}
   .rap-subtbl tr:last-child td{border-bottom:none}
-  .rap-sub-loading{padding:14px 14px 14px 38px;color:var(--txt-faint);font-size:12px}
+  .rap-subtbl .num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+  .rap-sub-loading{padding:14px 16px 14px 40px;color:var(--txt-mut);font-size:12px;font-style:italic}
 
   .colli-wrap{width:100%;border-top:1px solid var(--line);margin-top:6px;padding:10px 2px 2px}
   .colli-tbl{width:100%;border-collapse:collapse}
@@ -593,17 +645,17 @@
     <!-- Periode filter -->
     <div class="rap-filter reveal" id="rapFilter">
       <span class="rap-filter-lbl">Periode</span>
-      <button class="rap-period" data-period="7">7 dagen</button>
-      <button class="rap-period on" data-period="30">30 dagen</button>
-      <button class="rap-period" data-period="90">90 dagen</button>
-      <button class="rap-period" data-period="all">Alles</button>
-      <span class="rap-filter-sep"></span>
+      <button class="rap-period" data-period="7" type="button">7 dagen</button>
+      <button class="rap-period on" data-period="30" type="button">30 dagen</button>
+      <button class="rap-period" data-period="90" type="button">90 dagen</button>
+      <button class="rap-period" data-period="all" type="button">Alles</button>
+      <span class="rap-filter-sep" aria-hidden="true"></span>
       <span class="rap-filter-lbl">Custom</span>
-      <input type="date" id="rapDateFrom" class="rap-date">
-      <span style="color:var(--txt-faint)">tot</span>
-      <input type="date" id="rapDateTo" class="rap-date">
-      <span class="tb-spacer" style="flex:1"></span>
-      <span id="rapPeriodInfo" style="font-size:12px;color:var(--txt-mut)"></span>
+      <input type="date" id="rapDateFrom" class="rap-date" aria-label="Van datum">
+      <span class="rap-filter-lbl" style="text-transform:none;letter-spacing:0">tot</span>
+      <input type="date" id="rapDateTo" class="rap-date" aria-label="Tot datum">
+      <span style="flex:1"></span>
+      <span id="rapPeriodInfo" class="rap-period-info"></span>
     </div>
 
     <div class="stats reveal" id="rapSummary">
@@ -623,25 +675,26 @@
           <h3>Zendingen per dag</h3>
           <span class="rap-card-sub">Aantal AWB's + efficiëntie %</span>
         </div>
-        <div class="rap-chart-wrap"><canvas id="chartDaily"></canvas></div>
+        <div class="rap-chart-wrap"><canvas id="chartDaily" aria-label="Zendingen per dag met efficiëntiepercentage"></canvas></div>
       </div>
       <div class="rap-card">
         <div class="rap-card-hd">
           <h3>Chargeable kg per week</h3>
           <span class="rap-card-sub">Bruto vs. volume-overhead</span>
         </div>
-        <div class="rap-chart-wrap"><canvas id="chartWeekly"></canvas></div>
+        <div class="rap-chart-wrap"><canvas id="chartWeekly" aria-label="Chargeable kilogrammen per week, gestapeld op bruto en volume-overhead"></canvas></div>
       </div>
       <div class="rap-card rap-card-wide">
         <div class="rap-card-hd">
           <h3>Efficiëntie trend per week</h3>
           <span class="rap-card-sub">
-            Doel:
-            <input type="number" id="effTargetInp" min="50" max="99" step="1" style="width:50px;font-family:var(--mono);font-size:11.5px;padding:2px 6px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--brand);font-weight:700">
-            % &nbsp;<span style="opacity:.7" title="Standaard 85% voor perishables. Voor algemene vracht eerder 70-80%. Verander naar wat voor jullie realistisch is.">ⓘ</span>
+            Doel
+            <input type="number" id="effTargetInp" class="eff-target-inp" min="50" max="99" step="1" aria-label="Doelpercentage voor efficiëntie">
+            %
+            <span class="eff-target-info" title="Standaard 85% past bij perishables. Voor algemene vracht eerder 70–80%. Stel in wat voor jullie realistisch is op basis van je eigen historische gemiddelde.">ⓘ</span>
           </span>
         </div>
-        <div class="rap-chart-wrap"><canvas id="chartEffTrend"></canvas></div>
+        <div class="rap-chart-wrap"><canvas id="chartEffTrend" aria-label="Efficiëntie trend per week"></canvas></div>
       </div>
     </div>
 
@@ -652,7 +705,7 @@
       <button class="rap-tab" data-rtab="consignee">Per Consignee</button>
       <button class="rap-tab" data-rtab="exporteur">Per Exporteur</button>
     </div>
-    <div class="reveal" style="background:var(--surface);border-radius:12px;border:1px solid var(--line);overflow:hidden">
+    <div class="rap-wrap reveal">
       <div id="rapTable" style="overflow-x:auto"></div>
     </div>
   </div>
@@ -1551,24 +1604,25 @@ function parseRapFromBarcodes(barcodeMap){
 function rapPpkStr(v){return v>0?'$ '+v.toLocaleString('nl-NL',{minimumFractionDigits:2,maximumFractionDigits:2}):'–';}
 
 // Render één rij (gebruikt voor parent + child). expandable=true voegt chevron toe.
-function rapRowCells(r,opts,colCount){
+function rapRowCells(r,opts){
   var pct=r.charg>0?Math.round(r.gross/r.charg*100):100;
   var col=rapScoreColor(pct);
   var volOverhead=Math.max(0,r.charg-r.gross);
   var ppk=(r.value>0&&r.charg>0)?(r.value/r.charg):0;
   var hwCount=r.hawbs?Object.keys(r.hawbs).length:0;
+  var ctrCell='style="text-align:center;color:var(--txt-mut);font-family:var(--mono)"';
   var nameCell=(opts.expandable?'<span class="rap-chev">▶</span>':'')
     +'<span class="rap-name">'+esc(r.name)+'</span>'
     +(opts.showSub&&r.sub?'<br><span class="rap-sub">'+esc(r.sub)+'</span>':'');
   return '<td>'+nameCell+'</td>'
-    +(opts.showCount?'<td style="text-align:center;color:var(--txt-mut)">'+(r.count||'–')+'</td>':'')
-    +(opts.showHawb?'<td style="text-align:center;color:var(--txt-mut)">'+(hwCount||'–')+'</td>':'')
-    +'<td style="text-align:right;font-family:var(--mono)">'+Number(r.pieces||0).toLocaleString('nl-NL')+'</td>'
-    +'<td style="text-align:right;font-family:var(--mono)">'+rapKg(r.gross)+'</td>'
-    +'<td style="text-align:right;font-family:var(--mono);color:'+(volOverhead>0?'#d97706':'var(--txt-faint)')+'">'+rapKg(volOverhead)+'</td>'
-    +'<td style="text-align:right;font-family:var(--mono)">'+rapKg(r.charg)+'</td>'
-    +'<td style="text-align:right;font-family:var(--mono);color:var(--brand)">'+rapEur(r.value)+'</td>'
-    +'<td style="text-align:right;font-family:var(--mono);font-weight:700">'+rapPpkStr(ppk)+'</td>'
+    +(opts.showCount?'<td '+ctrCell+'>'+(r.count||'–')+'</td>':'')
+    +(opts.showHawb?'<td '+ctrCell+'>'+(hwCount||'–')+'</td>':'')
+    +'<td class="rap-num">'+Number(r.pieces||0).toLocaleString('nl-NL')+'</td>'
+    +'<td class="rap-num">'+rapKg(r.gross)+'</td>'
+    +'<td class="rap-num"'+(volOverhead>0?' style="color:var(--vertrokken)"':' style="color:var(--txt-faint)"')+'>'+rapKg(volOverhead)+'</td>'
+    +'<td class="rap-num">'+rapKg(r.charg)+'</td>'
+    +'<td class="rap-num rap-money">'+rapEur(r.value)+'</td>'
+    +'<td class="rap-num rap-num-bold">'+rapPpkStr(ppk)+'</td>'
     +'<td><div class="eff-bar-wrap">'
       +'<div class="eff-bar"><div class="eff-fill" style="width:'+Math.min(pct,100)+'%;background:'+col+'"></div></div>'
       +'<span class="eff-pct" style="color:'+col+'">'+pct+'%</span>'
@@ -1577,22 +1631,22 @@ function rapRowCells(r,opts,colCount){
 }
 
 // Sub-tabel HTML (compact, geen header herhaling)
-function rapChildSubtableHtml(children,colCount){
+function rapChildSubtableHtml(children){
   if(!children||!children.length) return '<div class="rap-sub-loading">Geen onderliggende data.</div>';
   var html='<table class="rap-subtbl"><tbody>';
   children.forEach(function(c){
     var pct=c.charg>0?Math.round(c.gross/c.charg*100):100;
     var col=rapScoreColor(pct);
     var ppk=(c.value>0&&c.charg>0)?(c.value/c.charg):0;
-    var sub=c.sub?'<span class="rap-sub" style="font-size:11px;opacity:.7"> · '+esc(c.sub)+'</span>':'';
+    var sub=c.sub?'<span class="rap-sub"> · '+esc(c.sub)+'</span>':'';
     html+='<tr>'
-      +'<td><span style="font-family:var(--mono);font-weight:600;color:var(--txt)">'+esc(c.name)+'</span>'+sub+'</td>'
-      +'<td style="text-align:right;font-family:var(--mono)">'+Number(c.pieces||0).toLocaleString('nl-NL')+' colli</td>'
-      +'<td style="text-align:right;font-family:var(--mono)">'+rapKg(c.gross)+' kg bruto</td>'
-      +'<td style="text-align:right;font-family:var(--mono)">'+rapKg(c.charg)+' kg charg.</td>'
-      +'<td style="text-align:right;font-family:var(--mono);color:var(--brand)">'+rapEur(c.value)+'</td>'
-      +'<td style="text-align:right;font-family:var(--mono);font-weight:700">'+rapPpkStr(ppk)+'</td>'
-      +'<td style="text-align:right;font-family:var(--mono);color:'+col+';font-weight:700">'+pct+'%</td>'
+      +'<td><span class="mono" style="font-weight:600;color:var(--txt)">'+esc(c.name)+'</span>'+sub+'</td>'
+      +'<td class="num">'+Number(c.pieces||0).toLocaleString('nl-NL')+' colli</td>'
+      +'<td class="num">'+rapKg(c.gross)+' kg bruto</td>'
+      +'<td class="num">'+rapKg(c.charg)+' kg charg.</td>'
+      +'<td class="num" style="color:var(--brand)">'+rapEur(c.value)+'</td>'
+      +'<td class="num" style="font-weight:700">'+rapPpkStr(ppk)+'</td>'
+      +'<td class="num" style="color:'+col+';font-weight:800">'+pct+'%</td>'
       +'</tr>';
   });
   html+='</tbody></table>';
@@ -1620,14 +1674,13 @@ function rapTableHtml(rows,nameLabel,opts){
     var hasChildren=opts.expandable && r.children && r.children.length;
     var trClass=hasChildren?'rap-row':'';
     html+='<tr class="'+trClass+'" data-rkey="'+esc(rowKey)+'" data-rtype="'+esc(opts.expandable||'')+'" data-rname="'+esc(r.name||'')+'">'
-      +rapRowCells(r,opts,colCount)+'</tr>';
+      +rapRowCells(r,opts)+'</tr>';
     if(opts.expandable){
-      // For pre-loaded children render direct; voor 'awb-consignees' lazy
       var content='';
       if(opts.expandable==='awb-consignees'){
         content='<div class="rap-sub-loading">Klik om consignees te laden…</div>';
       } else if(hasChildren){
-        content=rapChildSubtableHtml(r.children,colCount);
+        content=rapChildSubtableHtml(r.children);
       } else {
         content='<div class="rap-sub-loading">Geen onderliggende data.</div>';
       }
@@ -1708,13 +1761,16 @@ function renderRapTab(){
 function renderRapSummary(d){
   if(!d) d=parseRapFromShipments();
   var pct=d.totalCharg>0?Math.round(d.totalGross/d.totalCharg*100):0;
-  var col=rapScoreColor(pct);
+  var t=getEffTarget();
   var overhead=Math.max(0,d.totalCharg-d.totalGross);
   var ppkg=d.totalCharg>0?(d.totalValue/d.totalCharg):0;
   var kg=function(v){return v.toLocaleString('nl-NL',{maximumFractionDigits:0})+' kg';};
   var effEl=document.getElementById('rapEff'); if(effEl) effEl.textContent=pct+'%';
   var hero=document.getElementById('rapHero');
-  if(hero) hero.style.background='linear-gradient(135deg,'+col+','+rapScoreColor(Math.max(0,pct-15))+')';
+  if(hero){
+    hero.classList.remove('hero-good','hero-mid','hero-bad');
+    hero.classList.add(pct>=t?'hero-good':pct>=t-15?'hero-mid':'hero-bad');
+  }
   var gEl=document.getElementById('rapGross'); if(gEl) gEl.innerHTML=kg(d.totalGross);
   var vEl=document.getElementById('rapVol');
   if(vEl) vEl.innerHTML=overhead>0?kg(overhead):'<span style="color:var(--afgeleverd)">0 kg ✓</span>';
