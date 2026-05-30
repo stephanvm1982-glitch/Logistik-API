@@ -226,8 +226,6 @@
   .row:hover,.row.open{background:var(--surface-2)}
   .c-awb .a{font-family:var(--mono);font-weight:700;font-size:13.5px;letter-spacing:-.01em;user-select:text;cursor:text}
   .c-awb .sub{font-size:11px;color:var(--txt-faint);font-weight:600;margin-top:1px}
-  .flight-no{font-family:var(--mono);color:var(--brand);font-weight:700;margin-left:6px}
-  .flight-no:empty{display:none}
 
   /* route cell */
   .route{display:flex;align-items:center;gap:9px;min-width:0}
@@ -949,7 +947,13 @@ function apiGet(url){
 }
 
 // \u2500\u2500\u2500 Mapping API data to shipment status \u2500\u2500\u2500
+// Track-data uit /api/track (Atlas e.a.) krijgt voorrang boven Logiztik status,
+// omdat Logiztik z'n status pas later bijwerkt. Fallback: Logiztik text-status.
 function inferStatus(s){
+  if(typeof getCachedStep==='function'){
+    var tracked=getCachedStep(s.awb);
+    if(tracked) return tracked;
+  }
   var st=String(s.status||'').toLowerCase();
   if(st.includes('delivered')) return 'afgeleverd';
   if(st.includes('landed')||st.includes('arrived')) return 'geland';
@@ -976,48 +980,71 @@ function renderStats(){
 }
 
 // \u2500\u2500 Track-data per AWB (carrier scraper, 24h localStorage cache) \u2500\u2500
+// Cache shape: { ts, label: '5Y8208 \u00b7 5Y8209', step: 'vertrokken'|null }
 var TRACK_TTL=24*3600*1000;
-function getCachedFlights(awb){
+
+// Map IATA FSU status codes naar onze 4-staps pipeline.
+// DLV/POD = afgeleverd; ARR/RCF = geland; DEP = vertrokken; FOH/RCS = geboekt.
+function trackStatusToStep(events){
+  if(!events||!events.length) return null;
+  var codes=events.map(function(e){return String(e.code||'').toUpperCase();});
+  if(codes.indexOf('DLV')>=0||codes.indexOf('POD')>=0) return 'afgeleverd';
+  if(codes.indexOf('ARR')>=0||codes.indexOf('RCF')>=0) return 'geland';
+  if(codes.indexOf('DEP')>=0) return 'vertrokken';
+  if(codes.indexOf('RCS')>=0||codes.indexOf('FOH')>=0) return 'geboekt';
+  return null;
+}
+function getTrackCache(awb){
   try{
-    var raw=localStorage.getItem('ffs:track:v1:'+awb);
-    if(!raw) return '';
+    var raw=localStorage.getItem('ffs:track:v2:'+awb);
+    if(!raw) return null;
     var obj=JSON.parse(raw);
-    if(!obj || Date.now()-obj.ts>TRACK_TTL) return '';
-    return obj.label||'';
-  }catch(x){return '';}
+    if(!obj||Date.now()-obj.ts>TRACK_TTL) return null;
+    return obj;
+  }catch(x){return null;}
 }
-function setCachedFlights(awb,label){
-  try{localStorage.setItem('ffs:track:v1:'+awb,JSON.stringify({ts:Date.now(),label:label}));}catch(x){}
+function setTrackCache(awb,label,step){
+  try{localStorage.setItem('ffs:track:v2:'+awb,JSON.stringify({ts:Date.now(),label:label,step:step}));}catch(x){}
 }
+function getCachedFlights(awb){var c=getTrackCache(awb);return c?(c.label||''):'';}
+function getCachedStep(awb){var c=getTrackCache(awb);return c?(c.step||null):null;}
+
 function fetchTrack(awb){
-  var cached=getCachedFlights(awb);
+  var cached=getTrackCache(awb);
   if(cached) return Promise.resolve(cached);
   return fetch('/api/track?awb='+encodeURIComponent(awb))
     .then(function(r){return r.json();})
     .then(function(env){
-      if(!env.ok||!env.data||!env.data.flights) return '';
-      // unique flight numbers, behoud volgorde
+      if(!env.ok||!env.data) return null;
       var seen={},uniq=[];
-      env.data.flights.forEach(function(f){
-        if(f.flightNo && !seen[f.flightNo]){seen[f.flightNo]=1;uniq.push(f.flightNo);}
+      (env.data.flights||[]).forEach(function(f){
+        if(f.flightNo&&!seen[f.flightNo]){seen[f.flightNo]=1;uniq.push(f.flightNo);}
       });
       var label=uniq.join(' \u00b7 ');
-      setCachedFlights(awb,label);
-      return label;
+      var step=trackStatusToStep(env.data.status);
+      setTrackCache(awb,label,step);
+      return {label:label,step:step};
     })
-    .catch(function(){return '';});
+    .catch(function(){return null;});
 }
+
 function loadFlightsForVisible(list){
+  var pending=[];
   list.forEach(function(s){
-    var spans=document.querySelectorAll('.flight-no[data-awb-flight="'+s.awb+'"]');
-    if(!spans.length) return;
-    if(getCachedFlights(s.awb)) return; // al ingevuld door render
-    fetchTrack(s.awb).then(function(label){
-      if(!label) return;
-      document.querySelectorAll('.flight-no[data-awb-flight="'+s.awb+'"]')
-        .forEach(function(el){el.textContent=label?' \u00b7 '+label:'';});
-    });
+    if(getTrackCache(s.awb)) return;
+    pending.push(fetchTrack(s.awb).then(function(res){
+      if(!res) return;
+      // update vluchtnummer cell direct
+      if(res.label){
+        document.querySelectorAll('.rl-al[data-awb-flight="'+s.awb+'"]')
+          .forEach(function(el){el.textContent=res.label;});
+      }
+      return res;
+    }));
   });
+  if(!pending.length) return;
+  // Na de batch fetches: hertoon de rijen (statusbadge + bar pikken trackStep op)
+  Promise.all(pending).then(function(){renderRows();renderStats();renderChips();});
 }
 
 // "Leveringen" = som van unieke consignees per AWB (niet HAWBs \u2014 die zijn
@@ -1295,16 +1322,16 @@ function renderRows(){
     var detailHtml=isOpen?detail(s):'';
     var dateShort=fmtDateNL(s.date);
     var flightLabel=getCachedFlights(s.awb);
-    var flightHtml=flightLabel?' · '+esc(flightLabel):'';
+    // Toon vluchtnummer(s) op de plek van de airline-code zodra bekend; fallback: alleen IATA.
+    var rlContent=flightLabel||s.airline||'';
     html+='<div class="row '+(isOpen?'open':'')+'" data-awb="'+esc(s.awb)+'">'
       +'<div class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></div>'
       +'<div class="c-awb"><div class="a mono">'+esc(s.awb)+'</div>'
-      +'<div class="sub">'+(dateShort?'<span class="mono">'+dateShort+'</span>':'')
-        +'<span class="flight-no" data-awb-flight="'+esc(s.awb)+'">'+flightHtml+'</span></div></div>'
+      +'<div class="sub">'+(dateShort?'<span class="mono">'+dateShort+'</span>':'')+'</div></div>'
       +'<div class="route">'+flag(s.from_cd)
       +'<div class="ap"><div class="cd mono">'+esc(s.from_cd)+'</div><div class="ct">'+esc(s.from_ci||'')+'</div></div>'
       +'<div class="r-line"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12h14"/><path d="m13 6 6 6-6 6"/></svg>'
-      +(s.airline?'<span class="rl-al">'+esc(s.airline)+'</span>':'')
+      +(rlContent?'<span class="rl-al" data-awb-flight="'+esc(s.awb)+'" data-airline="'+esc(s.airline||'')+'">'+esc(rlContent)+'</span>':'')
       +'</div>'
       +'<div class="ap"><div class="cd mono">'+esc(s.to_cd)+'</div><div class="ct">'+esc(s.to_ci||'')+'</div></div>'
       +flag(s.to_cd)+'</div>'
