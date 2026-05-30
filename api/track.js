@@ -13,6 +13,9 @@
  *       status: [{ station, code, description, eventTime, pieces, weight }] } }
  */
 
+const { flightIataToIcao } = require('../lib/airline-icao');
+const aeroapi = require('../lib/aeroapi');
+
 async function fetchJson(url) {
   const ctrl = new AbortController();
   const to = setTimeout(() => ctrl.abort(), 20000);
@@ -25,6 +28,29 @@ async function fetchJson(url) {
     return await r.json();
   } finally {
     clearTimeout(to);
+  }
+}
+
+/**
+ * Verrijk een leg met AeroAPI-data: actuele DEP/ARR + delay.
+ * Mutates de leg en voegt veld `aero` toe (of null als geen data).
+ * Faalt stil — AeroAPI down mag niet de hele track-call breken.
+ */
+async function enrichLegWithAeroApi(leg) {
+  if (!leg.flightNo || !leg.date) { leg.aero = null; return; }
+  if (!process.env.FA_API_KEY) { leg.aero = null; return; }
+  const icao = flightIataToIcao(leg.flightNo);
+  if (!icao) { leg.aero = null; return; }
+  try {
+    const fs = await aeroapi.getFlightStatus(icao, leg.date);
+    leg.aero = fs;
+    // Afgeleide statuses voor consistente verwerking later
+    if (fs) {
+      if (fs.actualIn && !leg.statuses.includes('ARR')) leg.statuses.push('ARR');
+      if (fs.actualOut && !leg.statuses.includes('DEP')) leg.statuses.push('DEP');
+    }
+  } catch (err) {
+    leg.aero = { error: err.message };
   }
 }
 
@@ -85,6 +111,10 @@ async function scrapeAtlas(prefix, serial) {
     }
   });
   const flights = Array.from(byLeg.values());
+
+  // Verrijk parallel met AeroAPI per leg (echte actual_out/in + delay).
+  // Faalt stil per leg — Atlas blijft beschikbaar ook als AeroAPI down/key mist.
+  await Promise.all(flights.map(enrichLegWithAeroApi));
 
   // LstStatus = AWB-level milestone codes (aggregaat van alle legs). Behouden voor info.
   const status = (Array.isArray(data.LstStatus) ? data.LstStatus : []).map((code) => ({
