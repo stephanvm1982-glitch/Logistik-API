@@ -60,11 +60,21 @@ async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
 
   // GET /api/awb-flights?awb=xxx-xxxxxxxx  → debug: raw cache-row dump (token-gated)
+  // GET /api/awb-flights?all=1             → dump count + sample (token-gated)
   if (req.method === 'GET') {
     if (!checkToken(req, res)) return;
-    const awb = String((req.query && req.query.awb) || '').trim();
-    if (!awb) return res.status(400).json({ error: 'Geef ?awb=...' });
     try {
+      if (req.query && req.query.all === '1') {
+        const { query } = require('../lib/db');
+        const rows = await query(
+          'SELECT awb, prefix, source, jsonb_array_length(flights) AS n_flights, fetched_at, updated_at ' +
+          'FROM awb_tracking ORDER BY updated_at DESC LIMIT 20'
+        );
+        const count = await query('SELECT COUNT(*)::int AS c FROM awb_tracking');
+        return res.status(200).json({ ok: true, total: count[0].c, sample: rows });
+      }
+      const awb = String((req.query && req.query.awb) || '').trim();
+      if (!awb) return res.status(400).json({ error: 'Geef ?awb=... of ?all=1' });
       const row = await trackCache.getAwbTracking(awb);
       return res.status(200).json({ ok: true, awb, row });
     } catch (err) {
