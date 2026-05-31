@@ -15,6 +15,7 @@
 
 const { flightIataToIcao } = require('../lib/airline-icao');
 const aeroapi = require('../lib/aeroapi');
+const trackingmore = require('../lib/trackingmore');
 
 async function fetchJson(url) {
   const ctrl = new AbortController();
@@ -135,13 +136,36 @@ async function scrapeAtlas(prefix, serial) {
   };
 }
 
+// ── TrackingMore fallback (multi-carrier) ────────────────────────────────
+// Voor alle prefixes die geen carrier-specifieke scraper hebben. Vereist
+// TRACKINGMORE_API_KEY. Free tier → caller (frontend) moet cachen.
+async function scrapeTrackingMoreFor(prefix, serial) {
+  const awb = prefix + '-' + serial;
+  const tmData = await trackingmore.getTracking(awb);
+  const norm = trackingmore.normalize(tmData, awb);
+  // Verrijk met AeroAPI per leg (als FA_API_KEY beschikbaar — anders aero=null)
+  if (norm && norm.flights) {
+    await Promise.all(norm.flights.map(enrichLegWithAeroApi));
+  }
+  return Object.assign(
+    { awb, prefix, serial, carrier: 'via TrackingMore' },
+    norm || { origin: '', destination: '', pieces: null, weight: null, flights: [], status: [] }
+  );
+}
+
 // ── Carrier registry ─────────────────────────────────────────────────────
+// Volgorde: carrier-specifiek heeft voorrang. Voor onbekende prefixes valt
+// het systeem terug op TrackingMore (in handler hieronder).
 const SCRAPERS = {
   '369': scrapeAtlas,
-  // 074: scrapeKlm — later
-  // 020: scrapeLufthansa — later
-  // ...
+  // Andere airlines (074 KLM, 057 AF, 176 EK, 071 ET, 020 LH, ...) gaan
+  // automatisch via de TrackingMore fallback in de handler.
 };
+
+function hasScraperFor(prefix) {
+  if (SCRAPERS[prefix]) return true;
+  return !!(process.env.TRACKINGMORE_API_KEY || '').trim();
+}
 
 async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
@@ -155,11 +179,15 @@ async function handler(req, res) {
     return res.status(400).json({ ok: false, error: 'Ongeldig AWB-formaat. Verwacht bv. 369-10201984.' });
   }
 
-  const scraper = SCRAPERS[parsed.prefix];
+  // Kies: dedicated scraper > TrackingMore fallback > niets
+  let scraper = SCRAPERS[parsed.prefix];
+  if (!scraper && (process.env.TRACKINGMORE_API_KEY || '').trim()) {
+    scraper = scrapeTrackingMoreFor;
+  }
   if (!scraper) {
     return res.status(200).json({
       ok: false,
-      error: 'Nog geen scraper voor prefix ' + parsed.prefix + '. Alleen Atlas (369) ondersteund.',
+      error: 'Geen scraper voor prefix ' + parsed.prefix + ' en TRACKINGMORE_API_KEY niet geconfigureerd.',
       data: { awb: parsed.prefix + '-' + parsed.serial, prefix: parsed.prefix, serial: parsed.serial },
     });
   }

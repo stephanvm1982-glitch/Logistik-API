@@ -2700,10 +2700,17 @@ function renderFacturatie(onDone){
   });
 }
 
-// ─── Internal auth token (geladen uit /api/config) ───
+// ─── Internal auth token + scraper-capabilities (geladen uit /api/config) ───
 var _internalToken = null;
+var _scraperCaps = {atlas:true, flightaware:false, trackingmore:false};
 fetch('/api/config').then(function(r){return r.json();}).then(function(cfg){
   _internalToken = cfg.internalToken || null;
+  if(cfg.scraperCapabilities) _scraperCaps = cfg.scraperCapabilities;
+  // Refresh prefix-tabel als die zichtbaar is (toggle-state hangt van caps af)
+  if(typeof renderPrefixTable==='function' && document.getElementById('viewInstellingen')
+     && document.getElementById('viewInstellingen').style.display!=='none'){
+    renderPrefixTable();
+  }
 }).catch(function(){});
 
 function _authHeaders(){
@@ -3546,21 +3553,25 @@ function getPrefixes(){
 }
 function savePrefixes(arr){ try{localStorage.setItem('ffs:prefixes',JSON.stringify(arr));}catch(x){} }
 
-// Welke prefixes hebben een werkende scraper op /api/track? Hardcoded - synchroon
-// met de SCRAPERS-registry in api/track.js. Update als er nieuwe scrapers bij komen.
-var SCRAPER_AVAILABLE_PREFIXES = ['369']; // Atlas Air
+// Atlas (369) heeft eigen scraper (gratis). Andere prefixes worden gedekt
+// via TrackingMore fallback ALS de TM-key in env staat (_scraperCaps.trackingmore).
+var ATLAS_PREFIXES = ['369'];
+function hasScraperFor(prefix){
+  if(ATLAS_PREFIXES.indexOf(prefix)>=0) return true;
+  return !!(_scraperCaps && _scraperCaps.trackingmore);
+}
 
-// Per prefix: aan/uit om /api/track + AeroAPI calls te doen. Default: alleen
-// prefixes met een werkende scraper staan AAN. localStorage, per browser.
+// Per prefix: aan/uit. localStorage, per browser.
 function getScrapePrefs(){
   try{var s=localStorage.getItem('ffs:scrape_prefs');return s?JSON.parse(s):{};}catch(x){return {};}
 }
 function isScrapePrefEnabled(prefix){
-  // Zonder scraper-implementatie kan toggle nooit werken — forceer uit
-  if(SCRAPER_AVAILABLE_PREFIXES.indexOf(prefix)<0) return false;
+  if(!hasScraperFor(prefix)) return false;
   var prefs=getScrapePrefs();
   if(prefix in prefs) return !!prefs[prefix];
-  return true; // default aan voor prefixes met scraper
+  // Default: Atlas auto-aan. TrackingMore-prefixes default UIT (free tier,
+  // alleen op user-actie in Tracking-view fetchen).
+  return ATLAS_PREFIXES.indexOf(prefix)>=0;
 }
 window.setScrapePref=function(prefix,enabled){
   var prefs=getScrapePrefs();
@@ -3664,15 +3675,22 @@ function renderPrefixTable(editPrefix){
   var html='';
   list.forEach(function(row){
     var editing=isAdmin&&row.p===editPrefix;
-    var hasScraper=SCRAPER_AVAILABLE_PREFIXES.indexOf(row.p)>=0;
+    var isAtlas=ATLAS_PREFIXES.indexOf(row.p)>=0;
+    var hasScraper=hasScraperFor(row.p);
     var enabled=isScrapePrefEnabled(row.p);
-    var badgeHtml=hasScraper
-      ?'<span class="badge avail">beschikbaar</span>'
-      :'<span class="badge none">geen scraper</span>';
+    var badgeHtml;
+    var toggleTitle;
+    if(isAtlas){
+      badgeHtml='<span class="badge avail">atlas (gratis)</span>';
+      toggleTitle='Atlas Air scraper (jumpseat) — gratis, auto-fetch in Zendingen';
+    } else if(hasScraper){
+      badgeHtml='<span class="badge avail">trackingmore</span>';
+      toggleTitle='TrackingMore beschikbaar — alleen op user-actie (Track-knop), niet auto-fetch';
+    } else {
+      badgeHtml='<span class="badge none">geen scraper</span>';
+      toggleTitle='Geen scraper voor deze airline. Zet TRACKINGMORE_API_KEY in Vercel env voor multi-carrier dekking.';
+    }
     var p=esc(row.p);
-    var toggleTitle=hasScraper
-      ?'Schakel scraping aan/uit voor deze prefix'
-      :'Geen scraper beschikbaar voor deze airline — toggle uitgeschakeld';
     html+='<div class="pfx-row">'
       +'<div class="pfx-code">'+p+'</div>'
       +'<div class="pfx-iata">'+esc(row.i)+'</div>'

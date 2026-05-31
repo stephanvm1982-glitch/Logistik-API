@@ -17,6 +17,12 @@ function handler(req, res) {
     apiKeyHeader:  process.env.API_KEY_HEADER || 'Api-Key',
     configured:    Boolean(process.env.CUSTOMER_CODE && process.env.API_KEY),
     internalToken: process.env.INTERNAL_TOKEN || null,
+    // Welke tracking-scrapers zijn beschikbaar op het backend
+    scraperCapabilities: {
+      atlas:        true,                               // jumpseat.atlasair.com, gratis
+      flightaware:  Boolean((process.env.FA_API_KEY || '').trim()),
+      trackingmore: Boolean((process.env.TRACKINGMORE_API_KEY || '').trim()),
+    },
   });
 }
 
