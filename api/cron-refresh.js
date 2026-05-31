@@ -13,7 +13,7 @@
 
 const { callLogiztik, SHIPMENT_PATH } = require('../lib/logiztik');
 const { kvSetJSON }                    = require('../lib/kv');
-const { query }                        = require('../lib/db');
+const { query, transaction }           = require('../lib/db');
 
 function dayOffset(ms) {
   return new Date(Date.now() - ms).toISOString().slice(0, 10);
@@ -66,13 +66,14 @@ async function upsertToPostgres(shipments, date) {
     );
 
     if (Array.isArray(s.charges) && s.charges.length) {
-      await query('DELETE FROM charges WHERE awb=$1', [awb]);
+      const stmts = [['DELETE FROM charges WHERE awb=$1', [awb]]];
       for (const c of s.charges) {
-        await query(
+        stmts.push([
           'INSERT INTO charges (awb, code, amount) VALUES ($1,$2,$3)',
-          [awb, c.charge || c.code || '', Number(c.value || c.amount || 0)]
-        );
+          [awb, c.charge || c.code || '', Number(c.value || c.amount || 0)],
+        ]);
       }
+      await transaction(stmts);
     }
   }
 }
@@ -82,8 +83,12 @@ async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Vercel zet automatisch CRON_SECRET en stuurt deze mee als Authorization-header
+  // Vercel zet automatisch CRON_SECRET en stuurt deze mee als Authorization-header.
+  // In productie: CRON_SECRET MOET aanwezig zijn, anders weigeren we het endpoint open te zetten.
   const cronSecret = (process.env.CRON_SECRET || '').trim();
+  if (process.env.VERCEL_ENV === 'production' && !cronSecret) {
+    return res.status(503).json({ error: 'CRON_SECRET niet geconfigureerd in productie.' });
+  }
   if (cronSecret) {
     const auth = req.headers['authorization'] || '';
     if (auth !== 'Bearer ' + cronSecret) {

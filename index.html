@@ -436,8 +436,13 @@
   .trk-time-label{display:inline-block;width:70px;color:var(--txt-faint);font-weight:700;font-family:var(--sans);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;flex-shrink:0}
   .trk-time-value{color:var(--txt);font-weight:600}
   .trk-time-extra{display:inline-block;font-size:10.5px;color:var(--txt-faint);font-style:italic;margin-left:6px;font-family:var(--sans);font-weight:500}
-  .trk-row-arr .trk-time-value{color:var(--afgeleverd)}
+  /* Arrived kleur op delay-bucket (groen bij <=15m, amber bij <=60m, rood bij >60m). */
+  .trk-row-arr.delay-ok  .trk-time-value{color:var(--afgeleverd)}
+  .trk-row-arr.delay-mid .trk-time-value{color:var(--vertrokken)}
+  .trk-row-arr.delay-bad .trk-time-value{color:var(--danger)}
   .trk-row-dep .trk-time-value{color:var(--txt)}
+  .trk-time-extra.delay-mid{color:var(--vertrokken);font-weight:700;font-style:normal}
+  .trk-time-extra.delay-bad{color:var(--danger);font-weight:800;font-style:normal}
   .trk-leg-status{display:inline-flex;align-items:center;justify-content:center;padding:4px 10px;border-radius:var(--r-sm);font-size:11px;font-weight:800;letter-spacing:.02em;text-align:center}
   .trk-st-onschedule{background:var(--afgeleverd-bg);color:var(--afgeleverd)}
   .trk-st-delayed{background:var(--vertrokken-bg);color:#a16207}
@@ -545,6 +550,28 @@
     .row .st{order:4;grid-column:1/-1}.row .num,.row .val{display:none}
     .row .chev{order:0;position:absolute;left:14px;top:14px}
     .row{position:relative}
+    /* Detail panel: stack alles verticaal i.p.v. horizontale strip die crusht */
+    .detail-pad{flex-direction:column;align-items:stretch;gap:12px;padding:12px 14px}
+    .dp-seg{padding:0;width:100%}
+    .dp-div{display:none}
+    .dp-seg-act{flex-direction:row;border-right:none;padding:0;margin:0;gap:8px;flex-wrap:wrap}
+    .dp-seg-act .lnk{min-width:0;flex:1}
+    .dp-tl{flex-wrap:nowrap;overflow-x:auto;gap:0;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+    .dp-step{min-width:60px}
+    .dp-kvs{display:grid;grid-template-columns:repeat(2,1fr);gap:10px 16px;width:100%}
+    .dp-seg-charges{width:100%}
+  }
+  @media(max-width:640px){
+    /* Topbar: Proxy-tekst weg, alleen dot blijven. Burger + ico-btn op 44px voor tap-target. */
+    .proxy{padding:7px;font-size:0;gap:0}
+    .proxy .d{width:9px;height:9px}
+    .burger,.ico-btn{width:44px;height:44px;border-radius:11px}
+    .burger svg{width:21px;height:21px}
+    .ico-btn svg{width:20px;height:20px}
+    .topbar{padding:12px 16px;gap:10px}
+  }
+  @media(pointer:coarse){
+    .fchip{min-height:40px}
   }
   @media (prefers-reduced-motion:reduce){
     *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
@@ -1185,16 +1212,23 @@ function fmtDelay(min){
   var sign=min>0?'+':'';
   return ' ('+sign+min+'m)';
 }
+// Bucket: <=15m ok, 16-60m mid, >60m bad. Bij vroeg (min<0) altijd ok.
+function delayBucket(min){
+  var n=Number(min);
+  if(!isFinite(n)||n<=15) return 'delay-ok';
+  if(n<=60)              return 'delay-mid';
+  return 'delay-bad';
+}
 function trackStatusClass(label){
   if(label==='On schedule') return 'trk-st-onschedule';
   if(label==='Delayed') return 'trk-st-delayed';
   return 'trk-st-unknown';
 }
-function trackTimeRow(label,time,extra,cls){
+function trackTimeRow(label,time,extra,cls,extraCls){
   if(!time) return '';
   return '<div class="trk-time-row '+(cls||'')+'">'
     +'<span class="trk-time-label">'+esc(label)+'</span>'
-    +'<span class="trk-time-value">'+esc(fmtTrackTime(time))+(extra?'<span class="trk-time-extra">'+esc(extra)+'</span>':'')+'</span>'
+    +'<span class="trk-time-value">'+esc(fmtTrackTime(time))+(extra?'<span class="trk-time-extra '+(extraCls||'')+'">'+esc(extra)+'</span>':'')+'</span>'
     +'</div>';
 }
 function renderTrackLeg(leg){
@@ -1210,8 +1244,10 @@ function renderTrackLeg(leg){
                             'trk-row-dep');
   }
   if(a.actualIn){
+    var bucket=delayBucket(a.delayMin);
     timesHtml+=trackTimeRow('Arrived',a.actualIn,delayStr,
-                            'trk-row-arr');
+                            'trk-row-arr '+bucket,
+                            bucket);
   }
   if(!a.actualOut && !a.actualIn){
     timesHtml='<div class="trk-time-row" style="color:var(--txt-faint);font-style:italic">Nog niet vertrokken</div>';
@@ -2563,6 +2599,12 @@ window.addEventListener('hashchange',function(){
   if(h==='binnenkomsten') h='shipments'; // legacy hash alias
   if(h&&VIEWS[h]&&h!==currentView) switchView(h);
 });
+// Initial hash bij first paint (deep-link naar bv. #tracking)
+(function(){
+  var h=location.hash.replace(/^#/,'');
+  if(h==='binnenkomsten') h='shipments';
+  if(h&&VIEWS[h]&&h!==currentView) switchView(h);
+})();
 
 document.querySelectorAll('.nav a[data-view]').forEach(function(a){
   a.addEventListener('click',function(e){

@@ -203,13 +203,16 @@ async function handler(req, res) {
     return res.status(400).json({ ok: false, error: 'Ongeldig AWB-formaat. Verwacht bv. 369-10201984.' });
   }
 
-  // Debug-mode: ?raw=tm geeft de raw TrackingMore response (voor schema-discovery)
-  if (req.query.raw === 'tm' && (process.env.TRACKINGMORE_API_KEY || '').trim()) {
-    try {
-      const raw = await trackingmore.getTracking(parsed.prefix + '-' + parsed.serial);
-      return res.status(200).json({ ok: true, raw });
-    } catch (err) {
-      return res.status(200).json({ ok: false, error: err.message });
+  // Token-check: betaalde scrapers (TrackingMore) en AeroAPI-credits afschermen.
+  // Atlas Air (369) jumpseat is gratis → mag zonder token.
+  const isPaidPath = !SCRAPERS[parsed.prefix];
+  if (isPaidPath) {
+    const token = (process.env.INTERNAL_TOKEN || '').trim();
+    if (token) {
+      const header = req.headers['authorization'] || '';
+      if (header !== 'Bearer ' + token) {
+        return res.status(401).json({ ok: false, error: 'Niet geautoriseerd voor deze prefix.' });
+      }
     }
   }
 

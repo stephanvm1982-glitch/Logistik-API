@@ -1,7 +1,7 @@
 /**
  * GET    /api/logo   → { ok, data: "data:image/...;base64,..." | null }
- * POST   /api/logo   body: { image: "data:image/...;base64,..." }
- * DELETE /api/logo   → removes stored logo
+ * POST   /api/logo   body: { image: "data:image/...;base64,..." }  (vereist INTERNAL_TOKEN)
+ * DELETE /api/logo   → removes stored logo                          (vereist INTERNAL_TOKEN)
  *
  * Stored in Postgres app_settings table (permanent, survives restarts).
  */
@@ -14,6 +14,18 @@ const INIT_SQL = `
     value TEXT NOT NULL
   )
 `;
+
+// SVG niet toestaan: kan inline JS/CSS bevatten → persistente XSS via <img>.
+const MIME_WHITELIST = /^data:image\/(png|jpe?g|webp|gif);base64,/;
+
+function checkToken(req, res) {
+  const token = (process.env.INTERNAL_TOKEN || '').trim();
+  if (!token) return true;
+  const header = req.headers['authorization'] || '';
+  if (header === 'Bearer ' + token) return true;
+  res.status(401).json({ error: 'Niet geautoriseerd.' });
+  return false;
+}
 
 async function ensureTable() {
   await query(INIT_SQL);
@@ -32,6 +44,7 @@ async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
+      if (!checkToken(req, res)) return;
       let body = req.body;
       if (typeof body === 'string') {
         try { body = JSON.parse(body); } catch {
@@ -39,8 +52,8 @@ async function handler(req, res) {
         }
       }
       const image = body && body.image;
-      if (!image || !String(image).startsWith('data:image/')) {
-        return res.status(400).json({ error: 'Verwacht { image: "data:image/..." }' });
+      if (!image || typeof image !== 'string' || !MIME_WHITELIST.test(image)) {
+        return res.status(400).json({ error: 'Verwacht PNG, JPEG, WebP of GIF (data:image/...;base64,...). SVG niet toegestaan.' });
       }
       if (image.length > 900000) {
         return res.status(400).json({ error: 'Afbeelding te groot. Max ~650KB na compressie.' });
@@ -54,6 +67,7 @@ async function handler(req, res) {
     }
 
     if (req.method === 'DELETE') {
+      if (!checkToken(req, res)) return;
       await query(`DELETE FROM app_settings WHERE key = 'logo:custom'`);
       return res.status(200).json({ ok: true });
     }

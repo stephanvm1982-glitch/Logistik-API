@@ -9,7 +9,7 @@
  *   POST → { ok: true, upserted: N }
  */
 
-const { query } = require('../lib/db');
+const { query, transaction } = require('../lib/db');
 
 function checkToken(req, res) {
   const token = (process.env.INTERNAL_TOKEN || '').trim();
@@ -129,15 +129,17 @@ async function handler(req, res) {
         ]
       );
 
-      // Charges: verwijder en herinsert
+      // Charges: atomair vervangen (DELETE + INSERTs in één transactie),
+      // zodat een fout halverwege niet leidt tot dataverlies.
       if (Array.isArray(s.charges) && s.charges.length) {
-        await query('DELETE FROM charges WHERE awb=$1', [awb]);
+        const stmts = [['DELETE FROM charges WHERE awb=$1', [awb]]];
         for (const c of s.charges) {
-          await query(
+          stmts.push([
             'INSERT INTO charges (awb, code, amount) VALUES ($1,$2,$3)',
-            [awb, c.charge || c.code || '', Number(c.value || c.amount || 0)]
-          );
+            [awb, c.charge || c.code || '', Number(c.value || c.amount || 0)],
+          ]);
         }
+        await transaction(stmts);
       }
 
       upserted++;
