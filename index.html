@@ -16,7 +16,7 @@
     --brand:#2563eb; --brand-d:#1d4ed8; --sky:#0ea5e9;
     --bg:#f5f7fb; --surface:#fff; --surface-2:#f8fafc;
     --line:#e7ebf2; --line-2:#d5dbe6;
-    --txt:#0f172a; --txt-mut:#64748b; --txt-faint:#94a3b8;
+    --txt:#0f172a; --txt-mut:#475569; --txt-faint:#64748b;
 
     --geboekt:#64748b; --geboekt-bg:#f1f5f9;
     --vertrokken:#f59e0b; --vertrokken-bg:#fef6e7;
@@ -211,35 +211,38 @@
 
   /* ── list ── */
   .listwrap{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-sm)}
+  /* Grid: chev|AWB|Datum|Airline|Route|Status|Colli|Gewicht|Waarde */
   .list-head{
-    display:grid;grid-template-columns:28px 160px 1fr 188px 70px 92px 116px;gap:14px;
+    display:grid;grid-template-columns:24px 130px 78px 130px 1fr 170px 60px 88px 110px;gap:12px;
     padding:11px 18px;border-bottom:1px solid var(--line);background:var(--surface-2);
-    font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--txt-faint)
+    font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--txt-mut)
   }
   .list-head .r{text-align:right}
   .row{
-    display:grid;grid-template-columns:28px 160px 1fr 188px 70px 92px 116px;gap:14px;
+    display:grid;grid-template-columns:24px 130px 78px 130px 1fr 170px 60px 88px 110px;gap:12px;
     padding:13px 18px;align-items:center;border-bottom:1px solid var(--line);cursor:pointer;
     transition:background .14s var(--ease)
   }
   .row:last-child{border-bottom:none}
   .row:hover,.row.open{background:var(--surface-2)}
   .c-awb .a{font-family:var(--mono);font-weight:700;font-size:13.5px;letter-spacing:-.01em;user-select:text;cursor:text}
-  .c-awb .sub{font-size:11px;color:var(--txt-faint);font-weight:600;margin-top:1px}
+  .c-awb .sub{font-size:11px;color:var(--txt-mut);font-weight:600;margin-top:1px}
+  .c-date{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:12.5px;font-weight:700;color:var(--txt)}
+  .c-airline{display:flex;flex-direction:column;line-height:1.15;min-width:0}
+  .c-airline .iata{font-family:var(--mono);font-weight:800;font-size:13px;color:var(--brand);letter-spacing:-.01em}
+  .c-airline .nm{font-size:11px;font-weight:600;color:var(--txt-mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-  /* route cell */
-  .route{display:flex;align-items:center;gap:9px;min-width:0}
-  .flag{width:22px;height:22px;border-radius:50%;overflow:hidden;flex-shrink:0;box-shadow:0 0 0 1px rgba(15,23,42,.12),0 1px 2px rgba(15,23,42,.15)}
+  /* route cell (compact: alleen IATA codes + vlucht, geen city names) */
+  .route{display:flex;align-items:center;gap:6px;min-width:0}
+  .flag{width:20px;height:20px;border-radius:50%;overflow:hidden;flex-shrink:0;box-shadow:0 0 0 1px rgba(15,23,42,.12),0 1px 2px rgba(15,23,42,.15)}
   .flag svg{width:100%;height:100%;display:block}
-  .ap{display:flex;flex-direction:column;line-height:1.05}
-  .ap .cd{font-family:var(--mono);font-weight:700;font-size:13px}
-  .ap .ct{font-size:10.5px;color:var(--txt-faint);font-weight:600}
+  .ap .cd{font-family:var(--mono);font-weight:700;font-size:13px;color:var(--txt)}
   .r-line{
     flex:1;height:2px;background:repeating-linear-gradient(90deg,var(--line-2) 0 5px,transparent 5px 10px);
-    position:relative;min-width:22px;max-width:80px
+    position:relative;min-width:30px
   }
-  .r-line svg{width:14px;height:14px;color:var(--brand);position:absolute;top:-6px;left:50%;transform:translateX(-50%);background:var(--surface);padding:0 1px}
-  .r-line .rl-al{position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:9px;font-weight:800;letter-spacing:.04em;color:var(--txt-faint);white-space:nowrap;background:var(--surface);padding:0 3px}
+  .r-line svg{width:13px;height:13px;color:var(--brand);position:absolute;top:-5px;left:50%;transform:translateX(-50%);background:var(--surface);padding:0 1px}
+  .r-line .rl-al{position:absolute;top:5px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:.02em;color:var(--brand);white-space:nowrap;background:var(--surface);padding:0 3px}
   .row:hover .r-line svg,.row.open .r-line svg{background:var(--surface-2)}
   .row:hover .r-line .rl-al,.row.open .r-line .rl-al{background:var(--surface-2)}
 
@@ -256,7 +259,7 @@
   .num{font-family:var(--mono);font-weight:600;font-size:13px}
   .num.r,.val{text-align:right;display:block}
   .val{font-family:var(--mono);font-weight:700;font-size:13px}
-  .num-sub{display:block;font-family:var(--mono);font-size:10.5px;font-weight:500;color:var(--txt-faint);margin-top:1px;text-align:right}
+  .num-sub{display:block;font-family:var(--mono);font-size:10.5px;font-weight:600;color:var(--txt-mut);margin-top:1px;text-align:right}
   .chev{display:grid;place-items:center;color:var(--txt-faint);transition:transform .15s var(--ease-snap),color .15s var(--ease)}
   .chev svg{width:16px;height:16px}
   .row.open .chev{transform:rotate(90deg);color:var(--brand)}
@@ -535,8 +538,11 @@
   @media(max-width:860px){
     .list-head{display:none}
     .row{grid-template-columns:1fr auto;gap:10px;row-gap:10px;padding:14px}
-    .row .c-awb{order:1}.row .route{order:2;grid-column:1/-1}
-    .row .st{order:3;grid-column:1/-1}.row .num,.row .val{display:none}
+    .row .c-awb{order:1}
+    .row .c-date{order:1;text-align:right;font-size:11.5px}
+    .row .c-airline{order:2;grid-column:1/-1;flex-direction:row;gap:6px;align-items:baseline}
+    .row .route{order:3;grid-column:1/-1}
+    .row .st{order:4;grid-column:1/-1}.row .num,.row .val{display:none}
     .row .chev{order:0;position:absolute;left:14px;top:14px}
     .row{position:relative}
   }
@@ -663,7 +669,7 @@
     <!-- list -->
     <div class="listwrap reveal">
       <div class="list-head">
-        <div></div><div>AWB</div><div>Route</div><div>Status</div><div class="r">Colli</div><div class="r">Gewicht</div><div class="r">Waarde</div>
+        <div></div><div>AWB</div><div>Datum</div><div>Airline</div><div>Route</div><div>Status</div><div class="r">Colli</div><div class="r">Gewicht</div><div class="r">Waarde</div>
       </div>
       <div id="rows"></div>
       <div class="list-foot">
@@ -1584,22 +1590,25 @@ document.addEventListener('click',function(e){
 
 function shipSortKeyMap(){
   return {
-    awb:    function(s){return String(s.awb||'');},
-    date:   function(s){return s.date||'';},
-    route:  function(s){return (s.from_cd||'')+'-'+(s.to_cd||'');},
-    status: function(s){return STEPS.indexOf(inferStatus(s));},
-    pieces: function(s){return Number(s.pieces||0);},
-    kg:     function(s){return Number(s.chargeable||s.kg||0);},
-    value:  function(s){return Number(s.value||0);}
+    awb:     function(s){return String(s.awb||'');},
+    date:    function(s){return s.date||'';},
+    airline: function(s){return (airlineNameFromAwb(s.awb)||s.airline||'').toLowerCase();},
+    route:   function(s){return (s.from_cd||'')+'-'+(s.to_cd||'');},
+    status:  function(s){return STEPS.indexOf(inferStatus(s));},
+    pieces:  function(s){return Number(s.pieces||0);},
+    kg:      function(s){return Number(s.chargeable||s.kg||0);},
+    value:   function(s){return Number(s.value||0);}
   };
 }
 
 function renderShipHead(){
   var el=document.querySelector('#viewBinnenkomsten .list-head');
   if(!el) return;
-  // Eerste kolom is de chev-spacer, blijft leeg + niet sortable
+  // Grid: chev | AWB | Datum | Airline | Route | Status | Colli | Gewicht | Waarde
   el.innerHTML='<div></div>'
     +sortableHeader('AWB','awb',_shipSort)
+    +sortableHeader('Datum','date',_shipSort)
+    +sortableHeader('Airline','airline',_shipSort)
     +sortableHeader('Route','route',_shipSort)
     +sortableHeader('Status','status',_shipSort)
     +sortableHeader('Colli','pieces',_shipSort,'r')
@@ -1641,18 +1650,23 @@ function renderRows(){
     var detailHtml=isOpen?detail(s):'';
     var dateShort=fmtDateNL(s.date);
     var flightLabel=getCachedFlights(s.awb);
-    // Toon vluchtnummer(s) op de plek van de airline-code zodra bekend; fallback: alleen IATA.
     var rlContent=flightLabel||s.airline||'';
+    var airlineName=airlineNameFromAwb(s.awb)||'';
+    var airlineIata=s.airline||'';
     html+='<div class="row '+(isOpen?'open':'')+'" data-awb="'+esc(s.awb)+'">'
       +'<div class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></div>'
-      +'<div class="c-awb"><div class="a mono">'+esc(s.awb)+'</div>'
-      +'<div class="sub">'+(dateShort?'<span class="mono">'+dateShort+'</span>':'')+'</div></div>'
+      +'<div class="c-awb"><div class="a mono">'+esc(s.awb)+'</div></div>'
+      +'<div class="c-date">'+esc(dateShort)+'</div>'
+      +'<div class="c-airline">'
+        +(airlineIata?'<span class="iata">'+esc(airlineIata)+'</span>':'')
+        +(airlineName?'<span class="nm">'+esc(airlineName)+'</span>':'')
+      +'</div>'
       +'<div class="route">'+flag(s.from_cd)
-      +'<div class="ap"><div class="cd mono">'+esc(s.from_cd)+'</div><div class="ct">'+esc(s.from_ci||'')+'</div></div>'
+      +'<div class="ap"><div class="cd mono">'+esc(s.from_cd)+'</div></div>'
       +'<div class="r-line"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12h14"/><path d="m13 6 6 6-6 6"/></svg>'
       +(rlContent?'<span class="rl-al" data-awb-flight="'+esc(s.awb)+'" data-airline="'+esc(s.airline||'')+'">'+esc(rlContent)+'</span>':'')
       +'</div>'
-      +'<div class="ap"><div class="cd mono">'+esc(s.to_cd)+'</div><div class="ct">'+esc(s.to_ci||'')+'</div></div>'
+      +'<div class="ap"><div class="cd mono">'+esc(s.to_cd)+'</div></div>'
       +flag(s.to_cd)+'</div>'
       +'<div class="st"><span class="st-badge" style="color:'+stColor+'"><span class="d" style="background:'+stColor+'"></span>'+STATUS[st].label+'</span>'
       +'<div class="st-bar">'+bar+'</div>'
