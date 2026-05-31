@@ -419,9 +419,13 @@
   .trk-leg{display:grid;grid-template-columns:100px 1fr 1fr 110px;gap:14px;align-items:center;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface-2)}
   .trk-leg-no{font-family:var(--mono);font-weight:800;font-size:14px;color:var(--brand);user-select:text;cursor:text}
   .trk-leg-route{font-family:var(--mono);font-size:13px;font-weight:700}
-  .trk-leg-times{font-size:12px;color:var(--txt-mut);font-family:var(--mono);font-variant-numeric:tabular-nums}
-  .trk-leg-times .lbl{display:inline-block;width:46px;color:var(--txt-faint);font-weight:700;font-family:var(--sans);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em}
-  .trk-leg-times .src{display:inline-block;font-size:10px;color:var(--txt-faint);font-style:italic;margin-left:4px;font-family:var(--sans)}
+  .trk-leg-times{font-size:12.5px;color:var(--txt-mut);font-family:var(--mono);font-variant-numeric:tabular-nums;display:flex;flex-direction:column;gap:3px}
+  .trk-time-row{display:flex;align-items:baseline;gap:8px}
+  .trk-time-label{display:inline-block;width:70px;color:var(--txt-faint);font-weight:700;font-family:var(--sans);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;flex-shrink:0}
+  .trk-time-value{color:var(--txt);font-weight:600}
+  .trk-time-extra{display:inline-block;font-size:10.5px;color:var(--txt-faint);font-style:italic;margin-left:6px;font-family:var(--sans);font-weight:500}
+  .trk-row-arr .trk-time-value{color:var(--afgeleverd)}
+  .trk-row-dep .trk-time-value{color:var(--txt)}
   .trk-leg-status{display:inline-flex;align-items:center;justify-content:center;padding:4px 10px;border-radius:var(--r-sm);font-size:11px;font-weight:800;letter-spacing:.02em;text-align:center}
   .trk-st-onschedule{background:var(--afgeleverd-bg);color:var(--afgeleverd)}
   .trk-st-delayed{background:var(--vertrokken-bg);color:#a16207}
@@ -1103,34 +1107,56 @@ function loadFlightsForVisible(list){
 // \u2500\u2500 Tracking view + Track-knop renderer \u2500\u2500
 function fmtTrackTime(iso){
   if(!iso) return '\u2013';
-  // ISO UTC \u2192 "DD-MM HH:MM" lokale stijl, geen seconden
   var d=new Date(iso);
   if(isNaN(d)) return iso;
   var p=function(n){return String(n).padStart(2,'0');};
-  return p(d.getUTCDate())+'-'+p(d.getUTCMonth()+1)+' '+p(d.getUTCHours())+':'+p(d.getUTCMinutes())+'Z';
+  return p(d.getUTCDate())+'-'+p(d.getUTCMonth()+1)+'-'+String(d.getUTCFullYear()).slice(2)
+    +' '+p(d.getUTCHours())+':'+p(d.getUTCMinutes())+' UTC';
 }
-function fmtSource(s){
-  if(!s) return '';
-  return {actual:'actueel',estimated:'verw.',scheduled:'gepland'}[s]||s;
+function fmtDelay(min){
+  if(min==null||min===0) return '';
+  var sign=min>0?'+':'';
+  return ' ('+sign+min+'m)';
 }
 function trackStatusClass(label){
   if(label==='On schedule') return 'trk-st-onschedule';
   if(label==='Delayed') return 'trk-st-delayed';
   return 'trk-st-unknown';
 }
+function trackTimeRow(label,time,extra,cls){
+  if(!time) return '';
+  return '<div class="trk-time-row '+(cls||'')+'">'
+    +'<span class="trk-time-label">'+esc(label)+'</span>'
+    +'<span class="trk-time-value">'+esc(fmtTrackTime(time))+(extra?'<span class="trk-time-extra">'+esc(extra)+'</span>':'')+'</span>'
+    +'</div>';
+}
 function renderTrackLeg(leg){
   var a=leg.aero||{};
   var statusClass=trackStatusClass(a.status);
   var statusLabel=a.status||'\u2013';
-  var delayBit=(a.delayMin!=null&&a.delayMin!==0)?' '+(a.delayMin>0?'+':'')+a.delayMin+'m':'';
+  var delayStr=fmtDelay(a.delayMin);
+
+  // Strikt: alleen gemeten data (actual_out / actual_in). Geen schattingen.
+  var timesHtml='';
+  if(a.actualOut){
+    timesHtml+=trackTimeRow('Departed',a.actualOut,'',
+                            'trk-row-dep');
+  }
+  if(a.actualIn){
+    timesHtml+=trackTimeRow('Arrived',a.actualIn,delayStr,
+                            'trk-row-arr');
+  }
+  if(!a.actualOut && !a.actualIn){
+    timesHtml='<div class="trk-time-row" style="color:var(--txt-faint);font-style:italic">Nog niet vertrokken</div>';
+  } else if(!a.actualIn){
+    timesHtml+='<div class="trk-time-row" style="color:var(--txt-mut)"><span class="trk-time-label">Status</span><span class="trk-time-value">In de lucht</span></div>';
+  }
+
   return '<div class="trk-leg">'
     +'<div class="trk-leg-no">'+esc(leg.flightNo||'')+'</div>'
     +'<div class="trk-leg-route">'+esc(leg.origin||'?')+' \u2192 '+esc(leg.destination||'?')+(leg.date?'<div style="font-size:10.5px;color:var(--txt-faint);font-weight:600;margin-top:2px">'+esc(fmtDateNL(leg.date))+'</div>':'')+'</div>'
-    +'<div class="trk-leg-times">'
-      +'<div><span class="lbl">DEP</span> '+esc(fmtTrackTime(a.depTime))+(a.depSource?'<span class="src">('+esc(fmtSource(a.depSource))+')</span>':'')+'</div>'
-      +'<div><span class="lbl">ARR</span> '+esc(fmtTrackTime(a.arrTime))+(a.arrSource?'<span class="src">('+esc(fmtSource(a.arrSource))+')</span>':'')+'</div>'
-    +'</div>'
-    +'<div class="trk-leg-status '+statusClass+'">'+esc(statusLabel)+esc(delayBit)+'</div>'
+    +'<div class="trk-leg-times">'+timesHtml+'</div>'
+    +'<div class="trk-leg-status '+statusClass+'">'+esc(statusLabel)+'</div>'
     +'</div>';
 }
 function renderTrackResult(d){
