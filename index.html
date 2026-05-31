@@ -1024,9 +1024,8 @@ function renderStats(){
   document.getElementById('sColli').innerHTML=totalKg.toLocaleString('nl-NL')+' <small>kg</small>';
 }
 
-// \u2500\u2500 Track-data per AWB (carrier scraper, 24h localStorage cache) \u2500\u2500
-// Cache shape: { ts, label: '5Y8208 \u00b7 5Y8209', step: 'vertrokken'|null }
-var TRACK_TTL=24*3600*1000;
+// \u2500\u2500 Track-data per AWB (carrier scraper, localStorage cache) \u2500\u2500
+// Cache shape: { ts, label, step, actualOut, actualIn, delayMin }
 
 // Map IATA FSU status codes naar onze 4-staps pipeline, LEG-BEWUST.
 // Status op een tussenstation telt niet als "geland" — we kijken naar de FINAL leg.
@@ -1067,8 +1066,9 @@ function getTrackCache(awb){
     var raw=localStorage.getItem('ffs:track:v5:'+awb);
     if(!raw) return null;
     var obj=JSON.parse(raw);
+    if(!obj||typeof obj!=='object') return null;
     var ttl=(obj.step==='afgeleverd')?TRACK_TTL_AFGELEVERD:TRACK_TTL_ACTIEF;
-    if(!obj||Date.now()-obj.ts>ttl) return null;
+    if(Date.now()-obj.ts>ttl) return null;
     return obj;
   }catch(x){return null;}
 }
@@ -1159,9 +1159,10 @@ function renderStatusTime(awb,step){
   var t=getCachedTimes(awb);
   if(!t) return '';
   var delayStr='';
-  if(t.delayMin!=null&&t.delayMin!==0){
-    var cls=Math.abs(t.delayMin)>60?'st-delay-bad':'st-delay-ok';
-    delayStr=' <span class="'+cls+'">'+(t.delayMin>0?'+':'')+t.delayMin+'m</span>';
+  var dm=(t.delayMin==null)?null:Number(t.delayMin);
+  if(dm!=null&&!isNaN(dm)&&dm!==0){
+    var cls=Math.abs(dm)>60?'st-delay-bad':'st-delay-ok';
+    delayStr=' <span class="'+cls+'">'+(dm>0?'+':'')+dm+'m</span>';
   }
   if(step==='afgeleverd'&&t.actualIn) return 'Afgeleverd';
   if(step==='geland'&&t.actualIn) return 'Geland '+esc(fmtTimeShort(t.actualIn))+delayStr;
@@ -2449,11 +2450,18 @@ function switchView(name){
   if(name==='facturatie') renderFacturatie();
   if(name==='rapporten') renderRapporten();
   if(name==='tracking') maybeAutoTrack();
+  if(name==='instellingen'){
+    if(typeof renderPrefixTable==='function') renderPrefixTable();
+    if(typeof updateAdminUI==='function') updateAdminUI();
+    var logoStatus=document.getElementById('logoStatus');
+    if(logoStatus) logoStatus.textContent='';
+  }
 }
 
 // Browser back/forward: reageer op hash-wijziging
 window.addEventListener('hashchange',function(){
   var h=location.hash.replace(/^#/,'');
+  if(h==='binnenkomsten') h='shipments'; // legacy hash alias
   if(h&&VIEWS[h]&&h!==currentView) switchView(h);
 });
 
@@ -3627,28 +3635,16 @@ document.querySelectorAll('.set-tab').forEach(function(btn){
   });
 });
 
-// ─── Extend VIEWS and switchView for instellingen ───
+// ─── Extend VIEWS for instellingen (click handler hangt al op .nav via switchView) ───
 VIEWS['instellingen']={el:'viewInstellingen',pth:'Beheer',h1:'Instellingen'};
-document.querySelectorAll('.nav a[data-view]').forEach(function(a){
-  a.addEventListener('click',function(e){
-    e.preventDefault();
-    var v=this.getAttribute('data-view');
-    switchView(v);
-    if(v==='instellingen'){
-      renderPrefixTable();
-      updateAdminUI();
-      var logoStatus=document.getElementById('logoStatus');
-      if(logoStatus) logoStatus.textContent='';
-    }
-  });
-});
 
 // ─── Herstel view uit URL-hash bij laden (staat ALTIJD als laatste) ───
 (function(){
   var hash=(location.hash||'').replace(/^#/,'');
+  // Backwards-compat: oude bookmarks met #binnenkomsten → nieuwe #shipments
+  if(hash==='binnenkomsten') hash='shipments';
   if(hash&&VIEWS[hash]){
     switchView(hash);
-    if(hash==='instellingen'){ renderPrefixTable(); updateAdminUI(); }
   }
 })();
 </script>
