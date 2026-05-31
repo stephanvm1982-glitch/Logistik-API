@@ -402,6 +402,11 @@
   .rap-tbl th[data-sort]{cursor:pointer;user-select:none;transition:color .15s var(--ease),background-color .15s var(--ease)}
   .rap-tbl th[data-sort]:hover{color:var(--txt-mut);background:var(--line)}
   .rap-tbl th.rap-sort-active{color:var(--brand)}
+  /* Generieke sortable header in div-based tabellen (Zendingen, Facturatie, Instellingen) */
+  .sortable{cursor:pointer;user-select:none;transition:color .15s var(--ease),background-color .15s var(--ease)}
+  .sortable:hover{color:var(--txt-mut)}
+  .sort-active{color:var(--brand)!important}
+  .sort-arrow{margin-left:3px;font-size:9px;opacity:.8}
 
   .rap-children-row{display:none;background:var(--surface-2)}
   .rap-children-row.open{display:table-row}
@@ -809,9 +814,7 @@
           <span id="manStatus" style="font-size:11px;color:var(--txt-faint)"></span>
         </div>
         <!-- Actieve prefix-lijst -->
-        <div style="display:grid;grid-template-columns:70px 80px 1fr 110px 80px;gap:14px;border-bottom:1px solid var(--line);padding:10px 18px;font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--txt-faint);background:var(--surface-2)">
-          <div>Prefix</div><div>IATA</div><div>Naam</div><div>Scrape</div><div></div>
-        </div>
+        <div id="pfxHead" style="display:grid;grid-template-columns:70px 80px 1fr 110px 80px;gap:14px;border-bottom:1px solid var(--line);padding:10px 18px;font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--txt-faint);background:var(--surface-2)"></div>
         <div id="prefixRows"></div>
       </div>
     </div>
@@ -1524,12 +1527,92 @@ function toggleColliGroup(row, grpId){
 }
 
 // \u2500\u2500\u2500 Render shipment rows \u2500\u2500\u2500
+// Sort-state voor de Zendingen-tabel. Default: datum, nieuwste boven.
+var _shipSort={key:'date',dir:'desc'};
+
+// Render een sortable header-cell als <div> (voor Zendingen/Facturatie/Instellingen).
+// Klassen: 'sortable' (cursor+hover), 'sort-active' (highlight bij actieve sort),
+// 'r' (right-align). Werkt met onze gedelegeerde click handler hieronder.
+function sortableHeader(label,key,sortObj,align){
+  var active=sortObj.key===key;
+  var arrow=active?'<span class="sort-arrow">'+(sortObj.dir==='asc'?'↑':'↓')+'</span>':'';
+  var cls='sortable'+(active?' sort-active':'')+(align==='r'?' r':'');
+  return '<div class="'+cls+'" data-sort="'+esc(key)+'">'+esc(label)+arrow+'</div>';
+}
+
+// Sorteer een array op basis van een sort-object {key,dir}. keyMap mapt key -> functie.
+function applySort(arr,sortObj,keyMap){
+  var fn=keyMap[sortObj.key];
+  if(!fn) return arr;
+  var copy=arr.slice();
+  copy.sort(function(a,b){
+    var va=fn(a),vb=fn(b);
+    if(va<vb) return sortObj.dir==='asc'?-1:1;
+    if(va>vb) return sortObj.dir==='asc'?1:-1;
+    return 0;
+  });
+  return copy;
+}
+
+// Slimme default-richting bij eerste klik op een kolom (numbers/dates → desc).
+var DESC_DEFAULT_KEYS=['date','pieces','kg','fb','rate','value','count','hawbs','levs','overhead','charg','gross','ppk','scrape'];
+
+// Gedelegeerde click-handler voor alle sortable headers in div-tabellen.
+// Werkt voor .list-head (Zendingen), .fac-head (Facturatie), #pfxHead (Instellingen).
+document.addEventListener('click',function(e){
+  var cell=e.target.closest('.sortable[data-sort]');
+  if(!cell) return;
+  var key=cell.getAttribute('data-sort');
+  var inShip=cell.closest('.list-head');
+  var inFac=cell.closest('.fac-head');
+  var inPfx=cell.closest('#pfxHead');
+  var sortObj=null,rerender=null;
+  if(inShip){sortObj=_shipSort;rerender=renderRows;}
+  else if(inFac){sortObj=_facSort;rerender=renderFacturatie;}
+  else if(inPfx){sortObj=_pfxSort;rerender=renderPrefixTable;}
+  if(!sortObj) return;
+  if(sortObj.key===key){
+    sortObj.dir=sortObj.dir==='asc'?'desc':'asc';
+  } else {
+    sortObj.key=key;
+    sortObj.dir=DESC_DEFAULT_KEYS.indexOf(key)>=0?'desc':'asc';
+  }
+  rerender();
+});
+
+function shipSortKeyMap(){
+  return {
+    awb:    function(s){return String(s.awb||'');},
+    date:   function(s){return s.date||'';},
+    route:  function(s){return (s.from_cd||'')+'-'+(s.to_cd||'');},
+    status: function(s){return STEPS.indexOf(inferStatus(s));},
+    pieces: function(s){return Number(s.pieces||0);},
+    kg:     function(s){return Number(s.chargeable||s.kg||0);},
+    value:  function(s){return Number(s.value||0);}
+  };
+}
+
+function renderShipHead(){
+  var el=document.querySelector('#viewBinnenkomsten .list-head');
+  if(!el) return;
+  // Eerste kolom is de chev-spacer, blijft leeg + niet sortable
+  el.innerHTML='<div></div>'
+    +sortableHeader('AWB','awb',_shipSort)
+    +sortableHeader('Route','route',_shipSort)
+    +sortableHeader('Status','status',_shipSort)
+    +sortableHeader('Colli','pieces',_shipSort,'r')
+    +sortableHeader('Gewicht','kg',_shipSort,'r')
+    +sortableHeader('Waarde','value',_shipSort,'r');
+}
+
 function renderRows(){
+  renderShipHead();
   var filtered=shipmentData.filter(function(s){
     return activeStatuses.has(inferStatus(s)) && (
       !awbFilter || String(s.awb||'').toUpperCase().includes(awbFilter.toUpperCase())
     );
   });
+  filtered=applySort(filtered,_shipSort,shipSortKeyMap());
 
   document.getElementById('footCount').textContent=filtered.length+' zendingen';
 
@@ -2498,7 +2581,42 @@ function renderFacRow(s,idx){
     +'</div>';
 }
 
+// Sort-state Facturatie. Default: datum desc (nieuwste boven).
+var _facSort={key:'date',dir:'desc'};
+
+function facSortKeyMap(){
+  return {
+    date:    function(s){return s.date||'';},
+    awb:     function(s){return String(s.awb||'');},
+    airline: function(s){return airlineNameFromAwb(s.awb)||s.airline||'';},
+    route:   function(s){return (s.from_cd||'')+'-'+(s.to_cd||'');},
+    pieces:  function(s){return Number(s.pieces||0);},
+    fb:      function(s){return Number(s.fb||0);},
+    kg:      function(s){var r0=s.rates&&s.rates[0]||{};return Number(r0.grossWeight||s.kg||0);},
+    rate:    function(s){return Number(s.rate||0);},
+    value:   function(s){return Number(s.value||0);}
+  };
+}
+
+function renderFacHead(){
+  var el=document.querySelector('#viewFacturatie .fac-head');
+  if(!el) return;
+  // # kolom is volgnummer, geen sort-zin. Laatste kolom is checkbox-spacer.
+  el.innerHTML='<div>#</div>'
+    +sortableHeader('Datum','date',_facSort)
+    +sortableHeader('AWB','awb',_facSort)
+    +sortableHeader('Airline','airline',_facSort)
+    +sortableHeader('Route','route',_facSort)
+    +sortableHeader('Colli','pieces',_facSort,'r')
+    +sortableHeader('FB','fb',_facSort,'r')
+    +sortableHeader('Gewicht','kg',_facSort,'r')
+    +sortableHeader('Tarief','rate',_facSort,'r')
+    +sortableHeader('Totaal','value',_facSort,'r')
+    +'<div></div>';
+}
+
 function renderFacturatie(onDone){
+  renderFacHead();
   document.getElementById('facRows').innerHTML='<div style="padding:24px;color:var(--txt-faint);text-align:center">Laden…</div>';
   fetch('/api/awb-store').then(function(r){return r.json();}).then(function(env){
     if(!env.ok) throw new Error('API fout');
@@ -2506,8 +2624,8 @@ function renderFacturatie(onDone){
     var q=(document.getElementById('facFilter')||{}).value||'';
     q=q.trim().toLowerCase();
     var all=Object.values(store).map(mapItem)
-      .filter(function(s){ return Number(s.value||0)>0; })
-      .sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});
+      .filter(function(s){ return Number(s.value||0)>0; });
+    all=applySort(all,_facSort,facSortKeyMap());
     var data=all
       .filter(function(s){
         return _facTab==='akkoord' ? s.akkoord : !s.akkoord;
@@ -3494,51 +3612,76 @@ window.addManualAirline=function(){
   setTimeout(function(){st.textContent='';},3000);
 };
 
-window.removePrefixRow=function(idx){
-  var list=getPrefixes();
-  list.splice(idx,1);
+// Prefix-based remove (sort-bestendig — was eerder index-based)
+window.removePrefixRow=function(prefix){
+  var list=getPrefixes().filter(function(r){return r.p!==String(prefix);});
   savePrefixes(list);
   renderPrefixTable();
 };
 
-function renderPrefixTable(editIdx){
-  var list=getPrefixes();
+// Sort-state prefix-tabel. Default: prefix ascending.
+var _pfxSort={key:'p',dir:'asc'};
+function pfxSortKeyMap(){
+  return {
+    p:      function(r){return r.p||'';},
+    i:      function(r){return r.i||'';},
+    n:      function(r){return (r.n||'').toLowerCase();},
+    scrape: function(r){return isScrapePrefEnabled(r.p)?1:0;}
+  };
+}
+function renderPfxHead(){
+  var el=document.getElementById('pfxHead');
+  if(!el) return;
+  el.innerHTML=sortableHeader('Prefix','p',_pfxSort)
+    +sortableHeader('IATA','i',_pfxSort)
+    +sortableHeader('Naam','n',_pfxSort)
+    +sortableHeader('Scrape','scrape',_pfxSort)
+    +'<div></div>';
+}
+
+// renderPrefixTable(editPrefix) — gebruikt prefix-string als identifier ipv array-index
+// (sort-bestendig; bij sortable headers veranderen indices, maar prefixes blijven uniek)
+function renderPrefixTable(editPrefix){
+  renderPfxHead();
+  var list=applySort(getPrefixes(),_pfxSort,pfxSortKeyMap());
   var html='';
-  list.forEach(function(row,i){
-    var editing=isAdmin&&i===editIdx;
+  list.forEach(function(row){
+    var editing=isAdmin&&row.p===editPrefix;
     var hasScraper=SCRAPER_AVAILABLE_PREFIXES.indexOf(row.p)>=0;
     var enabled=isScrapePrefEnabled(row.p);
     var badgeHtml=hasScraper
       ?'<span class="badge avail">beschikbaar</span>'
       :'<span class="badge none">geen scraper</span>';
+    var p=esc(row.p);
     html+='<div class="pfx-row">'
-      +'<div class="pfx-code">'+esc(row.p)+'</div>'
+      +'<div class="pfx-code">'+p+'</div>'
       +'<div class="pfx-iata">'+esc(row.i)+'</div>'
       +(editing
-        ?'<input class="pfx-edit" id="pfx-inp-'+i+'" value="'+esc(row.n)+'" onkeydown="if(event.key===\'Enter\')savePfxName('+i+')">'
+        ?'<input class="pfx-edit" id="pfx-inp-'+p+'" value="'+esc(row.n)+'" onkeydown="if(event.key===\'Enter\')savePfxName(\''+p+'\')">'
         :'<div>'+esc(row.n)+'</div>')
       +'<label class="scrape-toggle"><input type="checkbox"'+(enabled?' checked':'')
-        +' onchange="setScrapePref(\''+esc(row.p)+'\',this.checked)">'
+        +' onchange="setScrapePref(\''+p+'\',this.checked)">'
         +badgeHtml+'</label>'
       +'<div style="text-align:right;display:flex;gap:4px;justify-content:flex-end">'
-      +(isAdmin&&!editing?'<button onclick="renderPrefixTable('+i+')" style="padding:2px 8px;border-radius:4px;border:1px solid var(--line);background:none;color:var(--txt-faint);cursor:pointer;font-size:11px">✎</button>':'')
-      +(isAdmin&&editing?'<button onclick="savePfxName('+i+')" style="padding:2px 8px;border-radius:4px;border:none;background:var(--brand);color:#fff;cursor:pointer;font-size:11px">Opslaan</button>':'')
-      +(isAdmin?'<button onclick="removePrefixRow('+i+')" style="padding:2px 8px;border-radius:4px;border:1px solid var(--line);background:none;color:var(--txt-faint);cursor:pointer;font-size:11px">✕</button>':'')
+      +(isAdmin&&!editing?'<button onclick="renderPrefixTable(\''+p+'\')" style="padding:2px 8px;border-radius:4px;border:1px solid var(--line);background:none;color:var(--txt-faint);cursor:pointer;font-size:11px">✎</button>':'')
+      +(isAdmin&&editing?'<button onclick="savePfxName(\''+p+'\')" style="padding:2px 8px;border-radius:4px;border:none;background:var(--brand);color:#fff;cursor:pointer;font-size:11px">Opslaan</button>':'')
+      +(isAdmin?'<button onclick="removePrefixRow(\''+p+'\')" style="padding:2px 8px;border-radius:4px;border:1px solid var(--line);background:none;color:var(--txt-faint);cursor:pointer;font-size:11px">✕</button>':'')
       +'</div>'
       +'</div>';
   });
   var el=document.getElementById('prefixRows');
   if(el) el.innerHTML=html||'<div style="padding:20px;color:var(--txt-faint)">Geen prefixen</div>';
-  if(editIdx!==undefined){
-    var inp=document.getElementById('pfx-inp-'+editIdx);
+  if(editPrefix){
+    var inp=document.getElementById('pfx-inp-'+editPrefix);
     if(inp){inp.focus();inp.select();}
   }
 }
-window.savePfxName=function(idx){
-  var inp=document.getElementById('pfx-inp-'+idx);
+window.savePfxName=function(prefix){
+  var inp=document.getElementById('pfx-inp-'+prefix);
   if(!inp) return;
   var list=getPrefixes();
-  if(list[idx]) list[idx].n=inp.value;
+  var row=list.find(function(r){return r.p===String(prefix);});
+  if(row) row.n=inp.value;
   savePrefixes(list);
   list.forEach(function(r){ AWB_AL[r.p]=r.i; });
   renderPrefixTable();
