@@ -55,3 +55,24 @@ CREATE TABLE IF NOT EXISTS alerts (
 );
 
 CREATE INDEX IF NOT EXISTS alerts_awb_idx ON alerts(awb);
+
+-- Phase 4 — tracking-cache.
+-- Eén keer opgehaald bij TrackingMore (kost een credit), daarna eeuwig
+-- bewaard. Vluchtnummers veranderen niet meer na boeking — daarmee kunnen
+-- we via AeroAPI live DEP/ARR ophalen zonder TM opnieuw te raken.
+CREATE TABLE IF NOT EXISTS awb_tracking (
+  awb           TEXT PRIMARY KEY,
+  prefix        TEXT,
+  source        TEXT,                       -- 'atlas' | 'trackingmore'
+  origin        TEXT,
+  destination   TEXT,
+  pieces        INTEGER,
+  weight        NUMERIC(10,2),
+  flights       JSONB,                      -- [{flightNo, origin, destination, date}, ...]
+  status_codes  JSONB,                      -- ['BKD','RCS','DEP','ARR','RCF','DLV']
+  last_step     TEXT,                       -- 'geboekt'|'vertrokken'|'geland'|'afgeleverd'
+  fetched_at    TIMESTAMPTZ DEFAULT now(),
+  updated_at    TIMESTAMPTZ DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS awb_tracking_prefix_idx ON awb_tracking(prefix);
+CREATE INDEX IF NOT EXISTS awb_tracking_step_idx   ON awb_tracking(last_step);

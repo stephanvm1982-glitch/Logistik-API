@@ -16,6 +16,19 @@
 const { flightIataToIcao } = require('../lib/airline-icao');
 const aeroapi = require('../lib/aeroapi');
 const trackingmore = require('../lib/trackingmore');
+const trackCache = require('../lib/track-cache');
+
+// Mapping van AWB-level status codes naar onze 4-staps pipeline.
+// Spiegelt frontend trackStatusToStep() maar dan AWB-globaal voor cache.
+function deriveStep(statusCodes) {
+  if (!Array.isArray(statusCodes) || !statusCodes.length) return null;
+  const codes = statusCodes.map(c => String(c).toUpperCase());
+  if (codes.includes('DLV') || codes.includes('POD')) return 'afgeleverd';
+  if (codes.includes('ARR') || codes.includes('RCF')) return 'geland';
+  if (codes.includes('DEP')) return 'vertrokken';
+  if (codes.includes('RCS') || codes.includes('FOH')) return 'geboekt';
+  return null;
+}
 
 async function fetchJson(url) {
   const ctrl = new AbortController();
@@ -137,20 +150,31 @@ async function scrapeAtlas(prefix, serial) {
 }
 
 // ── TrackingMore fallback (multi-carrier) ────────────────────────────────
-// Voor alle prefixes die geen carrier-specifieke scraper hebben. Vereist
-// TRACKINGMORE_API_KEY. Free tier → caller (frontend) moet cachen.
+// Vereist TRACKINGMORE_API_KEY. Doet 1× TM call per AWB lifetime + slaat
+// flights/status op in Neon → daarna gebruikt cache-first pad uitsluitend
+// AeroAPI voor live status (geen TM credits meer).
 async function scrapeTrackingMoreFor(prefix, serial) {
   const awb = prefix + '-' + serial;
   const tmData = await trackingmore.getTracking(awb);
   const norm = trackingmore.normalize(tmData, awb);
-  // Verrijk met AeroAPI per leg (als FA_API_KEY beschikbaar — anders aero=null)
   if (norm && norm.flights) {
     await Promise.all(norm.flights.map(enrichLegWithAeroApi));
   }
-  return Object.assign(
+  const out = Object.assign(
     { awb, prefix, serial, carrier: 'via TrackingMore' },
     norm || { origin: '', destination: '', pieces: null, weight: null, flights: [], status: [] }
   );
+  // Persist in Neon zodat we deze AWB nooit meer bij TM hoeven te halen
+  if ((process.env.POSTGRES_URL || '').trim() && out.flights && out.flights.length) {
+    try {
+      const codes = (out.status || []).map(s => s.code).filter(Boolean);
+      const step = deriveStep(codes);
+      await trackCache.saveAwbTracking(awb, prefix, 'trackingmore', out, step);
+    } catch (e) {
+      console.error('[track] cache save failed:', e.message);
+    }
+  }
+  return out;
 }
 
 // ── Carrier registry ─────────────────────────────────────────────────────
@@ -189,6 +213,52 @@ async function handler(req, res) {
     }
   }
 
+  const awb = parsed.prefix + '-' + parsed.serial;
+
+  // ── Cache-first voor non-Atlas (spaar TrackingMore credits) ──
+  // Atlas via jumpseat is gratis, daar slaan we cache over.
+  // Voor andere prefixes: check Neon. Als we al flights hebben, gebruik die +
+  // ververs alleen status via AeroAPI (gratis(er), realtime). Vraag TM alleen
+  // wanneer er nog GEEN flights bekend zijn voor deze AWB.
+  if (!SCRAPERS[parsed.prefix] && (process.env.POSTGRES_URL || '').trim()) {
+    try {
+      const cached = await trackCache.getAwbTracking(awb);
+      if (cached && cached.flights && Array.isArray(cached.flights) && cached.flights.length > 0) {
+        // Hit — gebruik gecachte flights, ververs aero per leg
+        const flights = cached.flights.map(f => Object.assign({ statuses: [] }, f));
+        await Promise.all(flights.map(enrichLegWithAeroApi));
+        // Lift de status uit AeroAPI mee in statuses-array (zodat frontend mapping werkt)
+        flights.forEach(f => {
+          if (f.aero && f.aero.actualOut && !f.statuses.includes('DEP')) f.statuses.push('DEP');
+          if (f.aero && f.aero.actualIn && !f.statuses.includes('ARR')) f.statuses.push('ARR');
+        });
+        const status = (cached.status_codes || []).map(c => ({ code: c }));
+        // Update last_step als AeroAPI nieuwe data gaf
+        const allCodes = status.map(s => s.code).concat(
+          flights.flatMap(f => f.statuses || [])
+        );
+        const newStep = deriveStep(allCodes);
+        if (newStep && newStep !== cached.last_step) {
+          trackCache.updateLastStep(awb, newStep).catch(() => {});
+        }
+        return res.status(200).json({
+          ok: true,
+          data: {
+            awb, prefix: parsed.prefix, serial: parsed.serial,
+            carrier: 'cached (' + cached.source + ')',
+            origin: cached.origin, destination: cached.destination,
+            pieces: cached.pieces, weight: cached.weight,
+            flights, status,
+            cached: true, fetchedAt: cached.fetched_at,
+          },
+        });
+      }
+    } catch (e) {
+      // Cache failure mag never block — log en val terug op live scraper
+      console.error('[track] cache lookup failed:', e.message);
+    }
+  }
+
   // Kies: dedicated scraper > TrackingMore fallback > niets
   let scraper = SCRAPERS[parsed.prefix];
   if (!scraper && (process.env.TRACKINGMORE_API_KEY || '').trim()) {
@@ -198,7 +268,7 @@ async function handler(req, res) {
     return res.status(200).json({
       ok: false,
       error: 'Geen scraper voor prefix ' + parsed.prefix + ' en TRACKINGMORE_API_KEY niet geconfigureerd.',
-      data: { awb: parsed.prefix + '-' + parsed.serial, prefix: parsed.prefix, serial: parsed.serial },
+      data: { awb, prefix: parsed.prefix, serial: parsed.serial },
     });
   }
 
