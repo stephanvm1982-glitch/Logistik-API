@@ -347,6 +347,13 @@ const requestHandler = async (req, res) => {
     return require('./api/track')(r, s);
   }
 
+  // --- FreshPortal scraper push (AWBscraper repo POST naar hier) ---
+  if (url.pathname === '/api/awb-flights') {
+    const body = await readBody(req);
+    const { req: r, res: s } = addVercelMethods(req, res, body);
+    return require('./api/awb-flights')(r, s);
+  }
+
   res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
   res.end('Niet gevonden');
 };
