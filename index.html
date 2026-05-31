@@ -211,15 +211,15 @@
 
   /* ── list ── */
   .listwrap{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-sm)}
-  /* Grid: chev|AWB|Datum|Airline|Route(compact)|Status(1fr)|Colli|Gewicht|Waarde */
+  /* Grid: chev|AWB|Datum|Airline|Route|spacer|Status|Colli|Gewicht|Waarde */
   .list-head{
-    display:grid;grid-template-columns:24px 130px 78px 130px 168px 1fr 60px 88px 110px;gap:12px;
+    display:grid;grid-template-columns:24px 130px 78px 130px 140px 1fr 200px 60px 88px 110px;gap:12px;
     padding:11px 18px;border-bottom:1px solid var(--line);background:var(--surface-2);
     font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--txt-mut)
   }
   .list-head .r{text-align:right}
   .row{
-    display:grid;grid-template-columns:24px 130px 78px 130px 168px 1fr 60px 88px 110px;gap:12px;
+    display:grid;grid-template-columns:24px 130px 78px 130px 140px 1fr 200px 60px 88px 110px;gap:12px;
     padding:13px 18px;align-items:center;border-bottom:1px solid var(--line);cursor:pointer;
     transition:background .14s var(--ease)
   }
@@ -549,6 +549,7 @@
     .row .route{order:3;grid-column:1/-1}
     .row .st{order:4;grid-column:1/-1}.row .num,.row .val{display:none}
     .row .chev{order:0;position:absolute;left:14px;top:14px}
+    .row>div:empty{display:none} /* verberg de desktop-spacer op mobile */
     .row{position:relative}
     /* Detail panel: stack alles verticaal i.p.v. horizontale strip die crusht */
     .detail-pad{flex-direction:column;align-items:stretch;gap:12px;padding:12px 14px}
@@ -1202,9 +1203,10 @@ function renderStatusTime(awb,step){
     var cls=Math.abs(dm)>60?'st-delay-bad':'st-delay-ok';
     delayStr=' <span class="'+cls+'">'+(dm>0?'+':'')+dm+'m</span>';
   }
-  if(step==='afgeleverd'&&t.actualIn) return 'Afgeleverd';
-  if(step==='geland'&&t.actualIn) return 'Geland '+esc(fmtTimeShort(t.actualIn))+delayStr;
-  if(step==='vertrokken'&&t.actualOut) return 'Vertrokken '+esc(fmtTimeShort(t.actualOut));
+  // Label staat al in de badge boven — herhaal het hier niet.
+  if(step==='afgeleverd'&&t.actualIn) return '';
+  if(step==='geland'&&t.actualIn) return esc(fmtTimeShort(t.actualIn))+delayStr;
+  if(step==='vertrokken'&&t.actualOut) return esc(fmtTimeShort(t.actualOut));
   return '';
 }
 function fmtDelay(min){
@@ -1640,12 +1642,13 @@ function shipSortKeyMap(){
 function renderShipHead(){
   var el=document.querySelector('#viewBinnenkomsten .list-head');
   if(!el) return;
-  // Grid: chev | AWB | Datum | Airline | Route | Status | Colli | Gewicht | Waarde
+  // Grid: chev | AWB | Datum | Airline | Route | spacer | Status | Colli | Gewicht | Waarde
   el.innerHTML='<div></div>'
     +sortableHeader('AWB','awb',_shipSort)
     +sortableHeader('Datum','date',_shipSort)
     +sortableHeader('Airline','airline',_shipSort)
     +sortableHeader('Route','route',_shipSort)
+    +'<div></div>'
     +sortableHeader('Status','status',_shipSort)
     +sortableHeader('Colli','pieces',_shipSort,'r')
     +sortableHeader('Gewicht','kg',_shipSort,'r')
@@ -1704,6 +1707,7 @@ function renderRows(){
       +'</div>'
       +'<div class="ap"><div class="cd mono">'+esc(s.to_cd)+'</div></div>'
       +flag(s.to_cd)+'</div>'
+      +'<div></div>' /* spacer tussen Route en Status */
       +'<div class="st"><span class="st-badge" style="color:'+stColor+'"><span class="d" style="background:'+stColor+'"></span>'+STATUS[st].label+'</span>'
       +'<div class="st-bar">'+bar+'</div>'
       +'<div class="st-time" data-awb-time="'+esc(s.awb)+'">'+renderStatusTime(s.awb,st)+'</div></div>'
