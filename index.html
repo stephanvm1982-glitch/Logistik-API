@@ -211,15 +211,15 @@
 
   /* ── list ── */
   .listwrap{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-sm)}
-  /* Grid: chev|AWB|Datum|Airline|Route|Status|Colli|Gewicht|Waarde */
+  /* Grid: chev|AWB|Datum|Airline|Route(compact)|Status(1fr)|Colli|Gewicht|Waarde */
   .list-head{
-    display:grid;grid-template-columns:24px 130px 78px 130px 1fr 170px 60px 88px 110px;gap:12px;
+    display:grid;grid-template-columns:24px 130px 78px 130px 168px 1fr 60px 88px 110px;gap:12px;
     padding:11px 18px;border-bottom:1px solid var(--line);background:var(--surface-2);
     font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--txt-mut)
   }
   .list-head .r{text-align:right}
   .row{
-    display:grid;grid-template-columns:24px 130px 78px 130px 1fr 170px 60px 88px 110px;gap:12px;
+    display:grid;grid-template-columns:24px 130px 78px 130px 168px 1fr 60px 88px 110px;gap:12px;
     padding:13px 18px;align-items:center;border-bottom:1px solid var(--line);cursor:pointer;
     transition:background .14s var(--ease)
   }
@@ -239,7 +239,7 @@
   .ap .cd{font-family:var(--mono);font-weight:700;font-size:13px;color:var(--txt)}
   .r-line{
     flex:1;height:2px;background:repeating-linear-gradient(90deg,var(--line-2) 0 5px,transparent 5px 10px);
-    position:relative;min-width:30px
+    position:relative;min-width:30px;max-width:80px
   }
   .r-line svg{width:13px;height:13px;color:var(--brand);position:absolute;top:-5px;left:50%;transform:translateX(-50%);background:var(--surface);padding:0 1px}
   .r-line .rl-al{position:absolute;top:5px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:.02em;color:var(--brand);white-space:nowrap;background:var(--surface);padding:0 3px}
