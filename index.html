@@ -512,6 +512,8 @@
   /* Scrape toggle */
   .scrape-toggle{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;color:var(--txt-mut);cursor:pointer;user-select:none}
   .scrape-toggle input{margin:0;cursor:pointer}
+  .scrape-toggle.disabled{cursor:not-allowed;opacity:.55}
+  .scrape-toggle.disabled input{cursor:not-allowed}
   .scrape-toggle .badge{font-size:9.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:1px 6px;border-radius:var(--r-sm)}
   .scrape-toggle .badge.avail{background:var(--afgeleverd-bg);color:var(--afgeleverd)}
   .scrape-toggle .badge.none{background:var(--surface-2);color:var(--txt-faint);border:1px solid var(--line)}
@@ -3540,10 +3542,11 @@ function getScrapePrefs(){
   try{var s=localStorage.getItem('ffs:scrape_prefs');return s?JSON.parse(s):{};}catch(x){return {};}
 }
 function isScrapePrefEnabled(prefix){
+  // Zonder scraper-implementatie kan toggle nooit werken — forceer uit
+  if(SCRAPER_AVAILABLE_PREFIXES.indexOf(prefix)<0) return false;
   var prefs=getScrapePrefs();
   if(prefix in prefs) return !!prefs[prefix];
-  // Default: aan voor prefixes met scraper, uit voor de rest
-  return SCRAPER_AVAILABLE_PREFIXES.indexOf(prefix)>=0;
+  return true; // default aan voor prefixes met scraper
 }
 window.setScrapePref=function(prefix,enabled){
   var prefs=getScrapePrefs();
@@ -3653,13 +3656,18 @@ function renderPrefixTable(editPrefix){
       ?'<span class="badge avail">beschikbaar</span>'
       :'<span class="badge none">geen scraper</span>';
     var p=esc(row.p);
+    var toggleTitle=hasScraper
+      ?'Schakel scraping aan/uit voor deze prefix'
+      :'Geen scraper beschikbaar voor deze airline — toggle uitgeschakeld';
     html+='<div class="pfx-row">'
       +'<div class="pfx-code">'+p+'</div>'
       +'<div class="pfx-iata">'+esc(row.i)+'</div>'
       +(editing
         ?'<input class="pfx-edit" id="pfx-inp-'+p+'" value="'+esc(row.n)+'" onkeydown="if(event.key===\'Enter\')savePfxName(\''+p+'\')">'
         :'<div>'+esc(row.n)+'</div>')
-      +'<label class="scrape-toggle"><input type="checkbox"'+(enabled?' checked':'')
+      +'<label class="scrape-toggle'+(hasScraper?'':' disabled')+'" title="'+esc(toggleTitle)+'"><input type="checkbox"'
+        +(enabled?' checked':'')
+        +(hasScraper?'':' disabled')
         +' onchange="setScrapePref(\''+p+'\',this.checked)">'
         +badgeHtml+'</label>'
       +'<div style="text-align:right;display:flex;gap:4px;justify-content:flex-end">'
