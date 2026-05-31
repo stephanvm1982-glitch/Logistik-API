@@ -1163,7 +1163,7 @@ function renderTrackResult(d){
   if(!d) return '<div class="rap-loading">Geen data.</div>';
   var flightLabels=(d.flights||[]).map(function(f){return f.flightNo;}).filter(Boolean);
   var unique=[];flightLabels.forEach(function(f){if(unique.indexOf(f)<0)unique.push(f);});
-  var html='<div class="trk-card reveal">'
+  var html='<div class="trk-card">'
     +'<div class="trk-hd">'
       +'<div><div class="trk-awb">'+esc(d.awb||'')+'</div><div class="trk-route">'+esc(d.origin||'?')+' \u2192 '+esc(d.destination||'?')+'</div></div>'
       +'<div class="trk-meta">'
