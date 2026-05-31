@@ -249,6 +249,10 @@
   .st-badge .d{width:8px;height:8px;border-radius:50%}
   .st-bar{display:flex;gap:3px}
   .st-bar i{height:4px;flex:1;border-radius:2px;background:var(--line-2)}
+  .st-time{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:11px;color:var(--txt-mut);font-weight:600;margin-top:4px}
+  .st-time:empty{display:none}
+  .st-delay-ok{color:var(--afgeleverd);font-weight:700}
+  .st-delay-bad{color:var(--vertrokken);font-weight:800}
   .num{font-family:var(--mono);font-weight:600;font-size:13px}
   .num.r,.val{text-align:right;display:block}
   .val{font-family:var(--mono);font-weight:700;font-size:13px}
@@ -495,11 +499,17 @@
   .set-tab:hover{color:var(--txt)}
   .set-tab.on{color:var(--brand);border-bottom-color:var(--brand)}
   .set-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--line);background:var(--surface-2)}
-  .pfx-row{display:grid;grid-template-columns:70px 80px 1fr 80px;gap:14px;padding:11px 18px;align-items:center;border-bottom:1px solid var(--line);font-size:13px}
+  .pfx-row{display:grid;grid-template-columns:70px 80px 1fr 110px 80px;gap:14px;padding:11px 18px;align-items:center;border-bottom:1px solid var(--line);font-size:13px}
   .pfx-row:last-child{border-bottom:none}
   .pfx-row:hover{background:var(--surface-2)}
   .pfx-code{font-family:var(--mono);font-weight:700;font-size:13px}
   .pfx-iata{font-family:var(--mono);font-size:12px;color:var(--txt-mut)}
+  /* Scrape toggle */
+  .scrape-toggle{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;color:var(--txt-mut);cursor:pointer;user-select:none}
+  .scrape-toggle input{margin:0;cursor:pointer}
+  .scrape-toggle .badge{font-size:9.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:1px 6px;border-radius:var(--r-sm)}
+  .scrape-toggle .badge.avail{background:var(--afgeleverd-bg);color:var(--afgeleverd)}
+  .scrape-toggle .badge.none{background:var(--surface-2);color:var(--txt-faint);border:1px solid var(--line)}
   .pfx-edit{height:30px;border:1px solid var(--line-2);border-radius:var(--r-sm);padding:0 8px;font-size:12.5px;width:100%;font-family:var(--sans)}
 
   /* entrance */
@@ -580,8 +590,7 @@
   <nav class="nav">
     <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Overzicht</a>
     <div class="nav-cap">Operatie</div>
-    <a href="#" class="on" data-view="binnenkomsten"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V8M5 12l7-4 7 4M3 22h18M5 18h.01M9 18h.01M13 18h.01M17 18h.01"/><path d="m4 8 8-6 8 6"/></svg>Bookings<span class="cnt" id="navCnt">0</span></a>
-    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg>Zendingen</a>
+    <a href="#" class="on" data-view="shipments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg>Zendingen<span class="cnt" id="navCnt">0</span></a>
     <a href="#" data-view="tracking"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Tracking</a>
     <div class="nav-cap">Beheer</div>
     <a href="#" data-view="facturatie"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>Facturatie<span class="cnt" id="navFacCnt" style="display:none">0</span></a>
@@ -627,7 +636,7 @@
           <span class="lab">Periode</span>
           <div class="ctrl" id="dateCtrl">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-            <span class="rng" id="dateLabel">Vandaag</span>
+            <span class="rng" id="dateLabel">…</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
           </div>
           <div id="calPop"></div>
@@ -638,7 +647,6 @@
         </div>
         <div class="tb-spacer"></div>
         <span id="apiStatus" style="font-size:12px;font-weight:600;color:var(--txt-faint)"></span>
-        <button class="btn btn-gho" id="moreFilters"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M7 12h10M11 18h2"/></svg>Meer filters</button>
       </div>
       <div class="chips-row" id="statusChips">
         <span class="fl-label">Status</span>
@@ -801,8 +809,8 @@
           <span id="manStatus" style="font-size:11px;color:var(--txt-faint)"></span>
         </div>
         <!-- Actieve prefix-lijst -->
-        <div style="display:grid;grid-template-columns:70px 80px 1fr 80px;gap:0;border-bottom:1px solid var(--line);padding:10px 18px;font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--txt-faint);background:var(--surface-2)">
-          <div>Prefix</div><div>IATA</div><div>Naam</div><div></div>
+        <div style="display:grid;grid-template-columns:70px 80px 1fr 110px 80px;gap:14px;border-bottom:1px solid var(--line);padding:10px 18px;font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--txt-faint);background:var(--surface-2)">
+          <div>Prefix</div><div>IATA</div><div>Naam</div><div>Scrape</div><div></div>
         </div>
         <div id="prefixRows"></div>
       </div>
@@ -1049,20 +1057,31 @@ function trackStatusToStep(flights, finalDest){
   if(anyDep||anyArr) return 'vertrokken';
   return 'geboekt';
 }
+// Cache v5: bevat ook actualOut/actualIn/delayMin van de FINALE leg, voor
+// "Vertrokken om..."/"Geland om..." display in Bookings. TTL korter voor
+// niet-afgeleverde shipments (status verandert mogelijk nog).
+var TRACK_TTL_AFGELEVERD=24*3600*1000; // afgehandeld, mag lang cachen
+var TRACK_TTL_ACTIEF=30*60*1000;       // actief: 30 min, ververst zichzelf
 function getTrackCache(awb){
   try{
-    var raw=localStorage.getItem('ffs:track:v4:'+awb);
+    var raw=localStorage.getItem('ffs:track:v5:'+awb);
     if(!raw) return null;
     var obj=JSON.parse(raw);
-    if(!obj||Date.now()-obj.ts>TRACK_TTL) return null;
+    var ttl=(obj.step==='afgeleverd')?TRACK_TTL_AFGELEVERD:TRACK_TTL_ACTIEF;
+    if(!obj||Date.now()-obj.ts>ttl) return null;
     return obj;
   }catch(x){return null;}
 }
-function setTrackCache(awb,label,step){
-  try{localStorage.setItem('ffs:track:v4:'+awb,JSON.stringify({ts:Date.now(),label:label,step:step}));}catch(x){}
+function setTrackCache(awb,obj){
+  try{localStorage.setItem('ffs:track:v5:'+awb,JSON.stringify(Object.assign({ts:Date.now()},obj)));}catch(x){}
 }
 function getCachedFlights(awb){var c=getTrackCache(awb);return c?(c.label||''):'';}
 function getCachedStep(awb){var c=getTrackCache(awb);return c?(c.step||null):null;}
+function getCachedTimes(awb){
+  var c=getTrackCache(awb);
+  if(!c) return null;
+  return {actualOut:c.actualOut||null,actualIn:c.actualIn||null,delayMin:c.delayMin==null?null:c.delayMin};
+}
 
 function fetchTrack(awb){
   var cached=getTrackCache(awb);
@@ -1077,10 +1096,21 @@ function fetchTrack(awb){
         if(f.flightNo&&!seen[f.flightNo]){seen[f.flightNo]=1;uniq.push(f.flightNo);}
       });
       var label=uniq.join(' \u00b7 ');
-      // Leg-bewuste status: gebruik flights (met origin/destination/statuses) + finalDest
       var step=trackStatusToStep(env.data.flights, env.data.destination);
-      setTrackCache(awb,label,step);
-      return {label:label,step:step};
+      // Times van de FINAL leg (destination==overall destination)
+      var finalDest=env.data.destination;
+      var finalLeg=(env.data.flights||[]).find(function(f){return f.destination===finalDest;})
+                  ||(env.data.flights||[])[(env.data.flights||[]).length-1];
+      var aero=finalLeg&&finalLeg.aero||{};
+      var entry={
+        label:label,
+        step:step,
+        actualOut:aero.actualOut||null,
+        actualIn:aero.actualIn||null,
+        delayMin:aero.delayMin==null?null:aero.delayMin
+      };
+      setTrackCache(awb,entry);
+      return entry;
     })
     .catch(function(){return null;});
 }
@@ -1088,6 +1118,8 @@ function fetchTrack(awb){
 function loadFlightsForVisible(list){
   var pending=[];
   list.forEach(function(s){
+    var prefix=String(s.awb||'').slice(0,3);
+    if(!isScrapePrefEnabled(prefix)) return; // user heeft scrape uitgezet voor deze prefix
     if(getTrackCache(s.awb)) return;
     pending.push(fetchTrack(s.awb).then(function(res){
       if(!res) return;
@@ -1112,6 +1144,29 @@ function fmtTrackTime(iso){
   var p=function(n){return String(n).padStart(2,'0');};
   return p(d.getUTCDate())+'-'+p(d.getUTCMonth()+1)+'-'+String(d.getUTCFullYear()).slice(2)
     +' '+p(d.getUTCHours())+':'+p(d.getUTCMinutes())+' UTC';
+}
+// Korte vorm voor Bookings: "30-05 06:48Z"
+function fmtTimeShort(iso){
+  if(!iso) return '';
+  var d=new Date(iso);
+  if(isNaN(d)) return '';
+  var p=function(n){return String(n).padStart(2,'0');};
+  return p(d.getUTCDate())+'-'+p(d.getUTCMonth()+1)+' '+p(d.getUTCHours())+':'+p(d.getUTCMinutes())+'Z';
+}
+// E\u00e9n-regel status met actueel tijdstip voor de Bookings rij.
+// Returnt HTML met optionele delay-highlight.
+function renderStatusTime(awb,step){
+  var t=getCachedTimes(awb);
+  if(!t) return '';
+  var delayStr='';
+  if(t.delayMin!=null&&t.delayMin!==0){
+    var cls=Math.abs(t.delayMin)>60?'st-delay-bad':'st-delay-ok';
+    delayStr=' <span class="'+cls+'">'+(t.delayMin>0?'+':'')+t.delayMin+'m</span>';
+  }
+  if(step==='afgeleverd'&&t.actualIn) return 'Afgeleverd';
+  if(step==='geland'&&t.actualIn) return 'Geland '+esc(fmtTimeShort(t.actualIn))+delayStr;
+  if(step==='vertrokken'&&t.actualOut) return 'Vertrokken '+esc(fmtTimeShort(t.actualOut));
+  return '';
 }
 function fmtDelay(min){
   if(min==null||min===0) return '';
@@ -1514,7 +1569,8 @@ function renderRows(){
       +'<div class="ap"><div class="cd mono">'+esc(s.to_cd)+'</div><div class="ct">'+esc(s.to_ci||'')+'</div></div>'
       +flag(s.to_cd)+'</div>'
       +'<div class="st"><span class="st-badge" style="color:'+stColor+'"><span class="d" style="background:'+stColor+'"></span>'+STATUS[st].label+'</span>'
-      +'<div class="st-bar">'+bar+'</div></div>'
+      +'<div class="st-bar">'+bar+'</div>'
+      +'<div class="st-time" data-awb-time="'+esc(s.awb)+'">'+renderStatusTime(s.awb,st)+'</div></div>'
       +'<div class="num r">'+val(s.pieces)
         +(s.fb?'<span class="num-sub">FB '+s.fb+'</span>':'')
       +'</div>'
@@ -1551,8 +1607,11 @@ function updateDateLabel(){
   var lbl=(dateFrom===dateTo)
     ? fmtDateNL(dateFrom)
     : fmtDateNL(dateFrom)+' tot '+fmtDateNL(dateTo);
-  document.getElementById('dateLabel').textContent=lbl;
+  var el=document.getElementById('dateLabel');
+  if(el) el.textContent=lbl;
 }
+// Roep meteen aan zodat de initial "Vandaag"-placeholder direct overschreven wordt
+updateDateLabel();
 
 // \u2500\u2500\u2500 localStorage cache \u2500\u2500\u2500
 var LS_TTL=5*60*1000;
@@ -2365,9 +2424,9 @@ document.addEventListener('click',function(e){
 });
 
 // ─── View switching ───
-var currentView='binnenkomsten';
+var currentView='shipments';
 var VIEWS={
-  binnenkomsten:{el:'viewBinnenkomsten',pth:'Operatie / Luchtvracht',h1:'Zendingen'},
+  shipments:    {el:'viewBinnenkomsten',pth:'Operatie / Luchtvracht',h1:'Zendingen'},
   facturatie:   {el:'viewFacturatie',   pth:'Beheer / Financieel',   h1:'Facturatie'},
   rapporten:    {el:'viewRapporten',    pth:'Beheer / Analyse',      h1:'Rapporten'},
   tracking:     {el:'viewTracking',     pth:'Operatie / Luchtvracht',h1:'Tracking'}
@@ -2376,7 +2435,9 @@ var VIEWS={
 function switchView(name){
   if(!VIEWS[name]) return;
   currentView=name;
-  location.hash=name;
+  // Alleen hash zetten als die nog niet klopt — voorkomt dubbele history-entries
+  // wanneer switchView aangeroepen wordt door de hashchange listener zelf
+  if(location.hash!=='#'+name) location.hash=name;
   Object.keys(VIEWS).forEach(function(k){
     document.getElementById(VIEWS[k].el).style.display=k===name?'':'none';
   });
@@ -2389,6 +2450,12 @@ function switchView(name){
   if(name==='rapporten') renderRapporten();
   if(name==='tracking') maybeAutoTrack();
 }
+
+// Browser back/forward: reageer op hash-wijziging
+window.addEventListener('hashchange',function(){
+  var h=location.hash.replace(/^#/,'');
+  if(h&&VIEWS[h]&&h!==currentView) switchView(h);
+});
 
 document.querySelectorAll('.nav a[data-view]').forEach(function(a){
   a.addEventListener('click',function(e){
@@ -3337,6 +3404,28 @@ function getPrefixes(){
 }
 function savePrefixes(arr){ try{localStorage.setItem('ffs:prefixes',JSON.stringify(arr));}catch(x){} }
 
+// Welke prefixes hebben een werkende scraper op /api/track? Hardcoded - synchroon
+// met de SCRAPERS-registry in api/track.js. Update als er nieuwe scrapers bij komen.
+var SCRAPER_AVAILABLE_PREFIXES = ['369']; // Atlas Air
+
+// Per prefix: aan/uit om /api/track + AeroAPI calls te doen. Default: alleen
+// prefixes met een werkende scraper staan AAN. localStorage, per browser.
+function getScrapePrefs(){
+  try{var s=localStorage.getItem('ffs:scrape_prefs');return s?JSON.parse(s):{};}catch(x){return {};}
+}
+function isScrapePrefEnabled(prefix){
+  var prefs=getScrapePrefs();
+  if(prefix in prefs) return !!prefs[prefix];
+  // Default: aan voor prefixes met scraper, uit voor de rest
+  return SCRAPER_AVAILABLE_PREFIXES.indexOf(prefix)>=0;
+}
+window.setScrapePref=function(prefix,enabled){
+  var prefs=getScrapePrefs();
+  prefs[prefix]=!!enabled;
+  try{localStorage.setItem('ffs:scrape_prefs',JSON.stringify(prefs));}catch(x){}
+  renderPrefixTable();
+};
+
 window.renderAirlineSearch=function(){
   var q=(document.getElementById('airlineSearch').value||'').trim().toLowerCase();
   var res=document.getElementById('airlineSearchResults');
@@ -3409,12 +3498,20 @@ function renderPrefixTable(editIdx){
   var html='';
   list.forEach(function(row,i){
     var editing=isAdmin&&i===editIdx;
+    var hasScraper=SCRAPER_AVAILABLE_PREFIXES.indexOf(row.p)>=0;
+    var enabled=isScrapePrefEnabled(row.p);
+    var badgeHtml=hasScraper
+      ?'<span class="badge avail">beschikbaar</span>'
+      :'<span class="badge none">geen scraper</span>';
     html+='<div class="pfx-row">'
       +'<div class="pfx-code">'+esc(row.p)+'</div>'
       +'<div class="pfx-iata">'+esc(row.i)+'</div>'
       +(editing
         ?'<input class="pfx-edit" id="pfx-inp-'+i+'" value="'+esc(row.n)+'" onkeydown="if(event.key===\'Enter\')savePfxName('+i+')">'
         :'<div>'+esc(row.n)+'</div>')
+      +'<label class="scrape-toggle"><input type="checkbox"'+(enabled?' checked':'')
+        +' onchange="setScrapePref(\''+esc(row.p)+'\',this.checked)">'
+        +badgeHtml+'</label>'
       +'<div style="text-align:right;display:flex;gap:4px;justify-content:flex-end">'
       +(isAdmin&&!editing?'<button onclick="renderPrefixTable('+i+')" style="padding:2px 8px;border-radius:4px;border:1px solid var(--line);background:none;color:var(--txt-faint);cursor:pointer;font-size:11px">✎</button>':'')
       +(isAdmin&&editing?'<button onclick="savePfxName('+i+')" style="padding:2px 8px;border-radius:4px;border:none;background:var(--brand);color:#fff;cursor:pointer;font-size:11px">Opslaan</button>':'')
