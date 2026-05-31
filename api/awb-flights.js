@@ -59,6 +59,19 @@ function parsePrefix(awb) {
 async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
 
+  // GET /api/awb-flights?awb=xxx-xxxxxxxx  → debug: raw cache-row dump (token-gated)
+  if (req.method === 'GET') {
+    if (!checkToken(req, res)) return;
+    const awb = String((req.query && req.query.awb) || '').trim();
+    if (!awb) return res.status(400).json({ error: 'Geef ?awb=...' });
+    try {
+      const row = await trackCache.getAwbTracking(awb);
+      return res.status(200).json({ ok: true, awb, row });
+    } catch (err) {
+      return res.status(500).json({ ok: false, error: err.message });
+    }
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
